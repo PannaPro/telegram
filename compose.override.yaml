@@ -1,0 +1,22 @@
+services:
+  app:
+    build:
+      target: dev
+      args:
+        HOST_UID: ${HOST_UID:-1000}
+        HOST_GID: ${HOST_GID:-1000}
+    environment:
+      APP_ENV: dev
+    volumes:
+      - ./:/app:rw,cached
+      - ./.docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+    ports:
+      - '80:80'
+
+  postgres:
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - '6379:6379'

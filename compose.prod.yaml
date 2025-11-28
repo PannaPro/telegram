@@ -1,0 +1,67 @@
+services:
+  nginx:
+    build:
+      context: .docker/nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./public:/app/public
+      - ./.docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./.docker/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - backend_net
+
+  app:
+    build:
+      target: prod
+    environment:
+      APP_ENV: prod
+    restart: always
+    volumes:
+      - storage:/app/var/storage
+      - log:/app/var/log
+    networks:
+      - backend_net
+      - db_net
+
+  postgres:
+    restart: always
+    networks:
+      - db_net
+
+  redis:
+    restart: always
+    networks:
+      - backend_net
+
+  rabbitmq:
+    restart: always
+    networks:
+      - backend_net
+      - db_net
+
+#  scheduler-app:
+#    build:
+#      context: .
+#    command: php bin/console messenger:consume scheduler_app
+#    restart: always
+#    volumes:
+#      - log:/app/var/log
+#    depends_on:
+#      - rabbitmq
+#      - db
+#    networks:
+#      - default
+#      - shared_net
+
+volumes:
+  storage:
+  log:
+
+networks:
+  backend_net:
+  db_net:

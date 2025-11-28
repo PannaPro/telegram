@@ -1,0 +1,7 @@
+http:
+  middlewares:
+    default-ratelimit:
+      rateLimit:
+        average: 100      # средний допущенный поток за период (по умолчанию 1s)
+        burst: 50         # «запас ведра» — сколько можно всплеском сверх average
+        period: 1s        # период пополнения токенов (можно >1s для <1 rps)

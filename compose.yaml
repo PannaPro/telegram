@@ -1,0 +1,64 @@
+services:
+  app:
+    build:
+      context: .
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - backend_net
+      - db_net
+
+  postgres:
+    build:
+      context: .docker/postgresql
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./conf.d.d:/docker-entrypoint-initdb.d
+    networks:
+      - db_net
+
+  redis:
+    build:
+      context: .docker/redis
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_USER_PASSWORD=${REDIS_USER_PASSWORD}
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend_net
+
+  rabbitmq:
+    build:
+      context: .docker/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    networks:
+      - backend_net
+      - db_net
+
+volumes:
+  pgdata:
+  redis-data:
+    name: app_redis_data
+    driver: local
+  rabbitmq-data:
+    name: app_rabbitmq_data
+    driver: local
+
+networks:
+  backend_net:
+  db_net:
