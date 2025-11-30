@@ -23,6 +23,13 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
+    App\Http\Serializer\TelegramPayloadDiscriminatorDenormalizer:
+        decorates: 'serializer.normalizer.object'
+        arguments:
+            - '@App\Http\Serializer\TelegramPayloadDiscriminatorDenormalizer.inner'
+        tags:
+            - { name: serializer.normalizer, priority: 20 }
+
     App\Service\TelegramBotService:
         arguments:
             $botToken: '%env(TELEGRAM_BOT_TOKEN)%'

@@ -2,25 +2,30 @@
 
 namespace App\Controller;
 
+use App\Http\Dto\AbstractPayload;
+use App\Service\Telegram\Handler\PayloadHandler;
 use App\Service\TelegramBotService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 
 final class TelegramController extends AbstractController
 {
     public function __construct(
-        private TelegramBotService $bot,
+        private PayloadHandler $payloadHandler
     ) {
     }
 
     #[Route('telegram/test-webhook', name: 'telegram_test-webhook')]
-    public function send(Request $request): Response
+    public function send(
+        #[MapRequestPayload] AbstractPayload $payload,
+    ): Response
     {
-        $data = json_decode($request->getContent(), true);
+        $this->payloadHandler->handlePayload($payload);
 
-        return new Response('Message sent');
+        return new Response('Message processed', Response::HTTP_OK);
     }
 }

@@ -1,0 +1,45 @@
+POST http://127.0.0.1/telegram/test-webhook
+Content-Type: application/json
+
+{
+    "update_id": 912246112,
+    "my_chat_member": {
+        "chat": {
+            "id": 301671507,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "type": "private"
+        },
+        "from": {
+            "id": 301671507,
+            "is_bot": false,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "language_code": "ru"
+        },
+        "date": 1764517595,
+        "old_chat_member": {
+            "user": {
+                "id": 8313129875,
+                "is_bot": true,
+                "first_name": "PAKETAGAME",
+                "username": "PAKETAGAME_bot"
+            },
+            "status": "member"
+        },
+        "new_chat_member": {
+            "user": {
+                "id": 8313129875,
+                "is_bot": true,
+                "first_name": "PAKETAGAME",
+                "username": "PAKETAGAME_bot"
+            },
+            "status": "kicked",
+            "until_date": 0
+        }
+    }
+}
+
+

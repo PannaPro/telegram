@@ -74,10 +74,17 @@ class TelegramBotService
     {
         $keyboard = new InlineKeyboardMarkup([
             [
-                ['text' => 'Hello', 'callback_data' => 'hello'],
-                ['text' => 'Goodbye', 'callback_data' => 'bye']
+                ['text' => 'Личный кабинет', 'callback_data' => 'personal_account'],
+                ['text' => 'Заказы', 'callback_data' => 'personal_orders']
+            ],
+            [
+                ['text' => 'Помощь', 'callback_data' => 'personal_help']
             ]
         ]);
+
+        $text = "Добро пожаловать, {$dto->getFirstName()}!\nВыберите действие:";
+
+
 
         return $this->sendMessage($chatId, 'Choose_bottom', null, false, null, $keyboard);
     }
