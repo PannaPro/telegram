@@ -2,13 +2,18 @@
 
 namespace App\Entity;
 
+use App\Repository\TelegramUserRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: TelegramUserRepository::class)]
 #[ORM\Table(name: 'telegram_user')]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_CHAT_ID', fields: ['chatId'])]
 class TelegramUser
 {
+    use TimestampableEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -26,17 +31,11 @@ class TelegramUser
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $lastName = null;
 
-    #[ORM\Column(type: 'datetime')]
-    private DateTimeImmutable $createdAt;
+    #[ORM\Column]
+    private bool $isActive = true;
 
-    public function __construct(int $chatId, ?string $username, ?string $firstName, ?string $lastName)
-    {
-        $this->chatId = $chatId;
-        $this->username = $username;
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
-        $this->createdAt = new DateTimeImmutable();
-    }
+    #[ORM\Column]
+    private bool $isAdmin = false;
 
     /**
      * @return int|null
@@ -44,16 +43,6 @@ class TelegramUser
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @param int|null $id
-     */
-    public function setId(?int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
     }
 
     /**
@@ -142,6 +131,30 @@ class TelegramUser
     public function setCreatedAt(DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->isAdmin;
+    }
+
+    public function setIsAdmin(bool $isAdmin): static
+    {
+        $this->isAdmin = $isAdmin;
 
         return $this;
     }
