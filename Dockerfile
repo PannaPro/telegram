@@ -54,9 +54,9 @@ RUN groupadd -g ${HOST_GID} app \
 
 USER app:app
 
-COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+COPY --chmod=755 .docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 
-ENTRYPOINT [ "docker-entrypoint" ]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
 
 CMD [ "symfony", "server:start", "--port=80", "--allow-http", "--no-tls", "--listen-ip=0.0.0.0"]
 
