@@ -16,6 +16,15 @@ class TelegramBotService
         $this->telegram = new BotApi($botToken);
     }
 
+    public function handleUpdate(array $update): void
+    {
+        if (isset($update['message'])) {
+            $chatId = $update['message']['chat']['id'];
+            $text = $update['message']['text'] ?? '';
+
+            $this->sendMessage($chatId, $text);
+        }
+    }
     /**
      * Обёртка sendMessage для Telegram API
      *
