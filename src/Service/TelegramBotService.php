@@ -69,6 +69,38 @@ class TelegramBotService
         );
     }
 
+    public function sendPhoto(
+        $chatId,
+        $photo,               // путь к файлу или CURLFile
+        ?string $caption = null,
+        ?int $replyToMessageId = null,
+        $replyMarkup = null,
+        bool $disableNotification = false,
+        ?string $parseMode = null,
+        ?int $messageThreadId = null,
+        ?bool $protectContent = null,
+        ?bool $allowSendingWithoutReply = null
+    ): Message
+    {
+        return $this->telegram->sendPhoto(
+            $chatId,                  // ID чата
+            $photo,                   // путь к файлу
+            $caption,
+            $replyToMessageId,
+            $replyMarkup,
+            $disableNotification,
+            $parseMode,
+            $messageThreadId,
+            $protectContent,
+            $allowSendingWithoutReply
+        );
+    }
+
+    public function deleteMessage(int $charId, int $messageId): bool
+    {
+        return $this->telegram->deleteMessage($charId, $messageId);
+    }
+
     public function getMe()
     {
         return $this->telegram->getMe();

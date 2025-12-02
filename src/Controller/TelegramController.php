@@ -4,9 +4,7 @@ namespace App\Controller;
 
 use App\Http\Dto\AbstractPayload;
 use App\Service\Telegram\Handler\PayloadHandler;
-use App\Service\TelegramBotService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
