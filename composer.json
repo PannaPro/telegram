@@ -41,8 +41,7 @@
         "symfony/twig-bundle": "^7.3.4",
         "symfony/validator": "^7.3.7",
         "symfony/yaml": "^7.3.5",
-        "telegram-bot/api": "^2.5",
-        "ext-http": "*"
+        "telegram-bot/api": "^2.5"
     },
     "require-dev": {
         "phpunit/phpunit": "^12.4.3",
