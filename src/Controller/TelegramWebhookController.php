@@ -9,34 +9,14 @@ use http\Client\Request;
 use http\Client\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/telegram/webhook', name: 'telegram_webhook', methods: ['POST'])]
+#[Route('/webhook', name: 'telegram_webhook', methods: ['POST'])]
 class TelegramWebhookController
 {
     public function __invoke(Request $request, TelegramBotService $botService, EntityManagerInterface $em): Response
     {
-        if (isset($data['message'])) {
-            $message = $data['message'];
-            $chat = $message['chat'];
-            $chatId = $chat['id'];
+        $data = json_decode($request->getContent(), true);
 
-            $userRepo = $em->getRepository(TelegramUser::class);
-            $user = $userRepo->findOneBy(['chatId' => $chatId]);
 
-            if (!$user) {
-                $user = new TelegramUser(
-                    $chatId,
-                    $chat['username'] ?? null,
-                    $chat['first_name'] ?? null,
-                    $chat['last_name'] ?? null
-                );
-                $em->persist($user);
-                $em->flush();
-            }
-
-            if (($message['text'] ?? '') === '/start') {
-                $botService->sendMessage($chatId, "Hi, {$chat['first_name']}");
-            }
-        }
 
         return new Response('ok');
     }
