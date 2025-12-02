@@ -20,7 +20,8 @@ class TelegramWebhookController
         // $botService->log($data);
 
         // Обработка апдейта
-        $botService->handleUpdate($data);
+//        $botService->handleUpdate($data);
+        file_put_contents('/app/var/log/telegram_webhook.log', print_r($data, true), FILE_APPEND);
 
         return new Response('ok');
     }
