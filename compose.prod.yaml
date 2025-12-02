@@ -4,7 +4,8 @@ services:
       context: .docker/nginx
     restart: always
     ports:
-      - "8000:80"
+      - "443:443"
+      - "80:80"
     volumes:
       - ./public:/app/public
       - ./.docker/nginx/nginx.conf:/etc/nginx/nginx.conf
