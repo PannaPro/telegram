@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/webhook', name: 'telegram_webhook', methods: ['POST'])]
 class TelegramWebhookController
 {
     #[Route('/webhook', name: 'telegram_webhook', methods: ['POST'])]
