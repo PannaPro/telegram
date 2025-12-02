@@ -2,26 +2,26 @@
 
 namespace App\Controller;
 
-use App\Service\TelegramBotService;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
+use App\Http\Dto\AbstractPayload;
+use App\Service\Telegram\Handler\PayloadHandler;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TelegramWebhookController
 {
+    public function __construct(
+        private PayloadHandler $payloadHandler
+    ) {
+    }
+
     #[Route('/webhook', name: 'telegram_webhook', methods: ['POST'])]
-    public function __invoke(Request $request, TelegramBotService $botService, EntityManagerInterface $em): Response
+    public function __invoke(
+        #[MapRequestPayload] AbstractPayload $payload,
+    ): Response
     {
-        $data = json_decode($request->getContent(), true);
+        $this->payloadHandler->handlePayload($payload);
 
-        // Логируем входящую нагрузку (если нужно)
-        // $botService->log($data);
-
-        // Обработка апдейта
-//        $botService->handleUpdate($data);
-        file_put_contents('/app/var/log/telegram_webhook.log', print_r($data, true), FILE_APPEND);
-
-        return new Response('ok');
+        return new Response('Message processed', Response::HTTP_OK);
     }
 }
