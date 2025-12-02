@@ -18,16 +18,16 @@ class MenuService
     public function sendMenu(int $chatId): void
     {
         // TODO need test
-        $type = 'main';
-        $key = "telegram_menu:$chatId";
-        $messages = json_decode($this->redis->get($key) ?: '[]', true);
+//        $type = 'main';
+//        $key = "telegram_menu:$chatId";
+//        $messages = json_decode($this->redis->get($key) ?: '[]', true);
 
         // Удаляем старые сообщения по флагу
-        foreach ($messages as $msg) {
-            if ($msg['delete']) {
-                $this->telegramBotService->deleteMessage($chatId, $msg['id']);
-            }
-        }
+//        foreach ($messages as $msg) {
+//            if ($msg['delete']) {
+//                $this->telegramBotService->deleteMessage($chatId, $msg['id']);
+//            }
+//        }
 
         $keyboard = new ReplyKeyboardMarkup(
             [
@@ -51,12 +51,12 @@ class MenuService
             $keyboard
         );
 
-        $messages[] = [
-            'id' => $message->getMessageId(),
-            'type' => $type,
-            'created_at' => time()
-        ];
-
-        $this->redis->set($key, json_encode($messages));
+//        $messages[] = [
+//            'id' => $message->getMessageId(),
+//            'type' => $type,
+//            'created_at' => time()
+//        ];
+//
+//        $this->redis->set($key, json_encode($messages));
     }
 }
