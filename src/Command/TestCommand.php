@@ -11,12 +11,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'app:test',
+    name: 'test',
     description: 'Add a short description for your command',
 )]
 class TestCommand extends Command
 {
-    public function __construct()
+    public function __construct(
+        private \Redis $redis,
+    )
     {
         parent::__construct();
     }
@@ -31,18 +33,11 @@ class TestCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-        $arg1 = $input->getArgument('arg1');
+//        $this->redis->set('action', '/start', 360);
 
-        if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
-        }
+        $data = $this->redis->get('action');
 
-        if ($input->getOption('option1')) {
-            // ...
-        }
-
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
+        dd($data);
 
 
         return Command::SUCCESS;

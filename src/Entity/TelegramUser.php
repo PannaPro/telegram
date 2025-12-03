@@ -37,6 +37,9 @@ class TelegramUser
     #[ORM\Column]
     private bool $isAdmin = false;
 
+    #[ORM\Column]
+    private bool $participant = false;
+
     /**
      * @return int|null
      */
@@ -155,6 +158,18 @@ class TelegramUser
     public function setIsAdmin(bool $isAdmin): static
     {
         $this->isAdmin = $isAdmin;
+
+        return $this;
+    }
+
+    public function isParticipant(): bool
+    {
+        return $this->participant;
+    }
+
+    public function setParticipant(bool $participant): static
+    {
+        $this->participant = $participant;
 
         return $this;
     }

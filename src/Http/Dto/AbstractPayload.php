@@ -9,6 +9,7 @@ use Symfony\Component\Serializer\Attribute\DiscriminatorMap;
     mapping: [
         'message' => MessageTelegramPayload::class,
         'my_chat_member' => MyChatMemberPayload::class,
+        'callback_query' => CallbackQueryTelegramPayload::class,
     ]
 )]
 abstract class AbstractPayload

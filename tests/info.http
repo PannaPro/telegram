@@ -1,0 +1,26 @@
+POST http://127.0.0.1/telegram/test-webhook
+Content-Type: application/json
+
+{
+    "update_id": 66430857,
+    "message": {
+        "message_id": 46,
+        "from": {
+            "id": 301671507,
+            "is_bot": false,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "language_code": "en"
+        },
+        "chat": {
+            "id": 301671507,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "type": "private"
+        },
+        "date": 1764781859,
+        "text": "\ud83d\udca1 \u0418\u043d\u0444\u043e"
+    }
+}
