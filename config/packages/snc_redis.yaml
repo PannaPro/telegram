@@ -1,0 +1,7 @@
+snc_redis:
+    clients:
+        default:
+            type: phpredis
+            alias: default
+            dsn: "%env(REDIS_URL)%"
+            logging: false

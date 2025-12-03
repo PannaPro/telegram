@@ -1,3 +1,4 @@
+### unsubscribe
 POST http://127.0.0.1/telegram/test-webhook
 Content-Type: application/json
 
@@ -42,4 +43,35 @@ Content-Type: application/json
     }
 }
 
+### unsubscribe
+POST http://127.0.0.1/telegram/test-webhook
+Content-Type: application/json
 
+{
+    "update_id": 66430856,
+    "message": {
+        "message_id": 16,
+        "from": {
+            "id": 7385904939,
+            "is_bot": false,
+            "first_name": "Marat",
+            "last_name": "Demin",
+            "language_code": "ru"
+        },
+        "chat": {
+            "id": 7385904939,
+            "first_name": "Marat",
+            "last_name": "Demin",
+            "type": "private"
+        },
+        "date": 1764774033,
+        "text": "/start",
+        "entities": [
+            {
+                "offset": 0,
+                "length": 6,
+                "type": "bot_command"
+            }
+        ]
+    }
+}

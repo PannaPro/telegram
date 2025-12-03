@@ -26,9 +26,9 @@ services:
     build:
       context: .docker/redis
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_USER=${REDIS_USER}
-      - REDIS_USER_PASSWORD=${REDIS_USER_PASSWORD}
+      - REDIS_PASSWORD=root
+      - REDIS_USER=app
+      - REDIS_USER_PASSWORD=123
     volumes:
       - redis-data:/data
     networks:

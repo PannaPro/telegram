@@ -4,6 +4,7 @@ namespace App\Service\Telegram\Menu;
 
 use App\Service\TelegramBotService;
 use Redis;
+use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 use TelegramBot\Api\Types\ReplyKeyboardMarkup;
 
 class MenuService
@@ -15,27 +16,45 @@ class MenuService
     ) {
     }
 
-    public function sendMenu(int $chatId): void
+    public function sendStartMenu(int $chatId): void
     {
-        // TODO need test
-//        $type = 'main';
-//        $key = "telegram_menu:$chatId";
-//        $messages = json_decode($this->redis->get($key) ?: '[]', true);
+        $type = 'startMenu';
+        $key = "/start:$chatId";
 
-        // Удаляем старые сообщения по флагу
-//        foreach ($messages as $msg) {
-//            if ($msg['delete']) {
-//                $this->telegramBotService->deleteMessage($chatId, $msg['id']);
-//            }
-//        }
+        $messagesJson = $this->redis->get($key);
+        $messages = $messagesJson ? json_decode($messagesJson, true) : [];
+        foreach ($messages as $msg) {
+            if (isset($msg['delete']) && $msg['delete']) {
+                try {
+                    $this->telegramBotService->deleteMessage($chatId, $msg['id']);
+                } catch (\Exception) {
 
-        $keyboard = new ReplyKeyboardMarkup(
+                }
+            }
+        }
+        unset($messages);
+
+//        $keyboard = new ReplyKeyboardMarkup(
+//            [
+//                ['🎲 Игры'],
+//                ['💵 Торговля'],
+//                ['💰 Баланс', '👥 Рефералы'],
+//                ['🎫 Промокоды', '🛒 Магазин'],
+//                ['🏆 MVP', '💡 Инфо'],
+//            ],
+//            true,
+//            true,
+//            true
+//        );
+
+        $text = <<<MARKDOWN
+            👋 *Привет, дорогой друг!*
+            MARKDOWN;
+
+        $replyKeyboard = new ReplyKeyboardMarkup(
             [
-                ['🎲 Игры'],
-                ['💵 Торговля'],
-                ['💰 Баланс', '👥 Рефералы'],
-                ['🎫 Промокоды', '🛒 Магазин'],
-                ['🏆 MVP', '💡 Инфо'],
+                ['🎲 Участвовать'],
+                ['💡 Инфо'],
             ],
             true,
             true,
@@ -44,19 +63,75 @@ class MenuService
 
         $message = $this->telegramBotService->sendMessage(
             $chatId,
-            "Выберите действие:",
+            $text,
+            'Markdown',
+            false,
+            null,
+            $replyKeyboard
+        );
+
+        $messages = [[
+            'id' => $message->getMessageId(),
+            'type' => $type,
+            'delete' => true
+        ]];
+
+        $this->redis->set($key, json_encode($messages));
+    }
+
+    public function sendPreview(int $chatId): void
+    {
+        $type = 'startMenu';
+        $key = "/start:$chatId";
+
+        $messagesJson = $this->redis->get($key);
+        $messages = $messagesJson ? json_decode($messagesJson, true) : [];
+        foreach ($messages as $msg) {
+            if (isset($msg['delete']) && $msg['delete']) {
+                try {
+                    $this->telegramBotService->deleteMessage($chatId, $msg['id']);
+                } catch (\Exception) {
+
+                }
+            }
+        }
+        unset($messages);
+
+        $text = <<<MARKDOWN
+            👋 *Привет, дорогой друг!*
+
+            Рад приветствовать тебя в нашем клубе!
+
+            Сначала ознакомься с правилами.
+
+            🖼 Для начала перейди в раздел "Стать участником" и получи свой порядковый номер — он позволит мне идентифицировать тебя в случае победы. Этот шаг обязателен.
+
+            После получения идентификатора ты сможешь участвовать в играх и претендовать на призы.
+
+            📖 [Ссылка на телеграф с правилами](https://telegra.ph/...)
+            MARKDOWN;
+
+        $keyboard = new InlineKeyboardMarkup([
+            [
+                ['text' => '🎲 Стать участником', 'callback_data' => 'participate']
+            ]
+        ]);
+
+        $message = $this->telegramBotService->sendMessage(
+            $chatId,
+            $text,
             'Markdown',
             false,
             null,
             $keyboard
         );
 
-//        $messages[] = [
-//            'id' => $message->getMessageId(),
-//            'type' => $type,
-//            'created_at' => time()
-//        ];
-//
-//        $this->redis->set($key, json_encode($messages));
+        $messages = [[
+            'id' => $message->getMessageId(),
+            'type' => $type,
+            'delete' => true
+        ]];
+
+        $this->redis->set($key, json_encode($messages));
     }
 }

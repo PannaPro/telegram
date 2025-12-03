@@ -1,0 +1,154 @@
+POST http://127.0.0.1/telegram/test-webhook
+Content-Type: application/json
+
+{
+    "update_id": 66430860,
+    "callback_query": {
+        "id": "1295669260294384345",
+        "from": {
+            "id": 301671507,
+            "is_bot": false,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "language_code": "en"
+        },
+        "message": {
+            "message_id": 78,
+            "from": {
+                "id": 6978124079,
+                "is_bot": true,
+                "first_name": "PAKETA_bot",
+                "username": "Panpubgbot"
+            },
+            "chat": {
+                "id": 301671507,
+                "first_name": "Panna",
+                "last_name": "Caliano",
+                "username": "PannaPro",
+                "type": "private"
+            },
+            "date": 1764784301,
+            "text": "\ud83d\udc4b \u041f\u0440\u0438\u0432\u0435\u0442, \u0434\u043e\u0440\u043e\u0433\u043e\u0439 \u0434\u0440\u0443\u0433!\n\n\u0420\u0430\u0434 \u043f\u0440\u0438\u0432\u0435\u0442\u0441\u0442\u0432\u043e\u0432\u0430\u0442\u044c \u0442\u0435\u0431\u044f \u0432 \u043d\u0430\u0448\u0435\u043c \u043a\u043b\u0443\u0431\u0435!\n\n\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u043e\u0437\u043d\u0430\u043a\u043e\u043c\u044c\u0441\u044f \u0441 \u043f\u0440\u0430\u0432\u0438\u043b\u0430\u043c\u0438.\n\n\ud83d\uddbc \u0414\u043b\u044f \u043d\u0430\u0447\u0430\u043b\u0430 \u043f\u0435\u0440\u0435\u0439\u0434\u0438 \u0432 \u0440\u0430\u0437\u0434\u0435\u043b \"\u0421\u0442\u0430\u0442\u044c \u0443\u0447\u0430\u0441\u0442\u043d\u0438\u043a\u043e\u043c\" \u0438 \u043f\u043e\u043b\u0443\u0447\u0438 \u0441\u0432\u043e\u0439 \u043f\u043e\u0440\u044f\u0434\u043a\u043e\u0432\u044b\u0439 \u043d\u043e\u043c\u0435\u0440 \u2014 \u043e\u043d \u043f\u043e\u0437\u0432\u043e\u043b\u0438\u0442 \u043c\u043d\u0435 \u0438\u0434\u0435\u043d\u0442\u0438\u0444\u0438\u0446\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0442\u0435\u0431\u044f \u0432 \u0441\u043b\u0443\u0447\u0430\u0435 \u043f\u043e\u0431\u0435\u0434\u044b. \u042d\u0442\u043e\u0442 \u0448\u0430\u0433 \u043e\u0431\u044f\u0437\u0430\u0442\u0435\u043b\u0435\u043d.\n\n\u041f\u043e\u0441\u043b\u0435 \u043f\u043e\u043b\u0443\u0447\u0435\u043d\u0438\u044f \u0438\u0434\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0442\u043e\u0440\u0430 \u0442\u044b \u0441\u043c\u043e\u0436\u0435\u0448\u044c \u0443\u0447\u0430\u0441\u0442\u0432\u043e\u0432\u0430\u0442\u044c \u0432 \u0438\u0433\u0440\u0430\u0445 \u0438 \u043f\u0440\u0435\u0442\u0435\u043d\u0434\u043e\u0432\u0430\u0442\u044c \u043d\u0430 \u043f\u0440\u0438\u0437\u044b.\n\n\ud83d\udcd6 \u0421\u0441\u044b\u043b\u043a\u0430 \u043d\u0430 \u0442\u0435\u043b\u0435\u0433\u0440\u0430\u0444 \u0441 \u043f\u0440\u0430\u0432\u0438\u043b\u0430\u043c\u0438\n\n\ud83c\udfb2 \u0423\u0447\u0430\u0441\u0442\u0432\u043e\u0432\u0430\u0442\u044c",
+            "entities": [
+                {
+                    "offset": 3,
+                    "length": 21,
+                    "type": "bold"
+                },
+                {
+                    "offset": 350,
+                    "length": 30,
+                    "type": "text_link",
+                    "url": "https://telegra.ph/..."
+                },
+                {
+                    "offset": 382,
+                    "length": 14,
+                    "type": "text_link",
+                    "url": "https://t.me/gamee/start?startapp=eyJyZWYiOjM3NDA2OTk5NH0"
+                }
+            ],
+            "link_preview_options": {
+                "url": "https://t.me/gamee/start?startapp=eyJyZWYiOjM3NDA2OTk5NH0"
+            },
+            "reply_markup": {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "\ud83c\udfb2 \u0423\u0447\u0430\u0441\u0442\u0432\u043e\u0432\u0430\u0442\u044c",
+                            "callback_data": "participate"
+                        }
+                    ]
+                ]
+            }
+        },
+        "chat_instance": "5208739627955975931",
+        "data": "participate"
+    }
+}
+
+### avatarSet
+POST http://127.0.0.1/telegram/test-webhook
+Content-Type: application/json
+
+{
+    "update_id": 66430862,
+    "callback_query": {
+        "id": "1295669259391541013",
+        "from": {
+            "id": 301671507,
+            "is_bot": false,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "language_code": "en"
+        },
+        "message": {
+            "message_id": 90,
+            "from": {
+                "id": 6978124079,
+                "is_bot": true,
+                "first_name": "PAKETA_bot",
+                "username": "Panpubgbot"
+            },
+            "chat": {
+                "id": 301671507,
+                "first_name": "Panna",
+                "last_name": "Caliano",
+                "username": "PannaPro",
+                "type": "private"
+            },
+            "date": 1764791723,
+            "photo": [
+                {
+                    "file_id": "AgACAgIAAxkDAANSaTCSMJ06nhpXwICnmlSS9oKRXeYAAjsSaxubPIFJ07al4V-rYMABAAMCAANzAAM2BA",
+                    "file_unique_id": "AQADOxJrG5s8gUl4",
+                    "file_size": 448,
+                    "width": 90,
+                    "height": 90
+                },
+                {
+                    "file_id": "AgACAgIAAxkDAANSaTCSMJ06nhpXwICnmlSS9oKRXeYAAjsSaxubPIFJ07al4V-rYMABAAMCAANtAAM2BA",
+                    "file_unique_id": "AQADOxJrG5s8gUly",
+                    "file_size": 1521,
+                    "width": 320,
+                    "height": 320
+                },
+                {
+                    "file_id": "AgACAgIAAxkDAANSaTCSMJ06nhpXwICnmlSS9oKRXeYAAjsSaxubPIFJ07al4V-rYMABAAMCAAN4AAM2BA",
+                    "file_unique_id": "AQADOxJrG5s8gUl9",
+                    "file_size": 3672,
+                    "width": 600,
+                    "height": 600
+                }
+            ],
+            "caption": "\u0418\u0442\u0430\u043a, \u0432\u0441\u0435 \u043d\u0430\u0448\u0438 \u0438\u0433\u0440\u044b \u043f\u0440\u043e\u0445\u043e\u0434\u044f\u0442 \u0432 \u0441\u0442\u043e\u0440\u043e\u043d\u043d\u0435\u043c \u0431\u043e\u0442\u0435 \u041a\u041b\u0418\u041a.\n\n\u042f \u0441\u0433\u0435\u043d\u0435\u0440\u0438\u0440\u043e\u0432\u0430\u043b \u0434\u043b\u044f \u0442\u0435\u0431\u044f \u0430\u0432\u0430\u0442\u0430\u0440\u043a\u0443 \u0441 \u0442\u0432\u043e\u0438\u043c \u0438\u0433\u0440\u043e\u0432\u044b\u043c \u043d\u043e\u043c\u0435\u0440\u043e\u043c \u2014 \u043e\u043d\u0430 \u043f\u0440\u0438\u043a\u0440\u0435\u043f\u043b\u0435\u043d\u0430 \u0432\u044b\u0448\u0435.\n\n\u041f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, \u043f\u0435\u0440\u0435\u0439\u0434\u0438 \u0432 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435 \u043f\u043e \u043a\u043d\u043e\u043f\u043a\u0435 \u043d\u0438\u0436\u0435 \u0438 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u0438 \u0435\u0451 \u043a\u0430\u043a \u0441\u0432\u043e\u044e \u0430\u0432\u0430\u0442\u0430\u0440\u043a\u0443 (\u0432 \u043b\u0435\u0432\u043e\u043c \u0432\u0435\u0440\u0445\u043d\u0435\u043c \u0443\u0433\u043b\u0443).\n\u042d\u0442\u043e \u043d\u0443\u0436\u043d\u043e, \u0447\u0442\u043e\u0431\u044b \u044f \u043c\u043e\u0433 \u0442\u043e\u0447\u043d\u043e \u043e\u043f\u0440\u0435\u0434\u0435\u043b\u0438\u0442\u044c \u0442\u0435\u0431\u044f \u0432 \u0441\u043b\u0443\u0447\u0430\u0435 \u043f\u043e\u0431\u0435\u0434\u044b \u0438 \u0432\u044b\u0434\u0430\u0442\u044c \u043f\u0440\u0438\u0437.\n\n\u26a0\ufe0f\u0411\u0435\u0437 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u043d\u043e\u0439 \u0430\u0432\u0430\u0442\u0430\u0440\u043a\u0438 \u043c\u044b \u043d\u0435 \u0441\u043c\u043e\u0436\u0435\u043c \u0437\u0430\u0441\u0447\u0438\u0442\u0430\u0442\u044c \u0443\u0447\u0430\u0441\u0442\u0438\u0435.\n\n\u0416\u043c\u0438 \"\u0413\u043e\u0442\u043e\u0432\u043e\"",
+            "caption_entities": [
+                {
+                    "offset": 46,
+                    "length": 4,
+                    "type": "bold"
+                }
+            ],
+            "reply_markup": {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "\u0423\u0441\u0442\u0430\u043d\u043e\u0432\u0438\u0442\u044c \u0430\u0432\u0430\u0442\u0430\u0440\u043a\u0443",
+                            "url": "https://t.me/gamee/start"
+                        }
+                    ],
+                    [
+                        {
+                            "text": "\u0413\u043e\u0442\u043e\u0432\u043e!",
+                            "callback_data": "avatarSet"
+                        }
+                    ]
+                ]
+            }
+        },
+        "chat_instance": "5208739627955975931",
+        "data": "avatarSet"
+    }
+}

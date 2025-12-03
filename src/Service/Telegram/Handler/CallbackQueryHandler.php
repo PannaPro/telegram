@@ -3,42 +3,30 @@
 namespace App\Service\Telegram\Handler;
 
 use App\Http\Dto\AbstractPayload;
-use App\Http\Dto\MessageTelegramPayload;
-use App\Service\Telegram\Action\InfoService;
+use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Service\Telegram\Action\ParticipateService;
-use App\Service\Telegram\Action\StartService;
 
-class MessageHandler
+class CallbackQueryHandler
 {
     public function __construct(
-        private StartService $startService,
-        private InfoService $infoService,
         private ParticipateService $participateService,
     ) {
     }
 
     /**
-     * @param MessageTelegramPayload $dto
-     * @return void
+     * @param CallbackQueryTelegramPayload $dto
      */
     public function makeAction(AbstractPayload $dto): void
     {
-        $text = $dto->getText();
+        $data = $dto->getCallbackData();
 
-        switch ($text) {
-            case '/start':
+        switch ($data) {
+            case 'participate':
                 // TODO отправлять 2 сообщение если не указан юзернейм
                 // TODO принять участие - если нет юзернейм не выдавать картинку, установите его
                 // генерировать картинку с внутренним айди юзера если есть юзернейм
-                $this->startService->handle($dto);
+                $this->participateService->handleCallbackQuery($dto);
                 break;
-            case '💡 Инфо':
-                $this->infoService->handle($dto);
-                break;
-            case '🎲 Участвовать':
-                $this->participateService->handle($dto);
-                break;
-            // Добавляй свои команды
             default:
 //                $this->unknownCommand($dto);
         }

@@ -9,12 +9,20 @@ RUN apt update && apt install -y --no-install-recommends \
     git \
     curl \
     openssl \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libwebp-dev \
     && rm -rf /var/lib/apt/lists/*
 
 ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 RUN set -eux; \
-	install-php-extensions \
+    docker-php-ext-configure gd \
+        --with-freetype \
+        --with-jpeg \
+        --with-webp; \
+    install-php-extensions \
       @composer \
       apcu \
       intl \
@@ -25,9 +33,11 @@ RUN set -eux; \
       amqp \
       dom \
       redis \
+      imagick \
+      gd \
       && rm /usr/local/bin/install-php-extensions \
       && rm -rf /var/lib/apt/lists/* \
-    ;
+  ;
 
 FROM base as dev
 
@@ -35,6 +45,7 @@ RUN apt update && apt install -y --no-install-recommends \
     rsync \
     vim \
     nano \
+    fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 
 #RUN set -eux; \

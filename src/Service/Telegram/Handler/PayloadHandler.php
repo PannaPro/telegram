@@ -3,6 +3,7 @@
 namespace App\Service\Telegram\Handler;
 
 use App\Http\Dto\AbstractPayload;
+use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Http\Dto\MessageTelegramPayload;
 use App\Http\Dto\MyChatMemberPayload;
 use Monolog\Attribute\WithMonologChannel;
@@ -12,9 +13,10 @@ use Psr\Log\LoggerInterface;
 class PayloadHandler
 {
     public function __construct(
-        private MessageHandler $messageHandler,
-        private MyChatMemberHandler $myChatMemberHandler,
-        private LoggerInterface $logger,
+        private MessageHandler       $messageHandler,
+        private MyChatMemberHandler  $myChatMemberHandler,
+        private CallbackQueryHandler $callbackQueryHandler,
+        private LoggerInterface      $logger,
     )
     {
     }
@@ -26,7 +28,7 @@ class PayloadHandler
         match (true) {
             $dto instanceof MessageTelegramPayload => $this->messageHandler->makeAction($dto),
             $dto instanceof MyChatMemberPayload => $this->myChatMemberHandler->makeAction($dto),
-            // $dto instanceof CallbackPayload => ...
+            $dto instanceof CallbackQueryTelegramPayload => $this->callbackQueryHandler->makeAction($dto),
             default => null
         };
     }
