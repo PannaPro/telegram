@@ -1,4 +1,4 @@
-POST http://127.0.0.1/telegram/test-webhook
+POST http://127.0.0.1/test-webhook
 Content-Type: application/json
 
 {
