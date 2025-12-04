@@ -17,7 +17,7 @@ final class TelegramController extends AbstractController
     ) {
     }
 
-    #[Route('telegram/test-webhook', name: 'telegram_test-webhook')]
+    #[Route('/test-webhook', name: 'telegram_test-webhook', methods: ['POST'])]
     public function send(
         #[MapRequestPayload] AbstractPayload $payload,
     ): Response

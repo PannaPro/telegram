@@ -3,36 +3,22 @@
 namespace App\Service\Telegram\Action;
 
 use App\Http\Dto\MessageTelegramPayload;
+use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
 use CURLFile;
-use Redis;
 
-class InfoService
+final class InfoService
 {
     public function __construct(
         private TelegramBotService $telegramBotService,
-        private Redis $redis,
+        private TelegramMessageCache $cache,
     ) {
     }
 
     public function handle(MessageTelegramPayload $dto): void
     {
-        $chatId = $dto->getChatId();
         $type = 'info';
-        $key = "/info:$chatId";
-
-        $messagesJson = $this->redis->get($key);
-        $messages = $messagesJson ? json_decode($messagesJson, true) : [];
-        foreach ($messages as $msg) {
-            if (isset($msg['delete']) && $msg['delete']) {
-                try {
-                    $this->telegramBotService->deleteMessage($chatId, $msg['id']);
-                } catch (\Exception) {
-
-                }
-            }
-        }
-        unset($messages);
+        $chatId = $dto->getChatId();
 
         $photoPath = '/app/public/image/pipe.jpg';
 
@@ -46,12 +32,6 @@ class InfoService
             'Markdown'
         );
 
-        $messages = [[
-            'id' => $message->getMessageId(),
-            'type' => $type,
-            'delete' => true
-        ]];
-
-        $this->redis->set($key, json_encode($messages));
+        $this->cache->saveAndCleanup($type, $chatId, $message->getMessageId());
     }
 }

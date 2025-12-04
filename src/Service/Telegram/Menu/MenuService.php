@@ -2,6 +2,7 @@
 
 namespace App\Service\Telegram\Menu;
 
+use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
 use Redis;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
@@ -11,29 +12,13 @@ class MenuService
 {
 
     public function __construct(
-        private Redis $redis,
+        private TelegramMessageCache $cache,
         private TelegramBotService $telegramBotService,
     ) {
     }
 
-    public function sendStartMenu(int $chatId): void
+    public function sendStartMenu(int $chatId, string $text = ''): void
     {
-        $type = 'startMenu';
-        $key = "/start:$chatId";
-
-        $messagesJson = $this->redis->get($key);
-        $messages = $messagesJson ? json_decode($messagesJson, true) : [];
-        foreach ($messages as $msg) {
-            if (isset($msg['delete']) && $msg['delete']) {
-                try {
-                    $this->telegramBotService->deleteMessage($chatId, $msg['id']);
-                } catch (\Exception) {
-
-                }
-            }
-        }
-        unset($messages);
-
 //        $keyboard = new ReplyKeyboardMarkup(
 //            [
 //                ['🎲 Игры'],
@@ -47,13 +32,15 @@ class MenuService
 //            true
 //        );
 
-        $text = <<<MARKDOWN
+        if ($text === '') {
+            $text = <<<MARKDOWN
             👋 *Привет, дорогой друг!*
             MARKDOWN;
+        }
 
         $replyKeyboard = new ReplyKeyboardMarkup(
             [
-                ['🎲 Участвовать'],
+                ['🎲 Игры'],
                 ['💡 Инфо'],
             ],
             true,
@@ -70,33 +57,12 @@ class MenuService
             $replyKeyboard
         );
 
-        $messages = [[
-            'id' => $message->getMessageId(),
-            'type' => $type,
-            'delete' => true
-        ]];
-
-        $this->redis->set($key, json_encode($messages));
+        $this->cache->saveAndCleanup('startMenu', $chatId, $message->getMessageId());
+        $this->cache->cleanup('step', $chatId);
     }
 
     public function sendPreview(int $chatId): void
     {
-        $type = 'startMenu';
-        $key = "/start:$chatId";
-
-        $messagesJson = $this->redis->get($key);
-        $messages = $messagesJson ? json_decode($messagesJson, true) : [];
-        foreach ($messages as $msg) {
-            if (isset($msg['delete']) && $msg['delete']) {
-                try {
-                    $this->telegramBotService->deleteMessage($chatId, $msg['id']);
-                } catch (\Exception) {
-
-                }
-            }
-        }
-        unset($messages);
-
         $text = <<<MARKDOWN
             👋 *Привет, дорогой друг!*
 
@@ -104,9 +70,9 @@ class MenuService
 
             Сначала ознакомься с правилами.
 
-            🖼 Для начала перейди в раздел "Стать участником" и получи свой порядковый номер — он позволит мне идентифицировать тебя в случае победы. Этот шаг обязателен.
+            🖼 Для начала перейди в раздел "Стать участником" и получи свой игровой номер — он позволит мне идентифицировать тебя в случае победы. Этот шаг обязателен.
 
-            После получения идентификатора ты сможешь участвовать в играх и претендовать на призы.
+            После получения игрового номера ты сможешь участвовать в играх и претендовать на призы.
 
             📖 [Ссылка на телеграф с правилами](https://telegra.ph/...)
             MARKDOWN;
@@ -126,12 +92,7 @@ class MenuService
             $keyboard
         );
 
-        $messages = [[
-            'id' => $message->getMessageId(),
-            'type' => $type,
-            'delete' => true
-        ]];
-
-        $this->redis->set($key, json_encode($messages));
+        $this->cache->saveAndCleanup('startMenu', $chatId, $message->getMessageId());
+        $this->cache->cleanup('step', $chatId);
     }
 }

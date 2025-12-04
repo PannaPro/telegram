@@ -2,6 +2,7 @@
 
 namespace App\Service\Telegram\Action;
 
+use App\Service\Telegram\TelegramMessageCache;
 use Imagine\Gd\Font;
 use Imagine\Gd\Imagine;
 use Imagine\Image\Box;
@@ -14,36 +15,19 @@ use App\Http\Dto\MessageTelegramPayload;
 use App\Repository\TelegramUserRepository;
 use App\Service\TelegramBotService;
 use CURLFile;
-use Redis;
-use function Symfony\Component\Translation\t;
 
 class ParticipateService
 {
     public function __construct(
         private TelegramUserRepository $telegramUserRepository,
         private TelegramBotService $telegramBotService,
-        private Redis $redis,
+        private TelegramMessageCache $cache,
     ) {
     }
 
     public function handle(MessageTelegramPayload $dto): void
     {
         $chatId = $dto->getChatId();
-        $type = 'participate';
-        $key = "/participate:$chatId";
-
-        $messagesJson = $this->redis->get($key);
-        $messages = $messagesJson ? json_decode($messagesJson, true) : [];
-        foreach ($messages as $msg) {
-            if (isset($msg['delete']) && $msg['delete']) {
-                try {
-                    $this->telegramBotService->deleteMessage($chatId, $msg['id']);
-                } catch (\Exception) {
-
-                }
-            }
-        }
-        unset($messages);
 
         $photoPath = '/app/public/image/pipe.jpg';
 
@@ -79,13 +63,7 @@ class ParticipateService
             'Markdown'
         );
 
-        $messages = [[
-            'id' => $message->getMessageId(),
-            'type' => $type,
-            'delete' => true
-        ]];
-
-        $this->redis->set($key, json_encode($messages));
+        $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
     }
 
     public function handleCallbackQuery(CallbackQueryTelegramPayload $dto): void
@@ -104,24 +82,8 @@ class ParticipateService
         }
     }
 
-    private function needUsernameMessage(int $chatId): void
+    public function needUsernameMessage(int $chatId): void
     {
-        $type = 'participate';
-        $key = "/participate:$chatId";
-
-        $messagesJson = $this->redis->get($key);
-        $messages = $messagesJson ? json_decode($messagesJson, true) : [];
-        foreach ($messages as $msg) {
-            if (isset($msg['delete']) && $msg['delete']) {
-                try {
-                    $this->telegramBotService->deleteMessage($chatId, $msg['id']);
-                } catch (\Exception) {
-
-                }
-            }
-        }
-        unset($messages);
-
         $text = <<<MARKDOWN
         😅 Ой! Похоже, у тебя не указан юзернейм.
 
@@ -148,37 +110,15 @@ class ParticipateService
             $keyboard
         );
 
-        $messages = [[
-            'id' => $message->getMessageId(),
-            'type' => $type,
-            'delete' => true
-        ]];
-
-        $this->redis->set($key, json_encode($messages));
+        $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
     }
 
     private function participateMessage(int $chatId, string $username, int $userId): void
     {
-        $type = 'participate';
-        $key = "/participate:$chatId";
-
-        // Удаляем предыдущее сообщение
-        $messagesJson = $this->redis->get($key);
-        $messages = $messagesJson ? json_decode($messagesJson, true) : [];
-        foreach ($messages as $msg) {
-            if (isset($msg['delete']) && $msg['delete']) {
-                try {
-                    $this->telegramBotService->deleteMessage($chatId, $msg['id']);
-                } catch (\Exception) {
-                    // Игнорируем ошибки удаления
-                }
-            }
-        }
-
         $imageBinary = $this->generateImage($userId);
 
         $caption = <<<MARKDOWN
-        @$username, все наши игры проходят в стороннем боте *КЛИК*.
+        @$username, все наши игры проходят в боте [Gamee](https://t.me/gamee/start?startapp=eyJyZWYiOjM3NDA2OTk5NH0)
 
         Я сгенерировал для тебя аватарку с твоим игровым номером — она прикреплена выше.
 
@@ -211,13 +151,7 @@ class ParticipateService
             'Markdown'
         );
 
-        $messages = [[
-            'id' => $message->getMessageId(),
-            'type' => $type,
-            'delete' => true
-        ]];
-
-        $this->redis->set($key, json_encode($messages));
+        $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
     }
 
     public function generateImage(int $chatId): string

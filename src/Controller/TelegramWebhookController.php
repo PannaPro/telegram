@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class TelegramWebhookController extends AbstractController
 {
     public function __construct(
-        private PayloadHandler $payloadHandler
+        private PayloadHandler $payloadHandler,
     ) {
     }
 
