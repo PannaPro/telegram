@@ -2,9 +2,9 @@ POST http://127.0.0.1/test-webhook
 Content-Type: application/json
 
 {
-    "update_id": 66430874,
+    "update_id": 66430881,
     "message": {
-        "message_id": 146,
+        "message_id": 191,
         "from": {
             "id": 301671507,
             "is_bot": false,
@@ -20,14 +20,8 @@ Content-Type: application/json
             "username": "PannaPro",
             "type": "private"
         },
-        "date": 1765030988,
-        "text": "/start",
-        "entities": [
-            {
-                "offset": 0,
-                "length": 6,
-                "type": "bot_command"
-            }
-        ]
+        "date": 1765034966,
+        "text": "\ud83c\udfb2 \u0418\u0433\u0440\u044b"
     }
 }
+

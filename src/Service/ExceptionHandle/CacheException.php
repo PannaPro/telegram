@@ -2,9 +2,7 @@
 
 namespace App\Service\ExceptionHandle;
 
-use DomainExternalException;
-
-class CacheException extends DomainExternalException
+class CacheException extends DomainException
 {
     public function getTitle(): string
     {

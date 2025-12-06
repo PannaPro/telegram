@@ -30,4 +30,24 @@ class MyChatMemberPayload extends AbstractPayload
     {
         return $this->my_chat_member['new_chat_member']['status'];
     }
+
+    public function getUsername(): string
+    {
+        return $this->my_chat_member['chat']['username'] ?? 'unknown';
+    }
+
+    public function getFirstName(): string
+    {
+        return $this->my_chat_member['chat']['first_name'] ?? 'unknown';
+    }
+
+    public function getLastName(): string
+    {
+        return $this->my_chat_member['chat']['last_name'] ?? 'unknown';
+    }
+
+    public function getFrom(): int
+    {
+        return $this->my_chat_member['from']['id'] ?? 0;
+    }
 }

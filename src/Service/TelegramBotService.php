@@ -2,49 +2,62 @@
 
 namespace App\Service;
 
+use App\Service\ExceptionHandle\TelegramApiException;
+use App\Service\ExceptionHandle\TelegramBotApiException;
+use CURLFile;
+use Exception;
+use Monolog\Attribute\WithMonologChannel;
+use Psr\Log\LoggerInterface;
 use TelegramBot\Api\BotApi;
+use TelegramBot\Api\Types\ChatMember;
 use TelegramBot\Api\Types\Message;
-use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
+use Throwable;
 
-
+#[WithMonologChannel('webhook')]
 class TelegramBotService
 {
     private BotApi $telegram;
 
-    public function __construct(private string $botToken)
+    public function __construct(
+        private LoggerInterface $logger,
+        private string $botToken,
+        private int $maxRetries = 3,
+        private int $baseBackoffMs = 500
+    )
     {
-        $this->telegram = new BotApi($botToken);
+        $this->initBotApi();
     }
 
-    public function handleUpdate(array $update): void
+    private function initBotApi(): void
     {
-        if (isset($update['message'])) {
-            $chatId = $update['message']['chat']['id'];
-            $text = $update['message']['text'] ?? '';
+        try {
+            $this->telegram = new BotApi($this->botToken);
+        } catch (Exception $e) {
+            $this->logger->error('Telegram BotApi initialization failed', [
+                'error' => $e->getMessage(),
+            ]);
 
-            $this->sendMessage($chatId, $text);
+            throw TelegramBotApiException::connectionFailed($e->getMessage());
         }
     }
+
     /**
-     * Обёртка sendMessage для Telegram API
+     * Sync sendMessage with retry + backoff.
      *
-     * @param int|string $chatId
+     * @param int $chatId
      * @param string $text
      * @param string|null $parseMode
      * @param bool $disablePreview
      * @param int|null $replyToMessageId
-     * @param mixed|null $replyMarkup
+     * @param null $replyMarkup
      * @param bool $disableNotification
      * @param int|null $messageThreadId
      * @param bool|null $protectContent
      * @param bool|null $allowSendingWithoutReply
-     *
-     * @return Message
-     * @throws \TelegramBot\Api\Exception
-     * @throws \TelegramBot\Api\InvalidArgumentException
+     * @return Message - return Telegram Message Type
      */
     public function sendMessage(
-        $chatId,
+        int $chatId,
         string $text,
         ?string $parseMode = null,
         bool $disablePreview = false,
@@ -55,23 +68,77 @@ class TelegramBotService
         ?bool $protectContent = null,
         ?bool $allowSendingWithoutReply = null
     ): Message {
-        return $this->telegram->sendMessage(
-            $chatId,
-            $text,
-            $parseMode,
-            $disablePreview,
-            $replyToMessageId,
-            $replyMarkup,
-            $disableNotification,
-            $messageThreadId,
-            $protectContent,
-            $allowSendingWithoutReply,
-        );
+        $attempt = 0;
+
+        while (true) {
+            try {
+                $attempt++;
+                return $this->telegram->sendMessage(
+                    $chatId,
+                    $text,
+                    $parseMode,
+                    $disablePreview,
+                    $replyToMessageId,
+                    $replyMarkup,
+                    $disableNotification,
+                    $messageThreadId,
+                    $protectContent,
+                    $allowSendingWithoutReply
+                );
+            } catch (Throwable $e) {
+                $this->logger->error('Telegram sendMessage failed', [
+                    'chatId' => $chatId,
+                    'attempt' => $attempt,
+                    'error' => $e->getMessage(),
+                ]);
+
+                if ($attempt >= $this->maxRetries) {
+                    $this->logger->critical('Telegram sendMessage final failure', [
+                        'chatId' => $chatId,
+                        'attempts' => $attempt,
+                    ]);
+                    throw TelegramApiException::sendMessageFailed();
+                }
+
+                $backoffMs = $this->baseBackoffMs * (2 ** ($attempt - 1));
+                $jitter = rand(0, (int)($backoffMs * 0.2));
+
+                usleep(($backoffMs + $jitter) * 1000);
+            }
+        }
     }
 
+    public function isSubscribed(int $chatId, string $channel = "@PAKETAGAME"): bool
+    {
+        try {
+            $member = $this->telegram->getChatMember($channel, $chatId);
+
+            return in_array($member->getStatus(), [
+                'member',
+                'creator',
+                'administrator'
+            ], true);
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @param $chatId
+     * @param CURLFile $photo
+     * @param string|null $caption
+     * @param int|null $replyToMessageId
+     * @param $replyMarkup
+     * @param bool $disableNotification
+     * @param string|null $parseMode
+     * @param int|null $messageThreadId
+     * @param bool|null $protectContent
+     * @param bool|null $allowSendingWithoutReply
+     * @return Message
+     */
     public function sendPhoto(
         $chatId,
-        $photo,               // путь к файлу или CURLFile
+        CURLFile $photo,
         ?string $caption = null,
         ?int $replyToMessageId = null,
         $replyMarkup = null,
@@ -80,53 +147,53 @@ class TelegramBotService
         ?int $messageThreadId = null,
         ?bool $protectContent = null,
         ?bool $allowSendingWithoutReply = null
-    ): Message
-    {
-        return $this->telegram->sendPhoto(
-            $chatId,                  // ID чата
-            $photo,                   // путь к файлу
-            $caption,
-            $replyToMessageId,
-            $replyMarkup,
-            $disableNotification,
-            $parseMode,
-            $messageThreadId,
-            $protectContent,
-            $allowSendingWithoutReply
-        );
+    ): Message {
+        $attempt = 0;
+
+        while (true) {
+            try {
+                $attempt++;
+                return $this->telegram->sendPhoto(
+                    $chatId,
+                    $photo,
+                    $caption,
+                    $replyToMessageId,
+                    $replyMarkup,
+                    $disableNotification,
+                    $parseMode,
+                    $messageThreadId,
+                    $protectContent,
+                    $allowSendingWithoutReply
+                );
+            } catch (Throwable $e) {
+                $this->logger->error('Telegram sendPhoto failed', [
+                    'chatId' => $chatId,
+                    'attempt' => $attempt,
+                    'error' => $e->getMessage(),
+                ]);
+
+                if ($attempt >= $this->maxRetries) {
+                    $this->logger->critical('Telegram sendPhoto final failure', [
+                        'chatId' => $chatId,
+                        'attempts' => $attempt,
+                    ]);
+                    throw TelegramApiException::sendMessageFailed();
+                }
+
+                $backoffMs = $this->baseBackoffMs * (2 ** ($attempt - 1));
+                $jitter = rand(0, (int)($backoffMs * 0.2));
+
+                usleep(($backoffMs + $jitter) * 1000);
+            }
+        }
     }
 
-    public function deleteMessage(int $charId, int $messageId): bool
+    public function deleteMessage(int $chatId, int $messageId): void
     {
-        return $this->telegram->deleteMessage($charId, $messageId);
-    }
-
-    public function getMe()
-    {
-        return $this->telegram->getMe();
-    }
-
-    public function getUpdates(): array
-    {
-        return $this->telegram->getUpdates();
-    }
-
-    public function sendTestInlineKeyboard(int $chatId): Message
-    {
-        $keyboard = new InlineKeyboardMarkup([
-            [
-                ['text' => 'Личный кабинет', 'callback_data' => 'personal_account'],
-                ['text' => 'Заказы', 'callback_data' => 'personal_orders']
-            ],
-            [
-                ['text' => 'Помощь', 'callback_data' => 'personal_help']
-            ]
-        ]);
-
-        $text = "Добро пожаловать, {$dto->getFirstName()}!\nВыберите действие:";
-
-
-
-        return $this->sendMessage($chatId, 'Choose_bottom', null, false, null, $keyboard);
+        try {
+             $this->telegram->deleteMessage($chatId, $messageId);
+        } catch (\TelegramBot\Api\Exception $e) {
+            $this->logger->error($chatId, [$messageId, $e, ' Не удалось удалить сообщение, возможно оно уже было удалено.']);
+        }
     }
 }

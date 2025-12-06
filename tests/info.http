@@ -1,10 +1,10 @@
-POST http://127.0.0.1/telegram/test-webhook
+POST http://127.0.0.1/test-webhook
 Content-Type: application/json
 
 {
-    "update_id": 66430857,
+    "update_id": 66430875,
     "message": {
-        "message_id": 46,
+        "message_id": 152,
         "from": {
             "id": 301671507,
             "is_bot": false,
@@ -20,7 +20,7 @@ Content-Type: application/json
             "username": "PannaPro",
             "type": "private"
         },
-        "date": 1764781859,
+        "date": 1765031258,
         "text": "\ud83d\udca1 \u0418\u043d\u0444\u043e"
     }
 }

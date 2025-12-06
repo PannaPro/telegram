@@ -8,7 +8,7 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 class TelegramPayloadDiscriminatorDenormalizer implements DenormalizerInterface
 {
     public function __construct(
-        private DenormalizerInterface $denormalizer
+        private DenormalizerInterface $denormalizer,
     ) {
     }
 

@@ -4,9 +4,11 @@ namespace App\Service\Telegram\Handler;
 
 use App\Http\Dto\AbstractPayload;
 use App\Http\Dto\MessageTelegramPayload;
+use App\Service\Telegram\Action\GameService;
 use App\Service\Telegram\Action\InfoService;
 use App\Service\Telegram\Action\ParticipateService;
 use App\Service\Telegram\Action\StartService;
+use App\Service\Telegram\Action\UnknownCommandService;
 
 class MessageHandler
 {
@@ -14,6 +16,8 @@ class MessageHandler
         private StartService $startService,
         private InfoService $infoService,
         private ParticipateService $participateService,
+        private GameService $gameService,
+        private UnknownCommandService $unknownCommandService,
     ) {
     }
 
@@ -27,17 +31,20 @@ class MessageHandler
 
         switch ($text) {
             case '/start':
-                $this->startService->handle($dto);
+            case 'Вернуться в меню':
+                $this->startService->handle();
                 break;
             case '💡 Инфо':
-                $this->infoService->handle($dto);
+                $this->infoService->handle();
                 break;
-            case '🎲 Участвовать':
-                $this->participateService->handle($dto);
+            case '🎲 Игры':
+                $this->gameService->handle();
                 break;
-            // Добавляй свои команды
+            case '👕 Получить номер':
+                $this->participateService->participateMessage();
+                break;
             default:
-//                $this->unknownCommand($dto);
+                $this->unknownCommandService->handle();
         }
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Dto;
 
 use DateTimeImmutable;
 
-class MessageTelegramPayload extends AbstractPayload
+class MessageTelegramPayload extends AbstractPayload implements TelegramUserIdentityInterface
 {
     public array $message;
 
@@ -29,7 +29,7 @@ class MessageTelegramPayload extends AbstractPayload
         return $this->message['from']['last_name'] ?? 'unknown';
     }
 
-    public function getUsername(): ?string
+    public function getUsername(): string
     {
         return $this->message['from']['username'] ?? 'unknown';
     }
