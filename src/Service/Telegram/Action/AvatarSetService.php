@@ -4,22 +4,23 @@ namespace App\Service\Telegram\Action;
 
 use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Repository\TelegramUserRepository;
+use App\Security\SecurityTelegramUserService;
 use App\Service\Telegram\Menu\MenuService;
 
 class AvatarSetService
 {
     public function __construct(
+        private SecurityTelegramUserService $security,
         private TelegramUserRepository $telegramUserRepository,
         private ParticipateService $participateService,
         private MenuService $menuService,
     ) {
     }
 
-    public function handleCallbackQuery(CallbackQueryTelegramPayload $dto): void
+    public function handleCallbackQuery(): void
     {
-        $chatId = $dto->getChatId();
-        $user = $this->telegramUserRepository->findOneBy(['chatId' => $chatId]);
-
+        $user = $this->security->fetchCurrentUser();
+        $chatId = $user->getChatId();
         if ($user->getUsername() === 'unknown') {
             $this->participateService->needUsernameMessage($chatId);
             return;
@@ -28,10 +29,6 @@ class AvatarSetService
         $user->setParticipant(true);
         $this->telegramUserRepository->save($user);
 
-        $text = <<<MARKDOWN
-        🎲 Ты в игре!
-        MARKDOWN;
-
-        $this->menuService->sendStartMenu($chatId, $text);
+        $this->menuService->sendStartMenu($chatId);
     }
 }

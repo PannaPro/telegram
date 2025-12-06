@@ -2,43 +2,27 @@
 
 namespace App\Service\Telegram\Action;
 
-use App\Entity\TelegramUser;
-use App\Http\Dto\MessageTelegramPayload;
-use App\Repository\TelegramUserRepository;
+use App\Security\SecurityTelegramUserService;
 use App\Service\Telegram\Menu\MenuService;
 
 class StartService
 {
     public function __construct(
-        private TelegramUserRepository $telegramUserRepository,
         private MenuService $menuService,
+        private SecurityTelegramUserService $security,
     ) {
     }
 
-    public function handle(MessageTelegramPayload $dto): void
+    public function handle(): void
     {
-        $chatId = $dto->getChatId();
-        $username = $dto->getUsername();
-
-        $user = $this->telegramUserRepository->findOneBy(['chatId' => $chatId]);
-        if ($user instanceof TelegramUser) {
-            $user->setUsername($username);
-            $user->setIsActive(true);
-        } else {
-            $user = new TelegramUser();
-            $user
-                ->setUsername($username)
-                ->setChatId($chatId)
-                ->setFirstName($dto->getFirstName())
-                ->setLastName($dto->getLastName());
-        }
-
-        $this->telegramUserRepository->save($user);
+        $user = $this->security->fetchCurrentUser();
+        $chatId = $user->getChatId();
 
         if ($user->isParticipant()) {
             $this->menuService->sendStartMenu($chatId);
-        } else {
-            $this->menuService->sendPreview($chatId);
+            return;
         }
+
+        $this->menuService->sendPreview($chatId);
     }
 }

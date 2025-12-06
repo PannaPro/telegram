@@ -2,36 +2,51 @@
 
 namespace App\Service\Telegram\Action;
 
-use App\Http\Dto\MessageTelegramPayload;
+use App\Security\SecurityTelegramUserService;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
-use CURLFile;
 
 final class InfoService
 {
     public function __construct(
+        private SecurityTelegramUserService $security,
         private TelegramBotService $telegramBotService,
         private TelegramMessageCache $cache,
     ) {
     }
 
-    public function handle(MessageTelegramPayload $dto): void
+    public function handle(): void
     {
-        $type = 'info';
-        $chatId = $dto->getChatId();
+        $user = $this->security->fetchCurrentUser();
+        $chatId = $user->getChatId();
 
-        $photoPath = '/app/public/image/pipe.jpg';
+        $text = <<<MARKDOWN
+        📜 *Правила использования бота*
 
-        $message = $this->telegramBotService->sendPhoto(
+        1️⃣ В игровом боте ([Gamee](https://t.me/gamee/start?startapp=eyJyZWYiOjM3NDA2OTk5NH0) должна быть установлена игровая аватарка.
+        Вы получили ее при регистрации, так же можете получить ее еще раз кликнув по кнопке Получить номер
+
+        2️⃣ Запрещено:
+        - использовать нецензурную лексику 🛑
+        - применять любые софты для накрутки результатов игр ⚠️
+
+        3️⃣ Нарушения:
+        - Любое подозрение на нарушение может привести к бану (вплоть до пожизненного)
+        - В зависимости от нарушения игроку могут быть показаны:
+          - 🟨 Желтая карточка — может повлечь временное ограничение доступа к играм
+          - 🟥 Красная карточка — более серьезное ограничение, вплоть до полного бана
+
+        ❗ Соблюдай эти простые правила, чтобы наслаждаться честной игрой
+
+        *Возникли вопросы?* Техподдержка: [@PAKETABKOCMOC](https://t.me/PAKETABKOCMOC)
+        MARKDOWN;
+
+        $message = $this->telegramBotService->sendMessage(
             $chatId,
-            new CURLFile($photoPath),
-            "Инфо",
-            null,
-            null,
-            false,
-            'Markdown'
+            $text,
+            'Markdown',
         );
 
-        $this->cache->saveAndCleanup($type, $chatId, $message->getMessageId());
+        $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
     }
 }

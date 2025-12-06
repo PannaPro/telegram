@@ -1,9 +1,9 @@
-### unsubscribe
-POST http://127.0.0.1/telegram/test-webhook
+### subscribe
+POST http://127.0.0.1/test-webhook
 Content-Type: application/json
 
 {
-    "update_id": 912246112,
+    "update_id": 66430869,
     "my_chat_member": {
         "chat": {
             "id": 301671507,
@@ -18,60 +18,71 @@ Content-Type: application/json
             "first_name": "Panna",
             "last_name": "Caliano",
             "username": "PannaPro",
-            "language_code": "ru"
+            "language_code": "en"
         },
-        "date": 1764517595,
+        "date": 1765027250,
         "old_chat_member": {
             "user": {
-                "id": 8313129875,
+                "id": 6978124079,
                 "is_bot": true,
-                "first_name": "PAKETAGAME",
-                "username": "PAKETAGAME_bot"
-            },
-            "status": "member"
-        },
-        "new_chat_member": {
-            "user": {
-                "id": 8313129875,
-                "is_bot": true,
-                "first_name": "PAKETAGAME",
-                "username": "PAKETAGAME_bot"
+                "first_name": "PAKETA_bot",
+                "username": "Panpubgbot"
             },
             "status": "kicked",
             "until_date": 0
+        },
+        "new_chat_member": {
+            "user": {
+                "id": 6978124079,
+                "is_bot": true,
+                "first_name": "PAKETA_bot",
+                "username": "Panpubgbot"
+            },
+            "status": "member"
         }
     }
 }
 
 ### unsubscribe
-POST http://127.0.0.1/telegram/test-webhook
+POST http://127.0.0.1/test-webhook
 Content-Type: application/json
 
 {
-    "update_id": 66430856,
-    "message": {
-        "message_id": 16,
-        "from": {
-            "id": 7385904939,
-            "is_bot": false,
-            "first_name": "Marat",
-            "last_name": "Demin",
-            "language_code": "ru"
-        },
+    "update_id": 66430868,
+    "my_chat_member": {
         "chat": {
-            "id": 7385904939,
-            "first_name": "Marat",
-            "last_name": "Demin",
+            "id": 301671507,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
             "type": "private"
         },
-        "date": 1764774033,
-        "text": "/start",
-        "entities": [
-            {
-                "offset": 0,
-                "length": 6,
-                "type": "bot_command"
-            }
-        ]
+        "from": {
+            "id": 301671507,
+            "is_bot": false,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro"
+        },
+        "date": 1765027244,
+        "old_chat_member": {
+            "user": {
+                "id": 6978124079,
+                "is_bot": true,
+                "first_name": "PAKETA_bot",
+                "username": "Panpubgbot"
+            },
+            "status": "member"
+        },
+        "new_chat_member": {
+            "user": {
+                "id": 6978124079,
+                "is_bot": true,
+                "first_name": "PAKETA_bot",
+                "username": "Panpubgbot"
+            },
+            "status": "kicked",
+            "until_date": 0
+        }
     }
 }

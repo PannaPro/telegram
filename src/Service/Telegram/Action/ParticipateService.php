@@ -2,6 +2,8 @@
 
 namespace App\Service\Telegram\Action;
 
+use App\Repository\TelegramUserRepository;
+use App\Security\SecurityTelegramUserService;
 use App\Service\Telegram\TelegramMessageCache;
 use Imagine\Gd\Font;
 use Imagine\Gd\Imagine;
@@ -11,8 +13,6 @@ use Imagine\Image\Point;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 use TelegramBot\Api\Types\ReplyKeyboardMarkup;
 use App\Http\Dto\CallbackQueryTelegramPayload;
-use App\Http\Dto\MessageTelegramPayload;
-use App\Repository\TelegramUserRepository;
 use App\Service\TelegramBotService;
 use CURLFile;
 
@@ -20,16 +20,15 @@ class ParticipateService
 {
     public function __construct(
         private TelegramUserRepository $telegramUserRepository,
+        private SecurityTelegramUserService $security,
         private TelegramBotService $telegramBotService,
         private TelegramMessageCache $cache,
     ) {
     }
 
-    public function handle(MessageTelegramPayload $dto): void
+    public function handle(int $chatId): void
     {
-        $chatId = $dto->getChatId();
-
-        $photoPath = '/app/public/image/pipe.jpg';
+        $photoPath = '/app/public/image/paketa.jpg';
 
         $caption = <<<MARKDOWN
         Итак, все наши игры проходят в стороннем боте КЛИК.
@@ -66,19 +65,19 @@ class ParticipateService
         $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
     }
 
-    public function handleCallbackQuery(CallbackQueryTelegramPayload $dto): void
+    public function handleCallbackQuery(): void
     {
-        $chatId = $dto->getChatId();
-        $user = $this->telegramUserRepository->findOneBy(['chatId' => $chatId]);
-
+        $user = $this->security->fetchCurrentUser();
+        $chatId = $user->getChatId();
         $username = $user->getUsername();
+
         $user->setUsername($username);
         $this->telegramUserRepository->save($user);
 
         if ($username === 'unknown') {
             $this->needUsernameMessage($chatId);
         } else {
-            $this->participateMessage($chatId, $username, $user->getId());
+            $this->participateMessage();
         }
     }
 
@@ -113,12 +112,15 @@ class ParticipateService
         $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
     }
 
-    private function participateMessage(int $chatId, string $username, int $userId): void
+    public function participateMessage(): void
     {
-        $imageBinary = $this->generateImage($userId);
+        $user = $this->security->fetchCurrentUser();
+        $chatId = $user->getChatId();
+        $username = $user->getUsername();
+        $imageBinary = $this->generateImage($user->getId());
 
         $caption = <<<MARKDOWN
-        @$username, все наши игры проходят в боте [Gamee](https://t.me/gamee/start?startapp=eyJyZWYiOjM3NDA2OTk5NH0)
+        @$username, все наши игры проходят в боте Gamee](https://t.me/gamee/start?startapp=eyJyZWYiOjM3NDA2OTk5NH0)
 
         Я сгенерировал для тебя аватарку с твоим игровым номером — она прикреплена выше.
 

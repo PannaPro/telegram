@@ -37,11 +37,7 @@ final class TelegramMessageCache
 
         foreach ($messages as $msg) {
             if (!empty($msg['delete'])) {
-                try {
-                    $this->telegramBotService->deleteMessage($chatId, $msg['id']);
-                } catch (Exception $e) {
-                    $this->logger->error('redis', [$e->getMessage()]);
-                }
+                $this->telegramBotService->deleteMessage($chatId, $msg['id']);
             }
         }
 

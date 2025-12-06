@@ -4,20 +4,19 @@ namespace App\Service\Telegram\Menu;
 
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
-use Redis;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 use TelegramBot\Api\Types\ReplyKeyboardMarkup;
+use CURLFile;
 
 class MenuService
 {
-
     public function __construct(
         private TelegramMessageCache $cache,
         private TelegramBotService $telegramBotService,
     ) {
     }
 
-    public function sendStartMenu(int $chatId, string $text = ''): void
+    public function sendStartMenu(int $chatId): void
     {
 //        $keyboard = new ReplyKeyboardMarkup(
 //            [
@@ -32,15 +31,16 @@ class MenuService
 //            true
 //        );
 
-        if ($text === '') {
-            $text = <<<MARKDOWN
-            👋 *Привет, дорогой друг!*
+        $caption = <<<MARKDOWN
+            👋 *Добро пожаловать в PAKETAGAME!*
+
+            Присоединяйся к борьбе за крутые призы!
             MARKDOWN;
-        }
 
         $replyKeyboard = new ReplyKeyboardMarkup(
             [
                 ['🎲 Игры'],
+                ['👕 Получить номер'],
                 ['💡 Инфо'],
             ],
             true,
@@ -48,13 +48,16 @@ class MenuService
             true
         );
 
-        $message = $this->telegramBotService->sendMessage(
+        $photoPath = '/app/public/image/paketa.jpg';
+
+        $message = $this->telegramBotService->sendPhoto(
             $chatId,
-            $text,
-            'Markdown',
-            false,
+            new CURLFile($photoPath),
+            $caption,
             null,
-            $replyKeyboard
+            $replyKeyboard,
+            false,
+            'Markdown',
         );
 
         $this->cache->saveAndCleanup('startMenu', $chatId, $message->getMessageId());
@@ -64,11 +67,7 @@ class MenuService
     public function sendPreview(int $chatId): void
     {
         $text = <<<MARKDOWN
-            👋 *Привет, дорогой друг!*
-
-            Рад приветствовать тебя в нашем клубе!
-
-            Сначала ознакомься с правилами.
+            👋 *Рад приветствовать тебя в нашем клубе!*
 
             🖼 Для начала перейди в раздел "Стать участником" и получи свой игровой номер — он позволит мне идентифицировать тебя в случае победы. Этот шаг обязателен.
 
@@ -80,6 +79,33 @@ class MenuService
         $keyboard = new InlineKeyboardMarkup([
             [
                 ['text' => '🎲 Стать участником', 'callback_data' => 'participate']
+            ]
+        ]);
+
+        $message = $this->telegramBotService->sendMessage(
+            $chatId,
+            $text,
+            'Markdown',
+            false,
+            null,
+            $keyboard
+        );
+
+        $this->cache->saveAndCleanup('startMenu', $chatId, $message->getMessageId());
+        $this->cache->cleanup('step', $chatId);
+    }
+
+    public function needChanelSubscribe(int $chatId): void
+    {
+        $text = <<<MARKDOWN
+            👋 *Привет, дорогой друг!*
+
+            Чтобы пользоватсья игровым ботом нужна подписка на наш [канал](https://t.me/PAKETAGAME?start=1)
+            MARKDOWN;
+
+        $keyboard = new InlineKeyboardMarkup([
+            [
+                ['text' => 'Проверить подписку', 'callback_data' => 'subscription']
             ]
         ]);
 

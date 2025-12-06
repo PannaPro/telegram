@@ -41,8 +41,8 @@ class TelegramUpdateGuard implements EventSubscriberInterface
 
         $updateId = $payload['update_id'];
         $chatId = $this->extractChatId($payload);
-        if ($chatId === null) {
-            return;
+        if ($chatId === 0) {
+            $event->setResponse(new Response('Invalid request', 404));
         }
 
         $key = "last_update:$chatId";
@@ -56,12 +56,12 @@ class TelegramUpdateGuard implements EventSubscriberInterface
         $this->redis->setEx($key, 60, $updateId);
     }
 
-    private function extractChatId(array $payload): ?int
+    private function extractChatId(array $payload): int
     {
         return $payload['message']['chat']['id'] ??
             $payload['edited_message']['chat']['id'] ??
             $payload['callback_query']['message']['chat']['id'] ??
             $payload['channel_post']['chat']['id'] ??
-            null;
+            0;
     }
 }

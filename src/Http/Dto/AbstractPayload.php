@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Attribute\DiscriminatorMap;
         'callback_query' => CallbackQueryTelegramPayload::class,
     ]
 )]
-abstract class AbstractPayload
+abstract class AbstractPayload implements TelegramUserIdentityInterface
 {
     public function __construct(
         public int $update_id,
