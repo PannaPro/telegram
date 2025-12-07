@@ -49,7 +49,7 @@ class TelegramPayloadGuard implements EventSubscriberInterface
     private function extractAvailablePayloadType(array $payload): string
     {
         $update = $payload['update_id'];
-        $this->logger->debug($update, [serialize($payload)]);
+        $this->logger->debug($update, $payload);
 
         $supportedTypes = [
             'message' => true,

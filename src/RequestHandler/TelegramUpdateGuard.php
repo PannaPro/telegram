@@ -2,16 +2,20 @@
 
 namespace App\RequestHandler;
 
+use Monolog\Attribute\WithMonologChannel;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Redis;
 
+#[WithMonologChannel('webhook_payload')]
 class TelegramUpdateGuard implements EventSubscriberInterface
 {
     public function __construct(
         private readonly Redis $redis,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -35,6 +39,7 @@ class TelegramUpdateGuard implements EventSubscriberInterface
         }
 
         $payload = json_decode($request->getContent(), true);
+        $this->logger->debug($payload['update_id']);
         if (!$payload || !isset($payload['update_id'])) {
             return;
         }
@@ -49,6 +54,7 @@ class TelegramUpdateGuard implements EventSubscriberInterface
         $lastUpdate = $this->redis->get($key);
 
         if ($lastUpdate !== false && $updateId <= (int)$lastUpdate) {
+            $this->logger->debug($updateId . "Duplicate update ignored");
             $event->setResponse(new Response('Duplicate update ignored', 200));
             return;
         }
