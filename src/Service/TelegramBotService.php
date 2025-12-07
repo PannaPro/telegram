@@ -10,7 +10,6 @@ use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Telegram\Bot\Objects\Update;
 use TelegramBot\Api\BotApi;
-use TelegramBot\Api\Types\ChatMember;
 use TelegramBot\Api\Types\Message;
 use Throwable;
 
@@ -40,6 +39,25 @@ class TelegramBotService
 
             throw TelegramBotApiException::connectionFailed($e->getMessage());
         }
+    }
+
+    public function editMessageText(
+        int $chatId,
+        int $messageId,
+        string $text,
+        ?string $parseMode = null,
+        bool $disablePreview = false,
+        $replyMarkup = null,
+    ): Message
+    {
+        return $this->telegram->editMessageText(
+            $chatId,
+            $messageId,
+            $text,
+            $parseMode,
+            $disablePreview,
+            $replyMarkup,
+        );
     }
 
     /**
