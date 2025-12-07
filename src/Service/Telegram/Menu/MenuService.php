@@ -31,7 +31,7 @@ class MenuService
 //            true
 //        );
 
-        $text = <<<MARKDOWN
+        $caption = <<<MARKDOWN
             👋 *Добро пожаловать в PAKETAGAME!*
 
             Присоединяйся к борьбе за крутые призы!
@@ -48,13 +48,16 @@ class MenuService
             true
         );
 
-        $message = $this->telegramBotService->sendMessage(
+        $photoPath = '/app/public/image/paketa.jpg';
+
+        $message = $this->telegramBotService->sendPhoto(
             $chatId,
-            $text,
-            'markdown',
-            false,
+            new CURLFile($photoPath),
+            $caption,
             null,
             $replyKeyboard,
+            false,
+            'Markdown',
         );
 
         $this->cache->clear('startMenu', $chatId, $currentMessage, $message->getMessageId());
