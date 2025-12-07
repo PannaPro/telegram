@@ -41,14 +41,16 @@ class TelegramUpdateGuard implements EventSubscriberInterface
         }
 
         $payload = json_decode($request->getContent(), true);
-        $this->logger->debug($payload['update_id']);
+        $this->logger->debug($payload['update_id'] . 'в пейлоуде' );
         if (!$payload || !isset($payload['update_id'])) {
+            $this->logger->debug($payload['update_id'] . 'не прошел проверку');
             return;
         }
 
         $updateId = $payload['update_id'];
         $chatId = $this->extractChatId($payload);
         if ($chatId === 0) {
+            $this->logger->debug($payload['update_id'] . 'Invalid request 404');
             $event->setResponse(new Response('Invalid request', 404));
         }
 
