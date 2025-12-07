@@ -23,7 +23,6 @@ final class TelegramController extends AbstractController
         #[MapRequestPayload] AbstractPayload $payload,
     ): Response
     {
-        // TODO подключить логи всех входящих вебхуков, разобраться, почему отправляет в канал сообщение
         $this->security->setCurrentTelegramUser($payload);
         $this->payloadHandler->handlePayload($payload);
 
