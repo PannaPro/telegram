@@ -39,7 +39,7 @@ class MessageHandler
                 $this->startService->handle();
                 break;
             case '💡 Инфо':
-                $this->infoService->handle();
+                $this->infoService->handle($dto->getMessageId());
                 break;
             case '🎲 Игры':
                 $this->gameService->handle();
