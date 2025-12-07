@@ -17,7 +17,7 @@ class AvatarSetService
     ) {
     }
 
-    public function handleCallbackQuery(): void
+    public function handleCallbackQuery(int $messageId): void
     {
         $user = $this->security->fetchCurrentUser();
         $chatId = $user->getChatId();
@@ -29,6 +29,6 @@ class AvatarSetService
         $user->setParticipant(true);
         $this->telegramUserRepository->save($user);
 
-        $this->menuService->sendStartMenu($chatId);
+        $this->menuService->sendStartMenu($chatId, $messageId);
     }
 }

@@ -13,16 +13,16 @@ class StartService
     ) {
     }
 
-    public function handle(): void
+    public function handle(int $messageId): void
     {
         $user = $this->security->fetchCurrentUser();
         $chatId = $user->getChatId();
 
         if ($user->isParticipant()) {
-            $this->menuService->sendStartMenu($chatId);
+            $this->menuService->sendStartMenu($chatId, $messageId);
             return;
         }
 
-        $this->menuService->sendPreview($chatId);
+        $this->menuService->sendPreview($chatId, $messageId);
     }
 }
