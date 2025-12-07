@@ -6,6 +6,7 @@ use App\Http\Dto\MessageTelegramPayload;
 use App\Service\Telegram\Action\GameService;
 use App\Service\Telegram\Action\InfoService;
 use App\Service\Telegram\Action\ParticipateService;
+use App\Service\Telegram\Action\ReferralService;
 use App\Service\Telegram\Action\StartService;
 use App\Service\Telegram\Action\UnknownCommandService;
 use App\Service\Telegram\Subscription\SubscriptionService;
@@ -19,6 +20,7 @@ class MessageHandler
         private GameService $gameService,
         private UnknownCommandService $unknownCommandService,
         private SubscriptionService $subscriptionService,
+        private ReferralService $referralService,
     ) {
     }
 
@@ -34,8 +36,18 @@ class MessageHandler
             return;
         }
 
+        $this->referralService->handle($messageId);
+
+        return;
+
         switch ($text) {
-            case '/start':
+            case str_contains($text, '/start'):
+                $parts = explode(' ', $text, 2);
+                $param = $parts[1] ?? '';
+
+                $this->referralService->addReferral($chatId, $param);
+                $this->startService->handle($messageId);
+                break;
             case 'Вернуться в меню':
                 $this->startService->handle($messageId);
                 break;
@@ -47,6 +59,9 @@ class MessageHandler
                 break;
             case '👕 Получить номер':
                 $this->participateService->participateMessage($messageId);
+                break;
+            case '👥 Рефералы':
+                $this->referralService->handle($messageId);
                 break;
             default:
                 $this->unknownCommandService->handle($dto);

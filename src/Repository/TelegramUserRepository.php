@@ -18,4 +18,16 @@ class TelegramUserRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, TelegramUser::class);
     }
+
+    public function countReferrals(int $userId): int
+    {
+        $qb = $this->createQueryBuilder('u');
+
+        return $qb
+            ->select('COUNT(u.id)')
+            ->where('u.referredByUser = :user')
+            ->setParameter('user', $userId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
