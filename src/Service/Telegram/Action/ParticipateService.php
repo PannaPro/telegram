@@ -120,7 +120,7 @@ class ParticipateService
         $imageBinary = $this->generateImage($user->getId());
 
         $caption = <<<MARKDOWN
-        @$username, все наши игры проходят в боте Gamee](https://t.me/gamee/start?startapp=eyJyZWYiOjM3NDA2OTk5NH0)
+        @$username, все наши игры проходят в боте [Gamee](https://t.me/gamee/start?startapp=eyJyZWYiOjM3NDA2OTk5NH0)
 
         Я сгенерировал для тебя аватарку с твоим игровым номером — она прикреплена выше.
 
