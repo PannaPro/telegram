@@ -50,8 +50,8 @@ class TelegramUpdateGuard implements EventSubscriberInterface
         $updateId = $payload['update_id'];
         $chatId = $this->extractChatId($payload);
         if ($chatId === 0) {
-            $this->logger->debug($payload['update_id'] . 'Invalid request 404');
-            $event->setResponse(new Response('Invalid request', 404));
+            $this->logger->debug($payload['update_id'] . 'No chat id, update ignored', $payload);
+            $event->setResponse(new Response('No chat id, update ignored', 200));
         }
 
         $key = "last_update:$chatId";
