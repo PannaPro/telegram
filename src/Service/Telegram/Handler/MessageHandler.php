@@ -29,7 +29,7 @@ class MessageHandler
 
         $chatId = $dto->getChatId();
         if (!$this->subscriptionService->check($chatId)) {
-            $this->subscriptionService->needSubscription($chatId, $messageId);
+            $this->subscriptionService->needSubscription($chatId);
 
             return;
         }
@@ -46,7 +46,7 @@ class MessageHandler
                 $this->gameService->handle($messageId);
                 break;
             case '👕 Получить номер':
-                $this->participateService->participateMessage();
+                $this->participateService->participateMessage($messageId);
                 break;
             default:
                 $this->unknownCommandService->handle($dto);

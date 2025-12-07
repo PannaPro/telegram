@@ -32,12 +32,9 @@ class UnknownCommandService
         $this->sendMessage();
     }
 
-    public function handleCallbackQuery(CallbackQueryTelegramPayload $dto): void
+    public function handleCallbackQuery(int $chatId, string $data): void
     {
-        $text = $dto->getText();
-        $chatId = $dto->getChatId();
-
-        $this->logger->debug("Не известный колбек $text, вызван $chatId");
+        $this->logger->debug("Не известный колбек $data, вызван $chatId");
 
         // TODO не отправлять сообщения в каналы
         if ($chatId < 0) {

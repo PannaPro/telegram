@@ -21,20 +21,20 @@ class CallbackQueryHandler
     public function makeAction(CallbackQueryTelegramPayload $dto): void
     {
         $data = $dto->getCallbackData();
-        $messageId = $dto->getMessageId();
+        $chatId = $dto->getChatId();
 
         switch ($data) {
+            case 'subscription':
+                $this->subscriptionService->handleCallbackQueryPayload($chatId);
+                break;
             case 'participate':
                 $this->participateService->handleCallbackQuery();
                 break;
             case 'avatarSet':
-                $this->avatarSetService->handleCallbackQuery($messageId);
-                break;
-            case 'subscription':
-                $this->subscriptionService->handleCallbackQueryPayload($dto->getChatId(), $messageId);
+                $this->avatarSetService->handleCallbackQuery();
                 break;
             default:
-                $this->unknownCommandService->handleCallbackQuery($dto);
+                $this->unknownCommandService->handleCallbackQuery($chatId, $data);
         }
     }
 }
