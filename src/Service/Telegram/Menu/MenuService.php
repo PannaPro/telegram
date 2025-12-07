@@ -16,7 +16,7 @@ class MenuService
     ) {
     }
 
-    public function sendStartMenu(int $chatId): void
+    public function sendStartMenu(int $chatId, int $messageId): void
     {
 //        $keyboard = new ReplyKeyboardMarkup(
 //            [
@@ -57,11 +57,11 @@ class MenuService
             $replyKeyboard,
         );
 
-        $this->cache->saveAndCleanup('startMenu', $chatId, $message->getMessageId());
+        $this->cache->clear('startMenu', $chatId, $messageId, $message->getMessageId());
         $this->cache->cleanup('step', $chatId);
     }
 
-    public function sendPreview(int $chatId): void
+    public function sendPreview(int $chatId, int $messageId): void
     {
         $text = <<<MARKDOWN
             👋 *Рад приветствовать тебя в нашем клубе!*
@@ -88,11 +88,11 @@ class MenuService
             $keyboard
         );
 
-        $this->cache->saveAndCleanup('startMenu', $chatId, $message->getMessageId());
+        $this->cache->clear('startMenu', $chatId, $messageId, $message->getMessageId());
         $this->cache->cleanup('step', $chatId);
     }
 
-    public function needChanelSubscribe(int $chatId): void
+    public function needChanelSubscribe(int $chatId, int $messageId): void
     {
         $text = <<<MARKDOWN
             👋 *Привет, дорогой друг!*
@@ -115,7 +115,7 @@ class MenuService
             $keyboard
         );
 
-        $this->cache->saveAndCleanup('startMenu', $chatId, $message->getMessageId());
+        $this->cache->clear('startMenu', $chatId, $messageId, $message->getMessageId());
         $this->cache->cleanup('step', $chatId);
     }
 }

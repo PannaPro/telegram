@@ -44,23 +44,10 @@ final class InfoService
         *Возникли вопросы?* Техподдержка: [@PAKETABKOCMOC](https://t.me/PAKETABKOCMOC)
         MARKDOWN;
 
-        $inlineKeyboard = new InlineKeyboardMarkup([
-            [
-                ['text' => 'Категория 1', 'callback_data' => 'info_cat_1'],
-                ['text' => 'Категория 2', 'callback_data' => 'info_cat_2'],
-            ],
-            [
-                ['text' => 'Категория 3', 'callback_data' => 'info_cat_3'],
-            ],
-        ]);
-
         $message = $this->telegramBotService->sendMessage(
             $chatId,
             $text,
             'Markdown',
-            false,
-            null,
-            $inlineKeyboard
         );
 
         $this->cache->clear('step', $chatId, $message->getMessageId(), $currentMessage);

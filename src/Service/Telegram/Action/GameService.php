@@ -17,7 +17,7 @@ class GameService
     ) {
     }
 
-    public function handle(): void
+    public function handle(int $messageId): void
     {
         $user = $this->security->fetchCurrentUser();
         $chatId = $user->getChatId();
@@ -38,6 +38,6 @@ class GameService
             'Markdown',
         );
 
-        $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
+        $this->cache->clear('step', $chatId, $messageId, $message->getMessageId());
     }
 }

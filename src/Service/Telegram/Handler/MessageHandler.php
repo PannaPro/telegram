@@ -25,10 +25,11 @@ class MessageHandler
     public function makeAction(MessageTelegramPayload $dto): void
     {
         $text = $dto->getText();
+        $messageId = $dto->getMessageId();
 
         $chatId = $dto->getChatId();
         if (!$this->subscriptionService->check($chatId)) {
-            $this->subscriptionService->needSubscription($chatId);
+            $this->subscriptionService->needSubscription($chatId, $messageId);
 
             return;
         }
@@ -36,13 +37,13 @@ class MessageHandler
         switch ($text) {
             case '/start':
             case 'Вернуться в меню':
-                $this->startService->handle();
+                $this->startService->handle($messageId);
                 break;
             case '💡 Инфо':
-                $this->infoService->handle($dto->getMessageId());
+                $this->infoService->handle($messageId);
                 break;
             case '🎲 Игры':
-                $this->gameService->handle();
+                $this->gameService->handle($messageId);
                 break;
             case '👕 Получить номер':
                 $this->participateService->participateMessage();
