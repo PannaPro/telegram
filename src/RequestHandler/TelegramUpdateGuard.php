@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Redis;
 
@@ -23,6 +24,7 @@ class TelegramUpdateGuard implements EventSubscriberInterface
     {
         return [
             KernelEvents::REQUEST => ['onRequest', 10],
+            KernelEvents::RESPONSE => ['onResponse', 0],
         ];
     }
 
@@ -59,7 +61,10 @@ class TelegramUpdateGuard implements EventSubscriberInterface
             return;
         }
 
-        $this->redis->setEx($key, 3600, $updateId);
+        $event->getRequest()->attributes->set('telegram_update_id', $updateId);
+        $event->getRequest()->attributes->set('telegram_chat_id', $chatId);
+
+//        $this->redis->setEx($key, 3600, $updateId);
     }
 
     private function extractChatId(array $payload): int
@@ -69,5 +74,19 @@ class TelegramUpdateGuard implements EventSubscriberInterface
             $payload['callback_query']['message']['chat']['id'] ??
             $payload['channel_post']['chat']['id'] ??
             0;
+    }
+
+    public function onResponse(ResponseEvent $event)
+    {
+        $request = $event->getRequest();
+
+        $updateId = $request->attributes->get('telegram_update_id');
+        $chatId = $request->attributes->get('telegram_chat_id');
+
+        if ($updateId && $chatId) {
+            $key = "last_update:$chatId";
+            $this->redis->setEx($key, 3600, $updateId);
+            $this->logger->debug("Update $updateId stored in Redis for chat $chatId");
+        }
     }
 }
