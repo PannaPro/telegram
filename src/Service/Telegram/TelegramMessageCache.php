@@ -43,6 +43,18 @@ final class TelegramMessageCache
         unset($messages);
     }
 
+    public function clear(string $type, int $chatId, int $messageId, int $newMessage): void
+    {
+        $this->cleanup($type, $chatId);
+        $this->telegramBotService->deleteMessage($chatId, $newMessage);
+
+        $this->set($type, $chatId, [
+            'id' => $messageId,
+            'type' => $type,
+            'delete' => true
+        ]);
+    }
+
     /**
      * Сохраняет одно новое сообщение, заменяя предыдущие.
      */

@@ -3,8 +3,11 @@
 namespace App\Service\Telegram\Action;
 
 use App\Security\SecurityTelegramUserService;
+use App\Service\Telegram\Menu\MenuService;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
+use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
+use TelegramBot\Api\Types\ReplyKeyboardMarkup;
 
 final class InfoService
 {
@@ -15,7 +18,7 @@ final class InfoService
     ) {
     }
 
-    public function handle(): void
+    public function handle(int $currentMessage): void
     {
         $user = $this->security->fetchCurrentUser();
         $chatId = $user->getChatId();
@@ -23,7 +26,7 @@ final class InfoService
         $text = <<<MARKDOWN
         📜 *Правила использования бота*
 
-        1️⃣ В игровом боте ([Gamee](https://t.me/gamee/start?startapp=eyJyZWYiOjM3NDA2OTk5NH0) должна быть установлена игровая аватарка.
+        1️⃣ В игровом боте [Gamee](https://t.me/gamee/start?startapp=eyJyZWYiOjM3NDA2OTk5NH0) должна быть установлена игровая аватарка.
         Вы получили ее при регистрации, так же можете получить ее еще раз кликнув по кнопке Получить номер
 
         2️⃣ Запрещено:
@@ -41,12 +44,25 @@ final class InfoService
         *Возникли вопросы?* Техподдержка: [@PAKETABKOCMOC](https://t.me/PAKETABKOCMOC)
         MARKDOWN;
 
+        $inlineKeyboard = new InlineKeyboardMarkup([
+            [
+                ['text' => 'Категория 1', 'callback_data' => 'info_cat_1'],
+                ['text' => 'Категория 2', 'callback_data' => 'info_cat_2'],
+            ],
+            [
+                ['text' => 'Категория 3', 'callback_data' => 'info_cat_3'],
+            ],
+        ]);
+
         $message = $this->telegramBotService->sendMessage(
             $chatId,
             $text,
             'Markdown',
+            false,
+            null,
+            $inlineKeyboard
         );
 
-        $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
+        $this->cache->clear('step', $chatId, $message->getMessageId(), $currentMessage);
     }
 }
