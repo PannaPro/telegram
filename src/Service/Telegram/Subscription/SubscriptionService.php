@@ -21,18 +21,18 @@ class SubscriptionService
     ) {
     }
 
-    public function handleCallbackQueryPayload(int $chatId, int $messageId): void
+    public function handleCallbackQueryPayload(int $chatId): void
     {
         $hasSubscription = $this->check($chatId);
 
         if ($hasSubscription) {
-            $this->startService->handle($messageId);
+            $this->startService->handle();
         } else {
-            $this->needSubscription($chatId, $messageId);
+            $this->needSubscription($chatId);
         }
     }
 
-    public function needSubscription(int $chatId, $messageId): void
+    public function needSubscription(int $chatId): void
     {
         // TODO temporary
         if ($chatId < 0) {
@@ -40,7 +40,7 @@ class SubscriptionService
             return;
         }
 
-        $this->menuService->needChanelSubscribe($chatId, $messageId);
+        $this->menuService->needChanelSubscribe($chatId);
     }
 
     public function check(int $chatId): bool

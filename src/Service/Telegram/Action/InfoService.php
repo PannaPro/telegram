@@ -50,6 +50,6 @@ final class InfoService
             'Markdown',
         );
 
-        $this->cache->clear('step', $chatId, $message->getMessageId(), $currentMessage);
+        $this->cache->clear('step', $chatId, $currentMessage, $message->getMessageId());
     }
 }

@@ -112,7 +112,7 @@ class ParticipateService
         $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
     }
 
-    public function participateMessage(): void
+    public function participateMessage(int $currentMessage = 0): void
     {
         $user = $this->security->fetchCurrentUser();
         $chatId = $user->getChatId();
@@ -153,7 +153,7 @@ class ParticipateService
             'Markdown'
         );
 
-        $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
+        $this->cache->clear('step', $chatId, $currentMessage, $message->getMessageId());
     }
 
     public function generateImage(int $chatId): string

@@ -209,6 +209,10 @@ class TelegramBotService
 
     public function deleteMessage(int $chatId, int $messageId): void
     {
+        if ($messageId === 0) {
+            return;
+        }
+
         try {
              $this->telegram->deleteMessage($chatId, $messageId);
         } catch (\TelegramBot\Api\Exception $e) {

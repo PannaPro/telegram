@@ -13,7 +13,7 @@ class StartService
     ) {
     }
 
-    public function handle(int $messageId): void
+    public function handle(int $messageId = 0): void
     {
         $user = $this->security->fetchCurrentUser();
         $chatId = $user->getChatId();
@@ -23,6 +23,6 @@ class StartService
             return;
         }
 
-        $this->menuService->sendPreview($chatId, $messageId);
+        $this->menuService->sendPreview($chatId);
     }
 }
