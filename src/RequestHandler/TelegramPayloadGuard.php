@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
-#[WithMonologChannel('payload')]
+#[WithMonologChannel('webhook_payload')]
 class TelegramPayloadGuard implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
@@ -48,6 +48,9 @@ class TelegramPayloadGuard implements EventSubscriberInterface
 
     private function extractAvailablePayloadType(array $payload): string
     {
+        $update = $payload['update_id'];
+        $this->logger->debug($update, [serialize($payload)]);
+
         $supportedTypes = [
             'message' => true,
             'my_chat_member' => true,
@@ -60,7 +63,7 @@ class TelegramPayloadGuard implements EventSubscriberInterface
             }
         }
 
-        $this->logger->debug('unsupported payload type', [serialize($payload)]);
+        $this->logger->debug("$update -unsupported payload type");
 
         return 'unknown';
     }
