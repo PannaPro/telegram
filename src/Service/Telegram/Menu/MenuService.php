@@ -43,7 +43,7 @@ class MenuService
                 ['👕 Получить номер'],
                 ['💡 Инфо'],
             ],
-            true,
+            false,
             true,
             true
         );
@@ -57,8 +57,8 @@ class MenuService
             $replyKeyboard,
         );
 
-//        $this->cache->saveAndCleanup('startMenu', $chatId, $message->getMessageId());
-//        $this->cache->cleanup('step', $chatId);
+        $this->cache->saveAndCleanup('startMenu', $chatId, $message->getMessageId());
+        $this->cache->cleanup('step', $chatId);
     }
 
     public function sendPreview(int $chatId): void
