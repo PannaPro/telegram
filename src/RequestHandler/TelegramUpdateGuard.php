@@ -54,12 +54,12 @@ class TelegramUpdateGuard implements EventSubscriberInterface
         $lastUpdate = $this->redis->get($key);
 
         if ($lastUpdate !== false && $updateId <= (int)$lastUpdate) {
-            $this->logger->debug($updateId . "Duplicate update ignored");
+            $this->logger->debug($updateId . "Duplicate update ignored for $lastUpdate");
             $event->setResponse(new Response('Duplicate update ignored', 200));
             return;
         }
 
-        $this->redis->setEx($key, 60, $updateId);
+        $this->redis->setEx($key, 3600, $updateId);
     }
 
     private function extractChatId(array $payload): int
