@@ -2,13 +2,10 @@
 
 namespace App\Service\Telegram\Handler;
 
-use App\Http\Dto\AbstractPayload;
 use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Service\Telegram\Action\AvatarSetService;
 use App\Service\Telegram\Action\ParticipateService;
-use App\Service\Telegram\Action\StartService;
 use App\Service\Telegram\Action\UnknownCommandService;
-use App\Service\Telegram\Menu\MenuService;
 use App\Service\Telegram\Subscription\SubscriptionService;
 
 class CallbackQueryHandler
@@ -17,7 +14,7 @@ class CallbackQueryHandler
         private ParticipateService $participateService,
         private AvatarSetService $avatarSetService,
         private UnknownCommandService $unknownCommandService,
-        private StartService $startService,
+        private SubscriptionService $subscriptionService,
     ) {
     }
 
@@ -33,7 +30,8 @@ class CallbackQueryHandler
                 $this->avatarSetService->handleCallbackQuery();
                 break;
             case 'subscription':
-                $this->startService->handle();
+                $this->subscriptionService->handleCallbackQueryPayload($dto->getChatId());
+                break;
             default:
                 $this->unknownCommandService->handleCallbackQuery($dto);
         }

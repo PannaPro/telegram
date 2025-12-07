@@ -120,24 +120,6 @@ class TelegramUser
         return $this;
     }
 
-    /**
-     * @return DateTimeImmutable
-     */
-    public function getCreatedAt(): DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    /**
-     * @param DateTimeImmutable $createdAt
-     */
-    public function setCreatedAt(DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
     public function isActive(): bool
     {
         return $this->isActive;

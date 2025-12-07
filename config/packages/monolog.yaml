@@ -1,8 +1,8 @@
 monolog:
     channels:
         - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
-        - webhook
-        - payload
+        - webhook_payload
+        - action
 
 when@dev:
     monolog:
@@ -20,18 +20,18 @@ when@dev:
                 type: console
                 process_psr_3_messages: false
                 channels: ["!event", "!doctrine", "!console"]
-            webhook:
+            webhook_payload:
                 type: rotating_file
-                path: "%kernel.logs_dir%/webhook.log"
+                path: "%kernel.logs_dir%/webhook_payload.log"
                 level: debug
-                channels: [ 'webhook' ]
+                channels: [ 'webhook_payload' ]
                 max_files: 3
-            payload:
+            action:
                 type: rotating_file
-                path: "%kernel.logs_dir%/payload.log"
+                path: "%kernel.logs_dir%/action.log"
                 level: debug
-                channels: [ 'payload' ]
-                max_files: 3
+                channels: [ 'action' ]
+                max_files: 1
 
 when@test:
     monolog:
@@ -71,15 +71,15 @@ when@prod:
                 channels: [deprecation]
                 path: php://stderr
                 formatter: monolog.formatter.json
-            webhook:
+            webhook_payload:
                 type: rotating_file
-                path: "%kernel.logs_dir%/webhook.log"
+                path: "%kernel.logs_dir%/webhook_payload.log"
                 level: debug
-                channels: [ 'webhook' ]
+                channels: [ 'webhook_payload' ]
                 max_files: 3
-            payload:
+            action:
                 type: rotating_file
-                path: "%kernel.logs_dir%/payload.log"
+                path: "%kernel.logs_dir%/action.log"
                 level: debug
-                channels: [ 'payload' ]
-                max_files: 3
+                channels: [ 'action' ]
+                max_files: 1

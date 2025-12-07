@@ -3,7 +3,6 @@
 namespace App\Service\Telegram;
 
 use App\Service\TelegramBotService;
-use Exception;
 use Psr\Log\LoggerInterface;
 use Redis;
 
@@ -67,5 +66,17 @@ final class TelegramMessageCache
             'type' => $type,
             'delete' => $delete
         ]);
+    }
+
+    public function setEx(string $type, int $chatId, int $ttl, mixed $value): void
+    {
+        $this->redis->setEx($this->getKey($type, $chatId), $ttl, $value);
+    }
+
+    public function get(string $type, int $chatId): mixed
+    {
+        $value = $this->redis->get($this->getKey($type, $chatId));
+
+        return $value;
     }
 }
