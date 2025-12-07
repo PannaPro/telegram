@@ -2,6 +2,7 @@
 
 namespace App\RequestHandler;
 
+use App\Service\TelegramBotService;
 use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +35,8 @@ class TelegramUpdateGuard implements EventSubscriberInterface
         if (!$request->isMethod('POST')) {
             return;
         }
+
+        return;
 
         // TODO temporary
         if (!in_array($request->getRequestUri(), ['/webhook', '/test-webhooks'], true)) {
