@@ -35,7 +35,7 @@ class SubscriptionService
     {
         // TODO temporary
         if ($chatId < 0) {
-            $this->logger->debug("Попытка отправит сообщение о подписке на канал $chatId");
+            $this->logger->debug("Попытка отправить сообщение о подписке на канал $chatId");
             return;
         }
 

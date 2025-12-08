@@ -28,7 +28,7 @@ class ReferralService
 
         $referralCode = $this->makeReferralCode($user);
         $text = rawurlencode("Привет! Нашел крутого бота где проводятся игры, а призы реальные NFT!");
-        $botLink = "https://t.me/share?url=https://t.me/Panpubgbot?start=$referralCode&text=$text";
+        $botLink = "https://t.me/share?url=https://t.me/PAKETAGAME_bot?start=$referralCode&text=$text";
 
         $text = <<<MARKDOWN
         👥 *Ваши рефералы:*
