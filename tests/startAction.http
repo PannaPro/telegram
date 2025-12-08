@@ -2,26 +2,24 @@ POST http://127.0.0.1/test-webhook
 Content-Type: application/json
 
 {
-    "update_id": 66430874,
+    "update_id": 66430929,
     "message": {
-        "message_id": 146,
+        "message_id": 311,
         "from": {
-            "id": 301671507,
+            "id": 829052422,
             "is_bot": false,
-            "first_name": "Panna",
-            "last_name": "Caliano",
-            "username": "PannaPro",
-            "language_code": "en"
+            "first_name": "\u0410\u043d\u044f \ud83e\uddf8",
+            "username": "ann_ushka_t",
+            "language_code": "ru"
         },
         "chat": {
-            "id": 301671507,
-            "first_name": "Panna",
-            "last_name": "Caliano",
-            "username": "PannaPro",
+            "id": 829052422,
+            "first_name": "\u0410\u043d\u044f \ud83e\uddf8",
+            "username": "ann_ushka_t",
             "type": "private"
         },
-        "date": 1765030988,
-        "text": "/start",
+        "date": 1765201274,
+        "text": "/start 5cb688ca7d",
         "entities": [
             {
                 "offset": 0,

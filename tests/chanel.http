@@ -3,19 +3,18 @@ POST http://127.0.0.1/test-webhook
 Content-Type: application/json
 
 {
-    "update_id": 66430901,
+    "update_id": 66430939,
     "callback_query": {
-        "id": "1295669257001880813",
+        "id": "3560753040268203195",
         "from": {
-            "id": 301671507,
+            "id": 829052422,
             "is_bot": false,
-            "first_name": "Panna",
-            "last_name": "Caliano",
-            "username": "PannaPro",
-            "language_code": "en"
+            "first_name": "\u0410\u043d\u044f \ud83e\uddf8",
+            "username": "ann_ushka_t",
+            "language_code": "ru"
         },
         "message": {
-            "message_id": 233,
+            "message_id": 313,
             "from": {
                 "id": 6978124079,
                 "is_bot": true,
@@ -23,13 +22,12 @@ Content-Type: application/json
                 "username": "Panpubgbot"
             },
             "chat": {
-                "id": 301671507,
-                "first_name": "Panna",
-                "last_name": "Caliano",
-                "username": "PannaPro",
+                "id": 829052422,
+                "first_name": "\u0410\u043d\u044f \ud83e\uddf8",
+                "username": "ann_ushka_t",
                 "type": "private"
             },
-            "date": 1765108611,
+            "date": 1765204130,
             "text": "\ud83d\udc4b \u041f\u0440\u0438\u0432\u0435\u0442, \u0434\u043e\u0440\u043e\u0433\u043e\u0439 \u0434\u0440\u0443\u0433!\n\n\u0427\u0442\u043e\u0431\u044b \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0441\u044c\u044f \u0438\u0433\u0440\u043e\u0432\u044b\u043c \u0431\u043e\u0442\u043e\u043c \u043d\u0443\u0436\u043d\u0430 \u043f\u043e\u0434\u043f\u0438\u0441\u043a\u0430 \u043d\u0430 \u043d\u0430\u0448 \u043a\u0430\u043d\u0430\u043b",
             "entities": [
                 {
@@ -58,7 +56,7 @@ Content-Type: application/json
                 ]
             }
         },
-        "chat_instance": "5208739627955975931",
+        "chat_instance": "2872511264825538475",
         "data": "subscription"
     }
 }

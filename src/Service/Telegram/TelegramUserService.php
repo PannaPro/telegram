@@ -4,6 +4,7 @@ namespace App\Service\Telegram;
 
 use App\Entity\TelegramUser;
 use App\Http\Dto\AbstractPayload;
+use App\Http\Dto\MessageTelegramPayload;
 use App\Http\Dto\MyChatMemberPayload;
 use App\Repository\TelegramUserRepository;
 use App\Service\ExceptionHandle\NotFoundException;

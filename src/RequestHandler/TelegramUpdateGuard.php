@@ -36,8 +36,6 @@ class TelegramUpdateGuard implements EventSubscriberInterface
             return;
         }
 
-        return;
-
         // TODO temporary
         if (!in_array($request->getRequestUri(), ['/webhook', '/test-webhooks'], true)) {
             return;

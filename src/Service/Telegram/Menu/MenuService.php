@@ -95,31 +95,4 @@ class MenuService
         $this->cache->saveAndCleanup('startMenu', $chatId, $message->getMessageId());
         $this->cache->cleanup('step', $chatId);
     }
-
-    public function needChanelSubscribe(int $chatId): void
-    {
-        $text = <<<MARKDOWN
-            👋 *Привет, дорогой друг!*
-
-            Чтобы пользоватсья игровым ботом нужна подписка на наш [канал](https://t.me/PAKETAGAME?start=1)
-            MARKDOWN;
-
-        $keyboard = new InlineKeyboardMarkup([
-            [
-                ['text' => 'Проверить подписку', 'callback_data' => 'subscription']
-            ]
-        ]);
-
-        $message = $this->telegramBotService->sendMessage(
-            $chatId,
-            $text,
-            'Markdown',
-            false,
-            null,
-            $keyboard
-        );
-
-        $this->cache->saveAndCleanup('startMenu', $chatId, $message->getMessageId());
-        $this->cache->cleanup('step', $chatId);
-    }
 }
