@@ -9,7 +9,7 @@ use App\Service\Telegram\Action\ParticipateService;
 use App\Service\Telegram\Action\ReferralService;
 use App\Service\Telegram\Action\StartService;
 use App\Service\Telegram\Action\UnknownCommandService;
-use App\Service\Telegram\Subscription\SubscriptionService;
+use App\Service\Telegram\Enum\TelegramDefaultValue;
 
 class MessageHandler
 {
@@ -48,7 +48,7 @@ class MessageHandler
                 break;
             case str_contains($text, '/start'):
                 $command = explode(' ', $text, 2);
-                $param = $command[1] ?? '';
+                $param = $command[1] ?? TelegramDefaultValue::UNKNOWN;
 
                 $this->referralService->addReferral($chatId, $param);
                 $this->startService->handle($messageId);

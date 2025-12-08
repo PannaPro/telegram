@@ -2,6 +2,8 @@
 
 namespace App\Service\Telegram\Menu;
 
+use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\Enum\TelegramParseMode;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
@@ -58,11 +60,11 @@ class MenuService
             null,
             $replyKeyboard,
             false,
-            'Markdown',
+            TelegramParseMode::MARKDOWN,
         );
 
-        $this->cache->clear('startMenu', $chatId, $currentMessage, $message->getMessageId());
-        $this->cache->cleanup('step', $chatId);
+        $this->cache->clear(TelegramCacheKey::START_MENU, $chatId, $currentMessage, $message->getMessageId());
+        $this->cache->cleanup(TelegramCacheKey::STEP, $chatId);
     }
 
     public function sendPreview(int $chatId): void
@@ -86,13 +88,13 @@ class MenuService
         $message = $this->telegramBotService->sendMessage(
             $chatId,
             $text,
-            'Markdown',
+            TelegramParseMode::MARKDOWN,
             false,
             null,
             $keyboard
         );
 
-        $this->cache->saveAndCleanup('startMenu', $chatId, $message->getMessageId());
-        $this->cache->cleanup('step', $chatId);
+        $this->cache->saveAndCleanup(TelegramCacheKey::START_MENU, $chatId, $message->getMessageId());
+        $this->cache->cleanup(TelegramCacheKey::STEP, $chatId);
     }
 }

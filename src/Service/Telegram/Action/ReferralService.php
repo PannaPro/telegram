@@ -5,6 +5,8 @@ namespace App\Service\Telegram\Action;
 use App\Entity\TelegramUser;
 use App\Repository\TelegramUserRepository;
 use App\Security\SecurityTelegramUserService;
+use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\Enum\TelegramDefaultValue;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
@@ -74,24 +76,27 @@ class ReferralService
 
     public function addReferral(int $chatId, string $referralLink): void
     {
-        if (empty($referralLink)) {
+        if ($referralLink === TelegramDefaultValue::UNKNOWN) {
             return;
         }
 
-        $referrer = $this->telegramUserRepository->findOneBy(['referralLink' => $referralLink]);
-        if (!$referrer) {
+        /** Only first 5 minute allows to set referrer */
+        $referralWindow = $this->cache->get(TelegramCacheKey::REFERRAL_WINDOW, $chatId);
+        if ($referralWindow === false) {
             return;
         }
 
         $referred = $this->security->fetchCurrentUser();
-
-        if ($referrer->getChatId() === $chatId) {
+        if ($referred->getReferrer() !== null) {
             return;
         }
 
-        if ($referred->getReferrer() === null) {
-            $referrer->addReferral($referred);
-            $this->telegramUserRepository->save($referred);
+        $referrer = $this->telegramUserRepository->findOneBy(['referralLink' => $referralLink]);
+        if (!$referrer || $referrer->getChatId() === $chatId) {
+            return;
         }
+
+        $referrer->addReferral($referred);
+        $this->telegramUserRepository->save($referred);
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Service\Telegram;
 
 use App\Service\TelegramBotService;
-use Psr\Log\LoggerInterface;
 use Redis;
 
 final class TelegramMessageCache
@@ -11,7 +10,6 @@ final class TelegramMessageCache
     public function __construct(
         private Redis $redis,
         private TelegramBotService $telegramBotService,
-        private LoggerInterface $logger
     ) {
     }
 
@@ -87,8 +85,6 @@ final class TelegramMessageCache
 
     public function get(string $type, int $chatId): mixed
     {
-        $value = $this->redis->get($this->getKey($type, $chatId));
-
-        return $value;
+        return $this->redis->get($this->getKey($type, $chatId));
     }
 }

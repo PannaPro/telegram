@@ -2,9 +2,10 @@
 
 namespace App\Service\Telegram\Action;
 
-use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Http\Dto\MessageTelegramPayload;
 use App\Security\SecurityTelegramUserService;
+use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\Enum\TelegramParseMode;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
 use Monolog\Attribute\WithMonologChannel;
@@ -65,12 +66,12 @@ class UnknownCommandService
         $message = $this->telegramBotService->sendMessage(
             $chatId,
             $text,
-            'Markdown',
+            TelegramParseMode::MARKDOWN,
             false,
             null,
             $replyKeyboard
         );
 
-        $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
+        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $message->getMessageId());
     }
 }

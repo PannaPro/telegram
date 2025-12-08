@@ -2,8 +2,8 @@
 
 namespace App\Service\Telegram\Subscription;
 
-use App\Service\Telegram\Action\StartService;
-use App\Service\Telegram\Menu\MenuService;
+use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\Enum\TelegramParseMode;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
 use Monolog\Attribute\WithMonologChannel;
@@ -59,27 +59,26 @@ class SubscriptionService
         $message = $this->telegramBotService->sendMessage(
             $chatId,
             $text,
-            'Markdown',
+            TelegramParseMode::MARKDOWN,
             false,
             null,
             $keyboard
         );
 
-        $this->cache->saveAndCleanup('startMenu', $chatId, $message->getMessageId());
-        $this->cache->cleanup('step', $chatId);
+        $this->cache->saveAndCleanup(TelegramCacheKey::START_MENU, $chatId, $message->getMessageId());
+        $this->cache->cleanup(TelegramCacheKey::STEP, $chatId);
     }
 
     public function check(int $chatId): bool
     {
-        $type = 'subscription';
-        $cached = $this->cache->get($type, $chatId);
+        $cached = $this->cache->get(TelegramCacheKey::SUBSCRIPTION, $chatId);
         if ($cached == true) {
             return true;
         }
 
         $hasSubscription = $this->telegramBotService->isSubscribed($chatId);
 
-        $this->cache->setEx($type, $chatId, 600, $hasSubscription);
+        $this->cache->setEx(TelegramCacheKey::SUBSCRIPTION, $chatId, TelegramCacheKey::TTL_10_MINUTES, $hasSubscription);
 
         return $hasSubscription;
     }

@@ -3,11 +3,10 @@
 namespace App\Service\Telegram\Action;
 
 use App\Security\SecurityTelegramUserService;
-use App\Service\Telegram\Menu\MenuService;
+use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\Enum\TelegramParseMode;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
-use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
-use TelegramBot\Api\Types\ReplyKeyboardMarkup;
 
 final class InfoService
 {
@@ -47,9 +46,9 @@ final class InfoService
         $message = $this->telegramBotService->sendMessage(
             $chatId,
             $text,
-            'Markdown',
+            TelegramParseMode::MARKDOWN,
         );
 
-        $this->cache->clear('step', $chatId, $currentMessage, $message->getMessageId());
+        $this->cache->clear(TelegramCacheKey::STEP, $chatId, $currentMessage, $message->getMessageId());
     }
 }

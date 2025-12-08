@@ -4,6 +4,9 @@ namespace App\Service\Telegram\Action;
 
 use App\Repository\TelegramUserRepository;
 use App\Security\SecurityTelegramUserService;
+use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\Enum\TelegramDefaultValue;
+use App\Service\Telegram\Enum\TelegramParseMode;
 use App\Service\Telegram\TelegramMessageCache;
 use Imagine\Gd\Font;
 use Imagine\Gd\Imagine;
@@ -12,7 +15,6 @@ use Imagine\Image\Palette\RGB;
 use Imagine\Image\Point;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 use TelegramBot\Api\Types\ReplyKeyboardMarkup;
-use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Service\TelegramBotService;
 use CURLFile;
 
@@ -59,10 +61,10 @@ class ParticipateService
             null,
             $keyboard,
             false,
-            'Markdown'
+            TelegramParseMode::MARKDOWN
         );
 
-        $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
+        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $message->getMessageId());
     }
 
     public function handleCallbackQuery(): void
@@ -74,7 +76,7 @@ class ParticipateService
         $user->setUsername($username);
         $this->telegramUserRepository->save($user);
 
-        if ($username === 'unknown') {
+        if ($username === TelegramDefaultValue::UNKNOWN) {
             $this->needUsernameMessage($chatId);
         } else {
             $this->participateMessage();
@@ -103,13 +105,13 @@ class ParticipateService
         $message = $this->telegramBotService->sendMessage(
             $chatId,
             $text,
-            'Markdown',
+            TelegramParseMode::MARKDOWN,
             false,
             null,
             $keyboard
         );
 
-        $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
+        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $message->getMessageId());
     }
 
     public function participateMessage(int $currentMessage = 0): void
@@ -150,10 +152,10 @@ class ParticipateService
             null,
             $keyboard,
             false,
-            'Markdown'
+            TelegramParseMode::MARKDOWN
         );
 
-        $this->cache->clear('step', $chatId, $currentMessage, $message->getMessageId());
+        $this->cache->clear(TelegramCacheKey::STEP, $chatId, $currentMessage, $message->getMessageId());
     }
 
     public function generateImage(int $chatId): string
