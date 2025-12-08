@@ -19,7 +19,6 @@ class MessageHandler
         private ParticipateService $participateService,
         private GameService $gameService,
         private UnknownCommandService $unknownCommandService,
-        private SubscriptionService $subscriptionService,
         private ReferralService $referralService,
     ) {
     }
@@ -28,26 +27,10 @@ class MessageHandler
     {
         $text = $dto->getText();
         $messageId = $dto->getMessageId();
-
         $chatId = $dto->getChatId();
-        if (!$this->subscriptionService->check($chatId)) {
-            $this->subscriptionService->needSubscription($chatId);
-
-            return;
-        }
-
-        $this->referralService->handle($messageId);
-
-        return;
 
         switch ($text) {
-            case str_contains($text, '/start'):
-                $parts = explode(' ', $text, 2);
-                $param = $parts[1] ?? '';
-
-                $this->referralService->addReferral($chatId, $param);
-                $this->startService->handle($messageId);
-                break;
+            case '/start':
             case 'Вернуться в меню':
                 $this->startService->handle($messageId);
                 break;
@@ -62,6 +45,13 @@ class MessageHandler
                 break;
             case '👥 Рефералы':
                 $this->referralService->handle($messageId);
+                break;
+            case str_contains($text, '/start'):
+                $command = explode(' ', $text, 2);
+                $param = $command[1] ?? '';
+
+                $this->referralService->addReferral($chatId, $param);
+                $this->startService->handle($messageId);
                 break;
             default:
                 $this->unknownCommandService->handle($dto);

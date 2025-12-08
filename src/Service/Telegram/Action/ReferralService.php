@@ -16,8 +16,7 @@ class ReferralService
         private SecurityTelegramUserService $security,
         private TelegramMessageCache $cache,
         private TelegramUserRepository $telegramUserRepository,
-    )
-    {
+    ) {
     }
 
     public function handle(int $currentMessage): void
@@ -28,18 +27,8 @@ class ReferralService
         $referralCount = $this->telegramUserRepository->countReferrals($user->getId());
 
         $referralCode = $this->makeReferralCode($user);
-
-//        $referralLink = "https://t.me/PAKETAGAME_bot?start=$referralCode";
-
-        $text = "Привет! Нашел крутого бота где проводятся игры, а призы реальные NFT!";
-        $textParam = urlencode("Привет! Нашел крутого бота со скидками на все популярные магазины");
-//        $encodedText = str_replace('+', ' ', rawurlencode($textParam));
-
-        $botLink = "https://t.me/share?url=https://t.me/PAKETAGAME_bot?start=$referralCode&text=$textParam";
-
-//        $textParam = urlencode("Привет! Нашел крутого бота со скидками на все популярные магазины");
-//        $encodedText = str_replace('+', ' ', rawurlencode($text));
-//        $botLink = "https://t.me/share?url=https://t.me/PAKETAGAME_bot?start=$referralCode";
+        $text = rawurlencode("Привет! Нашел крутого бота где проводятся игры, а призы реальные NFT!");
+        $botLink = "https://t.me/share?url=https://t.me/Panpubgbot?start=$referralCode&text=$text";
 
         $text = <<<MARKDOWN
         👥 *Ваши рефералы:*
@@ -49,9 +38,6 @@ class ReferralService
         $inlineKeyboard = new InlineKeyboardMarkup([
             [
                 ['text' => 'Пригласить', 'url' => $botLink],
-            ],
-            [
-                ['text' => 'Закрыть', 'callback_data' => 'close_referrals']
             ]
         ]);
 
@@ -64,7 +50,7 @@ class ReferralService
             $inlineKeyboard
         );
 
-        $this->cache->saveAndCleanup('step', $chatId, $message->getMessageId());
+        $this->cache->clear('step', $chatId, $currentMessage, $message->getMessageId());
     }
 
     private function makeReferralCode(TelegramUser $user): string
