@@ -3,10 +3,11 @@
 namespace App\Service\Telegram\Action;
 
 use App\Security\SecurityTelegramUserService;
+use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\Enum\TelegramParseMode;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
 use CURLFile;
-use TelegramBot\Api\Types\ReplyKeyboardMarkup;
 
 class GameService
 {
@@ -35,9 +36,9 @@ class GameService
             null,
             null,
             false,
-            'Markdown',
+            TelegramParseMode::MARKDOWN,
         );
 
-        $this->cache->clear('step', $chatId, $currentMessage, $message->getMessageId());
+        $this->cache->clear(TelegramCacheKey::STEP, $chatId, $currentMessage, $message->getMessageId());
     }
 }

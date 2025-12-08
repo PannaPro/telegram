@@ -4,15 +4,17 @@ namespace App\Service\Telegram;
 
 use App\Entity\TelegramUser;
 use App\Http\Dto\AbstractPayload;
-use App\Http\Dto\MessageTelegramPayload;
 use App\Http\Dto\MyChatMemberPayload;
 use App\Repository\TelegramUserRepository;
 use App\Service\ExceptionHandle\NotFoundException;
+use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\Enum\TelegramDefaultValue;
 
 class TelegramUserService
 {
     public function __construct(
         private TelegramUserRepository $telegramUserRepository,
+        private TelegramMessageCache $cache,
     ) {
     }
 
@@ -30,8 +32,9 @@ class TelegramUserService
     private function loadOrUpdateTelegramUser(MyChatMemberPayload $dto): TelegramUser
     {
         $chatId = $dto->getChatId();
-        $active = !($dto->getNewChatMemberStatus() === 'kicked');
-        $user = $this->telegramUserRepository->findOneBy(['chatId' => $chatId]);
+        $active = $dto->getNewChatMemberStatus() !== TelegramDefaultValue::KICKED;
+
+        $user = $this->telegramUserRepository->findOneBy([TelegramDefaultValue::CHAT_ID => $chatId]);
         if ($user instanceof TelegramUser) {
             $user->setUsername($dto->getUsername());
             $user->setFirstName($dto->getFirstName());
@@ -45,6 +48,9 @@ class TelegramUserService
                 ->setUsername($dto->getUsername())
                 ->setFirstName($dto->getFirstName())
                 ->setLastName($dto->getLastName());
+
+            /** Set referralWindow on 5 minutes */
+            $this->cache->setEx(TelegramCacheKey::REFERRAL_WINDOW, $chatId, TelegramCacheKey::TTL_5_MINUTES, 1);
         }
 
         $this->telegramUserRepository->save($user);
@@ -54,7 +60,7 @@ class TelegramUserService
 
     private function fetchCurrentUser(AbstractPayload $dto): TelegramUser
     {
-        $user = $this->telegramUserRepository->findOneBy(['chatId' => $dto->getChatId()]);
+        $user = $this->telegramUserRepository->findOneBy([TelegramDefaultValue::CHAT_ID => $dto->getChatId()]);
         if ($user instanceof TelegramUser) {
             $user->setUsername($dto->getUsername());
             $user->setFirstName($dto->getFirstName());

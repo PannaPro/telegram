@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Service\Telegram\Enum;
+
+class TelegramCacheKey
+{
+    public const REFERRAL_WINDOW = 'referralWindow';
+    public const START_MENU = 'startMenu';
+    public const STEP = 'step';
+    public const SUBSCRIPTION = 'subscription';
+
+    public const TTL_1_HOUR = 3600;
+    public const TTL_5_MINUTES = 360;
+    public const TTL_10_MINUTES = 600;
+}

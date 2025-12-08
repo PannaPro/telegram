@@ -27,8 +27,8 @@ class CallbackQueryHandler
 
         switch ($data) {
             case 'subscription':
-                $subscribed = $this->subscriptionService->handleCallbackQueryPayload($chatId);
-                if ($subscribed) {
+                /** Callback will send the repeat message if user hasn't subscription */
+                if ($this->subscriptionService->handleCallbackQueryPayload($chatId)) {
                     $this->startService->handle();
                 }
                 break;

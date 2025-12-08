@@ -2,9 +2,9 @@
 
 namespace App\Service\Telegram\Action;
 
-use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Repository\TelegramUserRepository;
 use App\Security\SecurityTelegramUserService;
+use App\Service\Telegram\Enum\TelegramDefaultValue;
 use App\Service\Telegram\Menu\MenuService;
 
 class AvatarSetService
@@ -21,7 +21,7 @@ class AvatarSetService
     {
         $user = $this->security->fetchCurrentUser();
         $chatId = $user->getChatId();
-        if ($user->getUsername() === 'unknown') {
+        if ($user->getUsername() === TelegramDefaultValue::UNKNOWN) {
             $this->participateService->needUsernameMessage($chatId);
             return;
         }
