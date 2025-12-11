@@ -1,25 +1,27 @@
 <?php
 
-namespace App\Service\Telegram\Handler;
+namespace App\Service\Telegram\User\Handler;
 
 use App\Http\Dto\MessageTelegramPayload;
-use App\Service\Telegram\Action\GameService;
-use App\Service\Telegram\Action\InfoService;
-use App\Service\Telegram\Action\ParticipateService;
-use App\Service\Telegram\Action\ReferralService;
-use App\Service\Telegram\Action\StartService;
-use App\Service\Telegram\Action\UnknownCommandService;
+use App\Service\Telegram\Admin\AdminAction\AdminSessionService;
 use App\Service\Telegram\Enum\TelegramDefaultValue;
+use App\Service\Telegram\UnknownCommandService;
+use App\Service\Telegram\User\Action\GameService;
+use App\Service\Telegram\User\Action\InfoService;
+use App\Service\Telegram\User\Action\ParticipateService;
+use App\Service\Telegram\User\Action\ReferralService;
+use App\Service\Telegram\User\Action\StartService;
 
-class MessageHandler
+class UserMessageHandler
 {
     public function __construct(
-        private StartService $startService,
-        private InfoService $infoService,
-        private ParticipateService $participateService,
-        private GameService $gameService,
+        private StartService          $startService,
+        private InfoService           $infoService,
+        private ParticipateService    $participateService,
+        private GameService           $gameService,
         private UnknownCommandService $unknownCommandService,
-        private ReferralService $referralService,
+        private ReferralService       $referralService,
+        private AdminSessionService   $adminService,
     ) {
     }
 
@@ -41,10 +43,16 @@ class MessageHandler
                 $this->gameService->handle($messageId);
                 break;
             case '👕 Получить номер':
-                $this->participateService->participateMessage($messageId);
+                $this->participateService->handle($messageId);
                 break;
             case '👥 Рефералы':
                 $this->referralService->handle($messageId);
+                break;
+            case '/tiptip':
+                $isAdmin = $this->adminService->handle($messageId);
+                if ($isAdmin === false) {
+                    $this->unknownCommandService->handle($dto);
+                }
                 break;
             case str_contains($text, '/start'):
                 $command = explode(' ', $text, 2);

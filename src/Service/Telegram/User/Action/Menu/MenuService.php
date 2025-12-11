@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Telegram\Menu;
+namespace App\Service\Telegram\User\Action\Menu;
 
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Enum\TelegramParseMode;

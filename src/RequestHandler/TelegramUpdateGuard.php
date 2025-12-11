@@ -2,8 +2,8 @@
 
 namespace App\RequestHandler;
 
-use App\Service\TelegramBotService;
-use Monolog\Attribute\WithMonologChannel;
+use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\TelegramMessageCache;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -12,19 +12,19 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Redis;
 
-#[WithMonologChannel('webhook_payload')]
 class TelegramUpdateGuard implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly Redis $redis,
-        private readonly LoggerInterface $logger,
+        private readonly TelegramMessageCache $cache,
+        private readonly LoggerInterface $webhookLogger,
+        private readonly LoggerInterface $webhookPayloadLogger,
     ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => ['onRequest', 10],
+            KernelEvents::REQUEST => ['onRequest', 20],
             KernelEvents::RESPONSE => ['onResponse', 0],
         ];
     }
@@ -36,47 +36,28 @@ class TelegramUpdateGuard implements EventSubscriberInterface
             return;
         }
 
-        // TODO temporary
-        if (!in_array($request->getRequestUri(), ['/webhook', '/test-webhooks'], true)) {
+        if (!in_array($request->getRequestUri(), ['/webhook', '/test-webhook'], true)) {
             return;
         }
 
         $payload = json_decode($request->getContent(), true);
-        $this->logger->debug($payload['update_id'] . 'в пейлоуде' );
         if (!$payload || !isset($payload['update_id'])) {
-            $this->logger->debug($payload['update_id'] . 'не прошел проверку');
+            $this->webhookLogger->debug("Got invalid message:", $payload);
             return;
         }
 
         $updateId = $payload['update_id'];
-        $chatId = $this->extractChatId($payload);
-        if ($chatId === 0) {
-            $this->logger->debug($payload['update_id'] . 'No chat id, update ignored', $payload);
-            $event->setResponse(new Response('No chat id, update ignored', 200));
-        }
+        $this->webhookLogger->debug("Update_id $updateId has been received");
+        $this->webhookPayloadLogger->debug($updateId, $payload);
 
-        $key = "last_update:$chatId";
-        $lastUpdate = $this->redis->get($key);
-
+        $lastUpdate = $this->cache->get(TelegramCacheKey::LAST_UPDATE, $updateId);
         if ($lastUpdate !== false && $updateId <= (int)$lastUpdate) {
-            $this->logger->debug($updateId . "Duplicate update ignored for $lastUpdate");
-            $event->setResponse(new Response('Duplicate update ignored', 200));
+            $this->webhookLogger->debug("$updateId Duplicate update ignored, current update: $lastUpdate");
+//            $event->setResponse(new Response('Duplicate update ignored', Response::HTTP_OK));
             return;
         }
 
         $event->getRequest()->attributes->set('telegram_update_id', $updateId);
-        $event->getRequest()->attributes->set('telegram_chat_id', $chatId);
-
-//        $this->redis->setEx($key, 3600, $updateId);
-    }
-
-    private function extractChatId(array $payload): int
-    {
-        return $payload['message']['chat']['id'] ??
-            $payload['edited_message']['chat']['id'] ??
-            $payload['callback_query']['message']['chat']['id'] ??
-            $payload['channel_post']['chat']['id'] ??
-            0;
     }
 
     public function onResponse(ResponseEvent $event)
@@ -84,12 +65,11 @@ class TelegramUpdateGuard implements EventSubscriberInterface
         $request = $event->getRequest();
 
         $updateId = $request->attributes->get('telegram_update_id');
-        $chatId = $request->attributes->get('telegram_chat_id');
 
-        if ($updateId && $chatId) {
-            $key = "last_update:$chatId";
-            $this->redis->setEx($key, 3600, $updateId);
-            $this->logger->debug("Update $updateId stored in Redis for chat $chatId");
+        if ($updateId) {
+            $this->cache->setEx(TelegramCacheKey::LAST_UPDATE, $updateId, TelegramCacheKey::TTL_5_MINUTES, $updateId);
+            $this->webhookLogger->debug("Update_id $updateId stored in Redis");
+            $this->webhookLogger->debug("Update_id $updateId response has been sent");
         }
     }
 }

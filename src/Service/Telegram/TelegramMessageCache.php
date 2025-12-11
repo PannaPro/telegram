@@ -13,9 +13,9 @@ final class TelegramMessageCache
     ) {
     }
 
-    private function getKey(string $type, int $chatId): string
+    private function getKey(string $keyType, int $keyValue): string
     {
-        return "$type:$chatId";
+        return "$keyType:$keyValue";
     }
 
     public function getMessages(string $type, int $chatId): array
@@ -78,13 +78,18 @@ final class TelegramMessageCache
         ]);
     }
 
-    public function setEx(string $type, int $chatId, int $ttl, mixed $value): void
+    public function setEx(string $keyType, int $keyValue, int $ttl, mixed $value): void
     {
-        $this->redis->setEx($this->getKey($type, $chatId), $ttl, $value);
+        $this->redis->setEx($this->getKey($keyType, $keyValue), $ttl, $value);
     }
 
-    public function get(string $type, int $chatId): mixed
+    public function get(string $keyType, int $keyValue): mixed
     {
-        return $this->redis->get($this->getKey($type, $chatId));
+        return $this->redis->get($this->getKey($keyType, $keyValue));
+    }
+
+    public function delete(string $keyType, int $keyValue): int
+    {
+        return $this->redis->delete($this->getKey($keyType, $keyValue));
     }
 }

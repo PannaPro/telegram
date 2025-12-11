@@ -6,6 +6,8 @@ use App\Service\ExceptionHandle\TelegramApiException;
 use App\Service\ExceptionHandle\TelegramBotApiException;
 use CURLFile;
 use Exception;
+use TelegramBot\Api\Exception as TelegramBotException;
+use \TelegramBot\Api\InvalidArgumentException as TelegramBotInvalidArgumentException;
 use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Telegram\Bot\Objects\Update;
@@ -13,7 +15,7 @@ use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Types\Message;
 use Throwable;
 
-#[WithMonologChannel('webhook_payload')]
+#[WithMonologChannel('action')]
 class TelegramBotService
 {
     private BotApi $telegram;
@@ -137,7 +139,7 @@ class TelegramBotService
                 'creator',
                 'administrator'
             ], true);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -215,16 +217,17 @@ class TelegramBotService
 
         try {
              $this->telegram->deleteMessage($chatId, $messageId);
-        } catch (\TelegramBot\Api\Exception $e) {
-            $this->logger->error($chatId, [$messageId, $e, ' Не удалось удалить сообщение, возможно оно уже было удалено.']);
+        } catch (TelegramBotException) {
+            $this->logger->error("Не удалось удалить сообщение $messageId для чата $chatId, возможно оно уже было удалено.", );
+            return;
         }
     }
 
 
     /**
      * @return Update[]
-     * @throws \TelegramBot\Api\Exception
-     * @throws \TelegramBot\Api\InvalidArgumentException
+     * @throws TelegramBotException
+     * @throws TelegramBotInvalidArgumentException
      */
     public function getUpdate(int $offset = 0): array
     {

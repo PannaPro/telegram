@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Service\Telegram\Action;
+namespace App\Service\Telegram\User\Action;
 
 use App\Repository\TelegramUserRepository;
 use App\Security\SecurityTelegramUserService;
 use App\Service\Telegram\Enum\TelegramDefaultValue;
-use App\Service\Telegram\Menu\MenuService;
+use App\Service\Telegram\User\Action\Menu\MenuService;
 
 class AvatarSetService
 {

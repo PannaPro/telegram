@@ -22,6 +22,11 @@ services:
 
     Redis: '@snc_redis.default'
 
+    App\RequestHandler\TelegramUpdateGuard:
+        arguments:
+            $webhookLogger: '@monolog.logger.webhook'
+            $webhookPayloadLogger: '@monolog.logger.webhook_payload'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 

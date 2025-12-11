@@ -1,25 +1,26 @@
-
-### subscribe
+### my_chat_member (kicked)
 POST http://127.0.0.1/test-webhook
 Content-Type: application/json
 
 {
-    "update_id": 66430928,
+    "update_id": 66430957,
     "my_chat_member": {
         "chat": {
-            "id": 829052422,
-            "first_name": "\u0410\u043d\u044f \ud83e\uddf8",
-            "username": "ann_ushka_t",
+            "id": 301671507,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
             "type": "private"
         },
         "from": {
-            "id": 829052422,
+            "id": 301671507,
             "is_bot": false,
-            "first_name": "\u0410\u043d\u044f \ud83e\uddf8",
-            "username": "ann_ushka_t",
-            "language_code": "ru"
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "language_code": "en"
         },
-        "date": 1765201274,
+        "date": 1765392527,
         "old_chat_member": {
             "user": {
                 "id": 6978124079,
@@ -38,6 +39,51 @@ Content-Type: application/json
                 "username": "Panpubgbot"
             },
             "status": "member"
+        }
+    }
+}
+
+### my_chat_member (kicked)
+POST http://127.0.0.1/test-webhook
+Content-Type: application/json
+
+{
+    "update_id": 66430956,
+    "my_chat_member": {
+        "chat": {
+            "id": 301671507,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "type": "private"
+        },
+        "from": {
+            "id": 301671507,
+            "is_bot": false,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "language_code": "en"
+        },
+        "date": 1765391152,
+        "old_chat_member": {
+            "user": {
+                "id": 6978124079,
+                "is_bot": true,
+                "first_name": "PAKETA_bot",
+                "username": "Panpubgbot"
+            },
+            "status": "member"
+        },
+        "new_chat_member": {
+            "user": {
+                "id": 6978124079,
+                "is_bot": true,
+                "first_name": "PAKETA_bot",
+                "username": "Panpubgbot"
+            },
+            "status": "kicked",
+            "until_date": 0
         }
     }
 }

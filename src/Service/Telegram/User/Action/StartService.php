@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Service\Telegram\Action;
+namespace App\Service\Telegram\User\Action;
 
 use App\Security\SecurityTelegramUserService;
-use App\Service\Telegram\Menu\MenuService;
-use App\Service\Telegram\Subscription\SubscriptionService;
+use App\Service\Telegram\User\Action\Menu\MenuService;
 
 class StartService
 {
@@ -28,6 +27,7 @@ class StartService
 
         if ($user->isParticipant()) {
             $this->menuService->sendStartMenu($chatId, $messageId);
+
             return;
         }
 

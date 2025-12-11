@@ -8,8 +8,11 @@ class TelegramCacheKey
     public const START_MENU = 'startMenu';
     public const STEP = 'step';
     public const SUBSCRIPTION = 'subscription';
+    public const LAST_UPDATE = 'last_update';
 
     public const TTL_1_HOUR = 3600;
     public const TTL_5_MINUTES = 360;
     public const TTL_10_MINUTES = 600;
+
+    public const REFERRAL_SEARCH = 'admin_referral_search';
 }
