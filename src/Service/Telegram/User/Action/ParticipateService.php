@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Telegram\Action;
+namespace App\Service\Telegram\User\Action;
 
 use App\Repository\TelegramUserRepository;
 use App\Security\SecurityTelegramUserService;
@@ -14,7 +14,6 @@ use Imagine\Image\Box;
 use Imagine\Image\Palette\RGB;
 use Imagine\Image\Point;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
-use TelegramBot\Api\Types\ReplyKeyboardMarkup;
 use App\Service\TelegramBotService;
 use CURLFile;
 
@@ -26,45 +25,6 @@ class ParticipateService
         private TelegramBotService $telegramBotService,
         private TelegramMessageCache $cache,
     ) {
-    }
-
-    public function handle(int $chatId): void
-    {
-        $photoPath = '/app/public/image/paketa.jpg';
-
-        $caption = <<<MARKDOWN
-        Итак, все наши игры проходят в стороннем боте КЛИК.
-
-        Чтобы я смог идентифицировать вас в случае победы, необходимо загрузить в этом приложении аватарку с вашим порядковым номером, который выдаст бот после нажатия кнопки «Получить номер».
-
-        Пожалуйста, сделайте это в первую очередь – без этого я не смогу вас узнать и выдать приз.
-
-        Ниже я прикреплю пошаговую инструкцию, как всё настроить. Это очень просто.
-
-        [Клик для запуска игры](https://t.me/gamee/start?startapp=eyJyZWYiOjM3NDA2OTk5NH0)
-        MARKDOWN;
-
-        $keyboard = new ReplyKeyboardMarkup(
-            [
-                ['🎲 Принять участие'],
-                ['💡 Инфо'],
-            ],
-            true,
-            true,
-            true
-        );
-
-        $message = $this->telegramBotService->sendPhoto(
-            $chatId,
-            new CURLFile($photoPath),
-            $caption,
-            null,
-            $keyboard,
-            false,
-            TelegramParseMode::MARKDOWN
-        );
-
-        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $message->getMessageId());
     }
 
     public function handleCallbackQuery(): void
@@ -79,42 +39,11 @@ class ParticipateService
         if ($username === TelegramDefaultValue::UNKNOWN) {
             $this->needUsernameMessage($chatId);
         } else {
-            $this->participateMessage();
+            $this->handle();
         }
     }
 
-    public function needUsernameMessage(int $chatId): void
-    {
-        $text = <<<MARKDOWN
-        😅 Ой! Похоже, у тебя не указан юзернейм.
-
-        Чтобы его добавить:
-        1️⃣ Перейди в настройки Telegram.
-        2️⃣ Найди поле "Имя пользователя".
-        3️⃣ Придумай уникальный юзернейм и сохрани изменения.
-
-        После этого сможешь участвовать в играх и получать призы! 🎉
-        MARKDOWN;
-
-        $keyboard = new InlineKeyboardMarkup([
-            [
-                ['text' => '🎲 Участвовать', 'callback_data' => 'participate']
-            ]
-        ]);
-
-        $message = $this->telegramBotService->sendMessage(
-            $chatId,
-            $text,
-            TelegramParseMode::MARKDOWN,
-            false,
-            null,
-            $keyboard
-        );
-
-        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $message->getMessageId());
-    }
-
-    public function participateMessage(int $currentMessage = 0): void
+    public function handle(int $currentMessage = 0): void
     {
         $user = $this->security->fetchCurrentUser();
         $chatId = $user->getChatId();
@@ -158,7 +87,38 @@ class ParticipateService
         $this->cache->clear(TelegramCacheKey::STEP, $chatId, $currentMessage, $message->getMessageId());
     }
 
-    public function generateImage(int $chatId): string
+    public function needUsernameMessage(int $chatId): void
+    {
+        $text = <<<MARKDOWN
+        😅 Ой! Похоже, у тебя не указан юзернейм.
+
+        Чтобы его добавить:
+        1️⃣ Перейди в настройки Telegram.
+        2️⃣ Найди поле "Имя пользователя".
+        3️⃣ Придумай уникальный юзернейм и сохрани изменения.
+
+        После этого сможешь участвовать в играх и получать призы! 🎉
+        MARKDOWN;
+
+        $keyboard = new InlineKeyboardMarkup([
+            [
+                ['text' => '🎲 Участвовать', 'callback_data' => 'participate']
+            ]
+        ]);
+
+        $message = $this->telegramBotService->sendMessage(
+            $chatId,
+            $text,
+            TelegramParseMode::MARKDOWN,
+            false,
+            null,
+            $keyboard
+        );
+
+        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $message->getMessageId());
+    }
+
+    private function generateImage(int $chatId): string
     {
         $text = $this->rotationNumber($chatId);
 
@@ -192,7 +152,7 @@ class ParticipateService
 
         for ($i = 0; $i < strlen($str); $i++) {
             if ($str[$i] !== '6' && $str[$i] !== '9') {
-                return $str; // безопасное число
+                return $str;
             }
         }
 

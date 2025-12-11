@@ -2,6 +2,8 @@
 
 namespace App\Command;
 
+use App\Service\Telegram\Admin\AdminAction\AdminReferralService;
+use App\Service\Telegram\Admin\AdminAction\ReferralSearch\ReferralSearchService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -18,6 +20,8 @@ class TestCommand extends Command
 {
     public function __construct(
         private \Redis $redis,
+        private AdminReferralService $adminReferralService,
+        private ReferralSearchService $referralSearchService,
     )
     {
         parent::__construct();
@@ -35,10 +39,11 @@ class TestCommand extends Command
     {
 //        $this->redis->set('action', '/start', 360);
 
-        $data = $this->redis->get('action');
+//        $data = $this->redis->get('action');
+//
+//        dd($data);
 
-        dd($data);
-
+        $this->referralSearchService->prepareToSearch(301671507, 'participantReferral', 421);
 
         return Command::SUCCESS;
     }

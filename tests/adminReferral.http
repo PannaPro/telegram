@@ -1,0 +1,339 @@
+### /adminRefferal
+POST http://127.0.0.1/test-webhook
+Content-Type: application/json
+
+{
+    "update_id": 66430968,
+    "message": {
+        "message_id": 382,
+        "from": {
+            "id": 301671507,
+            "is_bot": false,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "language_code": "en"
+        },
+        "chat": {
+            "id": 301671507,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "type": "private"
+        },
+        "date": 1765465158,
+        "text": "\ud83d\udc65 \u0420\u0435\u0444\u0435\u0440\u0430\u043b\u044b"
+    }
+}
+
+### /adminRefferal participantReferral
+POST http://127.0.0.1/test-webhook
+Content-Type: application/json
+
+{
+    "update_id": 66430970,
+    "callback_query": {
+        "id": "1295669257518236157",
+        "from": {
+            "id": 301671507,
+            "is_bot": false,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "language_code": "en"
+        },
+        "message": {
+            "message_id": 421,
+            "from": {
+                "id": 6978124079,
+                "is_bot": true,
+                "first_name": "PAKETA_bot",
+                "username": "Panpubgbot"
+            },
+            "chat": {
+                "id": 301671507,
+                "first_name": "Panna",
+                "last_name": "Caliano",
+                "username": "PannaPro",
+                "type": "private"
+            },
+            "date": 1765466675,
+            "text": "\u041e\u0431\u0449\u0430\u044f \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u0430 \u043f\u043e \u0440\u0435\u0444\u0435\u0440\u0430\u043b\u0430\u043c\n\n\u0412\u0441\u0435\u0433\u043e: 1\n\u0421\u0435\u0433\u043e\u0434\u043d\u044f: 0\n\u0417\u0430 \u043d\u0435\u0434\u0435\u043b\u044e: 1",
+            "entities": [
+                {
+                    "offset": 0,
+                    "length": 29,
+                    "type": "bold"
+                }
+            ],
+            "reply_markup": {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "\u0420\u0435\u0444\u0435\u0440\u0430\u043b\u044b",
+                            "callback_data": "participantReferral"
+                        },
+                        {
+                            "text": "\u0420\u0435\u0444\u0435\u0440\u0430\u043b\u044b +\u0426\u0414",
+                            "callback_data": "targetActionReferral"
+                        }
+                    ]
+                ]
+            }
+        },
+        "chat_instance": "5208739627955975931",
+        "data": "participantReferral"
+    }
+}
+
+### baco_to_referral_menu callback
+POST http://127.0.0.1/test-webhook
+Content-Type: application/json
+
+{
+    "update_id": 66430973,
+    "callback_query": {
+        "id": "1295669260806416197",
+        "from": {
+            "id": 301671507,
+            "is_bot": false,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "language_code": "en"
+        },
+        "message": {
+            "message_id": 478,
+            "from": {
+                "id": 6978124079,
+                "is_bot": true,
+                "first_name": "PAKETA_bot",
+                "username": "Panpubgbot"
+            },
+            "chat": {
+                "id": 301671507,
+                "first_name": "Panna",
+                "last_name": "Caliano",
+                "username": "PannaPro",
+                "type": "private"
+            },
+            "date": 1765474987,
+            "text": "\u041f\u043e\u0438\u0441\u043a \u043f\u043e \u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a\u0430\u043c (\u0441\u0442\u0430\u0442\u0443\u0441 participant)\n\n\u0412\u044b\u0431\u0435\u0440\u0438 \u0434\u0430\u0442\u0443 \u0434\u043b\u044f \u043f\u043e\u0438\u0441\u043a\u0430.\n\n\u0414\u043b\u044f \u0430\u043b\u044c\u0442\u0435\u0440\u043d\u0430\u0442\u0438\u0432\u043d\u043e\u0433\u043e \u043f\u043e\u0438\u0441\u043a\u0430 \u0432\u0432\u0435\u0434\u0438\u0442\u0435 \u043a\u043e\u043c\u0430\u043d\u0434\u0443 \u0432 \u0444\u043e\u0440\u043c\u0430\u0442\u0435:\n\u0414\u0435\u043d\u044c 01-12-2025\n\u0414\u0430\u0442\u044b 01-12-2025 31-12-2025",
+            "entities": [
+                {
+                    "offset": 0,
+                    "length": 40,
+                    "type": "bold"
+                },
+                {
+                    "offset": 121,
+                    "length": 15,
+                    "type": "bold"
+                },
+                {
+                    "offset": 137,
+                    "length": 26,
+                    "type": "bold"
+                }
+            ],
+            "reply_markup": {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "\u0417\u0430 \u0432\u0441\u0435 \u0432\u0440\u0435\u043c\u044f",
+                            "callback_data": "allPeriod"
+                        },
+                        {
+                            "text": "\u0421\u0435\u0433\u043e\u0434\u043d\u044f",
+                            "callback_data": "dayPeriod"
+                        },
+                        {
+                            "text": "\u0417\u0430 \u043d\u0435\u0434\u0435\u043b\u044e",
+                            "callback_data": "weekPeriod"
+                        }
+                    ],
+                    [
+                        {
+                            "text": "\u041d\u0430\u0437\u0430\u0434",
+                            "callback_data": "back_to_referral_menu"
+                        },
+                        {
+                            "text": "\u0413\u043b\u0430\u0432\u043d\u043e\u0435 \u043c\u0435\u043d\u044e",
+                            "callback_data": "back_to_referral_menu"
+                        }
+                    ]
+                ]
+            }
+        },
+        "chat_instance": "5208739627955975931",
+        "data": "back_to_referral_menu"
+    }
+}
+
+### back_to_admin_menu callback
+POST http://127.0.0.1/test-webhook
+Content-Type: application/json
+
+{
+    "update_id": 66430975,
+    "callback_query": {
+        "id": "1295669260661827253",
+        "from": {
+            "id": 301671507,
+            "is_bot": false,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "language_code": "en"
+        },
+        "message": {
+            "message_id": 491,
+            "from": {
+                "id": 6978124079,
+                "is_bot": true,
+                "first_name": "PAKETA_bot",
+                "username": "Panpubgbot"
+            },
+            "chat": {
+                "id": 301671507,
+                "first_name": "Panna",
+                "last_name": "Caliano",
+                "username": "PannaPro",
+                "type": "private"
+            },
+            "date": 1765476149,
+            "text": "\u041f\u043e\u0438\u0441\u043a \u043f\u043e \u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a\u0430\u043c (\u0441\u0442\u0430\u0442\u0443\u0441 participant)\n\n\u0412\u044b\u0431\u0435\u0440\u0438 \u0434\u0430\u0442\u0443 \u0434\u043b\u044f \u043f\u043e\u0438\u0441\u043a\u0430.\n\n\u0414\u043b\u044f \u0430\u043b\u044c\u0442\u0435\u0440\u043d\u0430\u0442\u0438\u0432\u043d\u043e\u0433\u043e \u043f\u043e\u0438\u0441\u043a\u0430 \u0432\u0432\u0435\u0434\u0438\u0442\u0435 \u043a\u043e\u043c\u0430\u043d\u0434\u0443 \u0432 \u0444\u043e\u0440\u043c\u0430\u0442\u0435:\n\u0414\u0435\u043d\u044c 01-12-2025\n\u0414\u0430\u0442\u044b 01-12-2025 31-12-2025",
+            "entities": [
+                {
+                    "offset": 0,
+                    "length": 40,
+                    "type": "bold"
+                },
+                {
+                    "offset": 121,
+                    "length": 15,
+                    "type": "bold"
+                },
+                {
+                    "offset": 137,
+                    "length": 26,
+                    "type": "bold"
+                }
+            ],
+            "reply_markup": {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "\u0417\u0430 \u0432\u0441\u0435 \u0432\u0440\u0435\u043c\u044f",
+                            "callback_data": "allPeriod"
+                        },
+                        {
+                            "text": "\u0421\u0435\u0433\u043e\u0434\u043d\u044f",
+                            "callback_data": "dayPeriod"
+                        },
+                        {
+                            "text": "\u0417\u0430 \u043d\u0435\u0434\u0435\u043b\u044e",
+                            "callback_data": "weekPeriod"
+                        }
+                    ],
+                    [
+                        {
+                            "text": "\u041d\u0430\u0437\u0430\u0434",
+                            "callback_data": "back_to_referral_menu"
+                        },
+                        {
+                            "text": "\u0413\u043b\u0430\u0432\u043d\u043e\u0435 \u043c\u0435\u043d\u044e",
+                            "callback_data": "back_to_admin_menu"
+                        }
+                    ]
+                ]
+            }
+        },
+        "chat_instance": "5208739627955975931",
+        "data": "back_to_admin_menu"
+    }
+}
+
+### allPeriod callback
+POST http://127.0.0.1/test-webhook
+Content-Type: application/json
+
+{
+    "update_id": 66430977,
+    "callback_query": {
+        "id": "1295669259297018330",
+        "from": {
+            "id": 301671507,
+            "is_bot": false,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "language_code": "en"
+        },
+        "message": {
+            "message_id": 503,
+            "from": {
+                "id": 6978124079,
+                "is_bot": true,
+                "first_name": "PAKETA_bot",
+                "username": "Panpubgbot"
+            },
+            "chat": {
+                "id": 301671507,
+                "first_name": "Panna",
+                "last_name": "Caliano",
+                "username": "PannaPro",
+                "type": "private"
+            },
+            "date": 1765476797,
+            "text": "\u041f\u043e\u0438\u0441\u043a \u043f\u043e \u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a\u0430\u043c (\u0441\u0442\u0430\u0442\u0443\u0441 participant)\n\n\u0412\u044b\u0431\u0435\u0440\u0438 \u0434\u0430\u0442\u0443 \u0434\u043b\u044f \u043f\u043e\u0438\u0441\u043a\u0430.\n\n\u0414\u043b\u044f \u0430\u043b\u044c\u0442\u0435\u0440\u043d\u0430\u0442\u0438\u0432\u043d\u043e\u0433\u043e \u043f\u043e\u0438\u0441\u043a\u0430 \u0432\u0432\u0435\u0434\u0438\u0442\u0435 \u043a\u043e\u043c\u0430\u043d\u0434\u0443 \u0432 \u0444\u043e\u0440\u043c\u0430\u0442\u0435:\n\u0414\u0435\u043d\u044c 01-12-2025\n\u0414\u0430\u0442\u044b 01-12-2025 31-12-2025",
+            "entities": [
+                {
+                    "offset": 0,
+                    "length": 40,
+                    "type": "bold"
+                },
+                {
+                    "offset": 121,
+                    "length": 15,
+                    "type": "bold"
+                },
+                {
+                    "offset": 137,
+                    "length": 26,
+                    "type": "bold"
+                }
+            ],
+            "reply_markup": {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "\u0417\u0430 \u0432\u0441\u0435 \u0432\u0440\u0435\u043c\u044f",
+                            "callback_data": "allPeriod"
+                        },
+                        {
+                            "text": "\u0421\u0435\u0433\u043e\u0434\u043d\u044f",
+                            "callback_data": "dayPeriod"
+                        },
+                        {
+                            "text": "\u0417\u0430 \u043d\u0435\u0434\u0435\u043b\u044e",
+                            "callback_data": "weekPeriod"
+                        }
+                    ],
+                    [
+                        {
+                            "text": "\u041d\u0430\u0437\u0430\u0434",
+                            "callback_data": "back_to_referral_menu"
+                        },
+                        {
+                            "text": "\u0413\u043b\u0430\u0432\u043d\u043e\u0435 \u043c\u0435\u043d\u044e",
+                            "callback_data": "back_to_admin_menu"
+                        }
+                    ]
+                ]
+            }
+        },
+        "chat_instance": "5208739627955975931",
+        "data": "allPeriod"
+    }
+}

@@ -2,6 +2,7 @@
 
 namespace App\RequestHandler;
 
+use App\Service\Telegram\Enum\TelegramDefaultValue;
 use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -15,7 +16,7 @@ class TelegramPayloadGuard implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => ['onRequest', 1],
+            KernelEvents::REQUEST => ['onRequest', 10],
         ];
     }
 
@@ -36,21 +37,17 @@ class TelegramPayloadGuard implements EventSubscriberInterface
         }
 
         $payload = json_decode($request->getContent(), true);
-        if (!$payload || !isset($payload['update_id'])) {
-            $event->setResponse(new Response('Invalid payload', Response::HTTP_BAD_REQUEST));
-        }
+        $updateId = $payload['update_id'];
 
         $type = $this->extractAvailablePayloadType($payload);
-        if ($type === 'unknown') {
-            $event->setResponse(new Response("The bot doesn't yet support the transmitted message type", Response::HTTP_ACCEPTED));
+        if ($type === TelegramDefaultValue::UNKNOWN) {
+            $this->logger->debug("$updateId Unsupported payload type");
+            $event->setResponse(new Response("The bot doesn't yet support the transmitted message type", Response::HTTP_OK));
         }
     }
 
     private function extractAvailablePayloadType(array $payload): string
     {
-        $update = $payload['update_id'];
-        $this->logger->debug($update, $payload);
-
         $supportedTypes = [
             'message' => true,
             'my_chat_member' => true,
@@ -62,8 +59,6 @@ class TelegramPayloadGuard implements EventSubscriberInterface
                 return $type;
             }
         }
-
-        $this->logger->debug("$update -unsupported payload type");
 
         return 'unknown';
     }

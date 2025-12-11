@@ -4,7 +4,6 @@ namespace App\Security;
 
 use App\Entity\TelegramUser;
 use App\Http\Dto\AbstractPayload;
-use App\Service\ExceptionHandle\NotFoundException;
 use App\Service\Telegram\TelegramUserService;
 
 class SecurityTelegramUserService
@@ -16,19 +15,17 @@ class SecurityTelegramUserService
 
     private ?TelegramUser $currentUser = null;
 
-    public function setCurrentTelegramUser(AbstractPayload $payload): void
+    public function setCurrentTelegramUser(AbstractPayload $payload): TelegramUser
     {
         $user = $this->telegramUserService->loadTelegramUser($payload);
 
         $this->currentUser = $user;
+
+        return $user;
     }
 
     public function fetchCurrentUser(): TelegramUser
     {
-        if (!$this->currentUser) {
-            throw NotFoundException::userNotFound();
-        }
-
         return $this->currentUser;
     }
 }

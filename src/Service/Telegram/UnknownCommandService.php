@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Service\Telegram\Action;
+namespace App\Service\Telegram;
 
 use App\Http\Dto\MessageTelegramPayload;
 use App\Security\SecurityTelegramUserService;
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Enum\TelegramParseMode;
-use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
 use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
@@ -30,7 +29,7 @@ class UnknownCommandService
 
         $this->logger->debug("Не известный message $text, вызван $chatId");
 
-        $this->sendMessage();
+        $this->sendMessage($dto->getMessageId());
     }
 
     public function handleCallbackQuery(int $chatId, string $data): void
@@ -45,7 +44,7 @@ class UnknownCommandService
         $this->sendMessage();
     }
 
-    private function sendMessage(): void
+    private function sendMessage(int $currentMessage = 0): void
     {
         $user = $this->security->fetchCurrentUser();
         $chatId = $user->getChatId();
@@ -72,6 +71,6 @@ class UnknownCommandService
             $replyKeyboard
         );
 
-        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $message->getMessageId());
+        $this->cache->clear(TelegramCacheKey::STEP, $chatId, $currentMessage, $message->getMessageId());
     }
 }

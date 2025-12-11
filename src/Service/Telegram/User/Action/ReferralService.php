@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Telegram\Action;
+namespace App\Service\Telegram\User\Action;
 
 use App\Entity\TelegramUser;
 use App\Repository\TelegramUserRepository;
