@@ -6,7 +6,7 @@ class CallbackQueryTelegramPayload extends AbstractPayload
 {
     public array $callback_query;
 
-    public function getId(): string
+    public function getCallbackQueryId(): string
     {
         return $this->callback_query['id'] ?? '';
     }

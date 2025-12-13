@@ -1,4 +1,4 @@
-### my_chat_member (kicked)
+### my_chat_member (member)
 POST http://127.0.0.1/test-webhook
 Content-Type: application/json
 
