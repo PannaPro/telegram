@@ -36,7 +36,7 @@ class AdminCommandMessageHandler
                 break;
             case 'Выйти из режима администратора':
                 $this->adminSession->deactivateAdminSession($chatId);
-                $this->startService->makeAction();
+                $this->startService->makeAction($messageId);
                 break;
             default:
                 $this->unknownCommandService->makeAction($payload);
