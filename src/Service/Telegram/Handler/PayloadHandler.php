@@ -3,30 +3,25 @@
 namespace App\Service\Telegram\Handler;
 
 use App\Http\Dto\AbstractPayload;
-use App\Http\Dto\CallbackQueryTelegramPayload;
-use App\Http\Dto\MessageTelegramPayload;
 use App\Http\Dto\MyChatMemberPayload;
 use App\Security\SecurityTelegramUserService;
-use App\Service\Telegram\Admin\AdminAction\AdminSessionService;
-use App\Service\Telegram\Admin\Handler\AdminCallbackQueryHandler;
-use App\Service\Telegram\Admin\Handler\AdminMessageHandler;
-use App\Service\Telegram\MyChatMemberService;
-use App\Service\Telegram\User\Handler\UserCallbackQueryHandler;
-use App\Service\Telegram\User\Handler\UserMessageHandler;
+use App\Security\AdminSessionService;
+use App\Service\Telegram\MyChatMember\MyChatMemberService;
+use App\Service\Telegram\Router\AdminPayloadRouter;
+use App\Service\Telegram\Router\UserPayloadRouter;
 
 class PayloadHandler
 {
     public function __construct(
-        private UserMessageHandler $userMessageHandler,
-        private UserCallbackQueryHandler $callbackQueryHandler,
         private SecurityTelegramUserService $security,
-        private AdminMessageHandler $adminMessageHandler,
-        private AdminCallbackQueryHandler $adminCallbackQueryHandler,
-        private AdminSessionService $adminSessionService,
         private MyChatMemberService $myChatMemberService,
+        private AdminPayloadRouter $adminPayloadRouter,
+        private UserPayloadRouter $userPayloadRouter,
+        private AdminSessionService $adminSessionService,
     ) {
     }
 
+    /** TODO повесить лок менеджер */
     public function handlePayload(AbstractPayload $payload): void
     {
         if ($payload instanceof MyChatMemberPayload) {
@@ -35,34 +30,12 @@ class PayloadHandler
             return;
         }
 
-        $user = $this->security->setCurrentTelegramUser($payload);
-        $chatId = $user->getChatId();
-
-        $isWaitingPassword = $this->adminSessionService->isWaitingPassword($chatId);
-        $isAdminSession = $this->adminSessionService->isActiveAdminSession($chatId);
-        if ($user->isAdmin() && ($isWaitingPassword || $isAdminSession)) {
-            $this->routeAdminPayload($payload);
+        $this->security->setCurrentTelegramUser($payload);
+        if ($this->adminSessionService->isAdminSessionActive()) {
+            $this->adminPayloadRouter->route($payload);
             return;
         }
 
-        $this->routeUserPayload($payload);
-    }
-
-    private function routeUserPayload(AbstractPayload $payload): void
-    {
-        match (true) {
-            $payload instanceof MessageTelegramPayload => $this->userMessageHandler->makeAction($payload),
-            $payload instanceof CallbackQueryTelegramPayload => $this->callbackQueryHandler->makeAction($payload),
-            default => null,
-        };
-    }
-
-    private function routeAdminPayload(AbstractPayload $payload): void
-    {
-        match (true) {
-            $payload instanceof MessageTelegramPayload => $this->adminMessageHandler->makeAction($payload),
-            $payload instanceof CallbackQueryTelegramPayload => $this->adminCallbackQueryHandler->makeAction($payload),
-            default => null,
-        };
+        $this->userPayloadRouter->route($payload);
     }
 }

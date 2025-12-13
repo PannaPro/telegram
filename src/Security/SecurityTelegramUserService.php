@@ -4,24 +4,21 @@ namespace App\Security;
 
 use App\Entity\TelegramUser;
 use App\Http\Dto\AbstractPayload;
-use App\Service\Telegram\TelegramUserService;
 
 class SecurityTelegramUserService
 {
     public function __construct(
-        private TelegramUserService $telegramUserService,
+        private LoadTelegramUserService $telegramUserService,
     ) {
     }
 
     private ?TelegramUser $currentUser = null;
 
-    public function setCurrentTelegramUser(AbstractPayload $payload): TelegramUser
+    public function setCurrentTelegramUser(AbstractPayload $payload): void
     {
-        $user = $this->telegramUserService->loadTelegramUser($payload);
+        $user = $this->telegramUserService->load($payload);
 
         $this->currentUser = $user;
-
-        return $user;
     }
 
     public function fetchCurrentUser(): TelegramUser

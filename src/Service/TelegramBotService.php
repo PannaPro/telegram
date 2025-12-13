@@ -2,12 +2,12 @@
 
 namespace App\Service;
 
-use App\Service\ExceptionHandle\TelegramApiException;
-use App\Service\ExceptionHandle\TelegramBotApiException;
+use App\Service\ExceptionHandler\TelegramApiException;
+use App\Service\ExceptionHandler\TelegramBotApiException;
 use CURLFile;
 use Exception;
 use TelegramBot\Api\Exception as TelegramBotException;
-use \TelegramBot\Api\InvalidArgumentException as TelegramBotInvalidArgumentException;
+use TelegramBot\Api\InvalidArgumentException as TelegramBotInvalidArgumentException;
 use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Telegram\Bot\Objects\Update;
@@ -50,16 +50,22 @@ class TelegramBotService
         ?string $parseMode = null,
         bool $disablePreview = false,
         $replyMarkup = null,
-    ): Message
+    ): void
     {
-        return $this->telegram->editMessageText(
-            $chatId,
-            $messageId,
-            $text,
-            $parseMode,
-            $disablePreview,
-            $replyMarkup,
-        );
+        try {
+            $this->telegram->editMessageText(
+                $chatId,
+                $messageId,
+                $text,
+                $parseMode,
+                $disablePreview,
+                $replyMarkup,
+            );
+        } catch (Exception $e) {
+            if (!str_contains($e->getMessage(), 'message is not modified')) {
+                $this->logger->error($chatId, [$e->getMessage()]);
+            }
+        }
     }
 
     /**
@@ -223,7 +229,6 @@ class TelegramBotService
         }
     }
 
-
     /**
      * @return Update[]
      * @throws TelegramBotException
@@ -232,5 +237,14 @@ class TelegramBotService
     public function getUpdate(int $offset = 0): array
     {
         return $this->telegram->getUpdates($offset);
+    }
+
+    public function answerCallbackQuery(int $callbackId, string $text = null, bool $showAlert = false): void
+    {
+        try {
+            $this->telegram->answerCallbackQuery($callbackId, $text, $showAlert);
+        } catch (Exception) {
+
+        }
     }
 }
