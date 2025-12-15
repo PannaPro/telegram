@@ -51,4 +51,14 @@ class ContextStorage
     {
         $this->cache->delete('context', $chatId);
     }
+
+    public function updateContext(int $chatId, ContextInterface $context, int $ttl = TelegramCacheKey::TTL_5_MINUTES): void
+    {
+        $data = [
+            'class' => get_class($context),
+            'payload' => $context->toArray(),
+        ];
+
+        $this->cache->setEx('context', $chatId, $ttl, json_encode($data));
+    }
 }

@@ -247,4 +247,32 @@ class TelegramBotService
 
         }
     }
+
+    /**
+     * Генерирует одноразовую инвайт-ссылку в закрытую группу
+     *
+     * @param int|string $chatId ID группы или @username
+     * @param int $ttlSeconds Время жизни ссылки в секундах (по умолчанию 10 минут)
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public function createOneTimeInviteLink(int|string $chatId, int $ttlSeconds = 600): string
+    {
+        $expireAt = time() + $ttlSeconds;
+
+        $chatId = -1003348099183;
+        $response = $this->telegram->call('createChatInviteLink', [
+            'chat_id'     => $chatId,
+            'expire_date' => $expireAt,
+            'member_limit'=> 1, // 🔥 одноразовая ссылка
+        ]);
+
+        if (!isset($response['invite_link'])) {
+            throw new \RuntimeException('Не удалось создать инвайт-ссылку');
+        }
+
+        return $response['invite_link'];
+    }
+
 }

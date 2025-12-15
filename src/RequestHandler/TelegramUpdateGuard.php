@@ -41,6 +41,7 @@ class TelegramUpdateGuard implements EventSubscriberInterface
         }
 
         $payload = json_decode($request->getContent(), true);
+
         if (!$payload || !isset($payload['update_id'])) {
             $this->webhookLogger->debug("Got invalid message:", $payload);
             return;
@@ -51,6 +52,7 @@ class TelegramUpdateGuard implements EventSubscriberInterface
         $this->webhookPayloadLogger->debug($updateId, $payload);
 
         $lastUpdate = $this->cache->get(TelegramCacheKey::LAST_UPDATE, $updateId);
+
         if ($lastUpdate !== false && $updateId <= (int)$lastUpdate) {
             $this->webhookLogger->debug("$updateId Duplicate update ignored, current update: $lastUpdate");
 //            $event->setResponse(new Response('Duplicate update ignored', Response::HTTP_OK));

@@ -85,7 +85,12 @@ class MessageTelegramPayload extends AbstractPayload implements TelegramUserIden
 
     public function getText(): string
     {
-        return $this->message['text'] ?? false;
+        return $this->message['text'] ?? 'UNKNOWN';
+    }
+
+    public function getVoice(): array
+    {
+        return $this->message['voice'] ?? [];
     }
 
     public function getEntities(): array

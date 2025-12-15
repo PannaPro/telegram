@@ -30,11 +30,13 @@ class PayloadHandler
             return;
         }
 
-        $this->security->setCurrentTelegramUser($payload);
-        if ($this->adminSessionService->isAdminSessionActive()) {
-            $this->adminPayloadRouter->route($payload);
-            return;
-        }
+        /** tODO добавиить канал Тест бота в май чат мембер */
+//        $this->security->setCurrentTelegramUser($payload);
+
+//        if ($this->adminSessionService->isAdminSessionActive()) {
+//            $this->adminPayloadRouter->route($payload);
+//            return;
+//        }
 
         $this->userPayloadRouter->route($payload);
     }

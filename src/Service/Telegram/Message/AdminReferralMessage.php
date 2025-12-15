@@ -33,8 +33,7 @@ class AdminReferralMessage
 
         $keyboard = new InlineKeyboardMarkup([
             [
-                ['text' => 'Рефералы', 'callback_data' => 'participantReferral'],
-                ['text' => 'Рефералы +ЦД', 'callback_data' => 'targetActionReferral'],
+                ['text' => '🏆 Показать топов', 'callback_data' => 'show_top_referral'],
             ]
         ]);
 
