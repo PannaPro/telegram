@@ -10,6 +10,8 @@ class ReferralSearchContext implements ContextInterface
     public function __construct(
         public int $chatId,
         public string $searchType,
+        public string $text,
+        public ?string $dateType = TelegramDefaultValue::UNKNOWN,
         public ?string $searchDate = TelegramDefaultValue::UNKNOWN,
         public ?int $searchReferralCount = TelegramDefaultValue::ZERO,
         public ?string $rangeStart = TelegramDefaultValue::UNKNOWN,
@@ -22,8 +24,12 @@ class ReferralSearchContext implements ContextInterface
         return [
             'chatId' => $this->chatId,
             'searchType' => $this->searchType,
+            'text' => $this->text,
+            'dataType' => $this->dateType,
             'searchDate' => $this->searchDate,
             'searchReferralCount'=> $this->searchReferralCount,
+            'rangeStart' => $this->rangeStart,
+            'rangeEnd' => $this->rangeEnd,
         ];
     }
 
@@ -32,11 +38,33 @@ class ReferralSearchContext implements ContextInterface
         return new self(
             $data['chatId'],
             $data['searchType'],
-            $data['periodType'] ?? 'unknown',
-            $data['countOfReferral'] ?? 0,
+            $data['text'],
+            $data['dataType'] ?? 'unknown',
+            $data['searchDate'] ?? 'unknown',
+            $data['searchReferralCount'] ?? 0,
             $data['rangeStart'] ?? 'unknown',
             $data['rangeEnd'] ?? 'unknown',
         );
+    }
+
+    public function setText(string $text): void
+    {
+        $this->text = $text;
+    }
+
+    public function getText(): string
+    {
+        return $this->text;
+    }
+
+    public function getDateType(): string
+    {
+        return $this->dateType;
+    }
+
+    public function setDateType(string $dateType): void
+    {
+        $this->dateType = $dateType;
     }
 
     public function getChatId(): int

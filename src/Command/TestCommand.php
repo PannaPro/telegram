@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use App\Security\AdminSessionService;
+use App\Service\TelegramBotService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class TestCommand extends Command
 {
     public function __construct(
-        private AdminSessionService $adminSessionService,
+        private TelegramBotService $bot,
     )
     {
         parent::__construct();
@@ -33,15 +33,7 @@ class TestCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-//        $this->redis->set('action', '/start', 360);
-
-//        $data = $this->redis->get('action');
-//
-//        dd($data);
-
-//        $this->referralSearchService->prepareToSearch(301671507, 'participantReferral', 421);
-
-        $this->adminSessionService->activateWaitingPassword();
-        return Command::SUCCESS;
+        dd($this->bot->createOneTimeInviteLink(1));
+        return 1;
     }
 }

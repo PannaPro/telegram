@@ -3,15 +3,16 @@
 namespace App\Service\Telegram\Admin\Command;
 
 use App\Http\Dto\CallbackQueryTelegramPayload;
+use App\Service\Telegram\Admin\Service\AdminReferralSearchService;
+use App\Service\Telegram\Admin\Service\AdminReferralService;
 use App\Service\Telegram\Common\UnknownCommandService;
 
 class AdminCommandCallbackHandler
 {
     public function __construct(
         private UnknownCommandService $unknownCommandService,
-//        private ReferralSearchService $referralSearchService,
-//        private AdminReferralService $adminReferralService,
-//        private AdminMenuService $adminMenuService,
+        private AdminReferralService $adminReferralService,
+        private AdminReferralSearchService $adminReferralSearchService,
     ) {
     }
 
@@ -19,24 +20,15 @@ class AdminCommandCallbackHandler
     {
         $data = $payload->getCallbackData();
         $chatId = $payload->getChatId();
-        $messageId = $payload->getMessageId();
+        $callbackId = $payload->getCallbackQueryId();
 
         switch ($data) {
-//            case 'participantReferral':
-//                $this->referralSearchService->prepareToSearch($chatId, 'participantReferral', $messageId);
-//                break;
-//            case 'back_to_referral_menu':
-////                $this->referralSearchStorage->unsetReferralSearchWaiting($chatId);
-//                $this->adminMenuService->handle($chatId, $messageId);
-//                $this->adminReferralService->handle($chatId, $messageId);
-//                break;
-//            case 'back_to_admin_menu':
-////                $this->referralSearchStorage->unsetReferralSearchWaiting($chatId);
-//                $this->adminMenuService->handle($chatId, $messageId);
-//                break;
-//            case 'allPeriod':
-//                $this->referralSearchService->prepareDataToSearch($chatId, 'allPeriod', $messageId);
-//                break;
+            case 'show_top_referral':
+                $this->adminReferralService->makeTopReferralAction($chatId, $callbackId);
+                break;
+            case 'participant_referral':
+                $this->adminReferralSearchService->makeParticipantReferralAction($chatId, $callbackId);
+                break;
             default:
                 $this->unknownCommandService->handleCallbackQuery($chatId, $data);
         }
