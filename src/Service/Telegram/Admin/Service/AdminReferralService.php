@@ -31,12 +31,11 @@ class AdminReferralService
         $chatId = $context->getChatId();
 
         $result = [];
-        $contextMessage = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
 
         $textHeader = $context->getTextType();
 
         $messageId = $this->referralMessage->sendReferralSearchResult($chatId, $result, $textHeader);
 
-        $this->cache->saveAndClean(TelegramCacheKey::STEP, $chatId, $messageId);
+        $this->cache->saveAndCleanup(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $messageId);
     }
 }
