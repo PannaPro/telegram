@@ -37,6 +37,7 @@ class ReferralSearchCommandHandler
 
         if ($context->isBlockContext()) {
             $this->unknownCommandService->makeAction($payload);
+            return;
         }
 
         try {
