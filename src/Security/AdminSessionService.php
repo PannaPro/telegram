@@ -54,7 +54,7 @@ class AdminSessionService
 
     public function deactivateAdminSession(int $chatId): void
     {
-        $this->cache->delete("admin_session", $chatId);
+        $this->cache->deleteMessage("admin_session", $chatId);
     }
 
     public function isAdminSessionActive(): bool
@@ -73,11 +73,11 @@ class AdminSessionService
 
     public function activateAdminSession(int $chatId): void
     {
-        $this->cache->setEx("admin_session", $chatId, TelegramCacheKey::TTL_1_HOUR, $chatId);
+        $this->cache->setExMessage("admin_session", $chatId, TelegramCacheKey::TTL_1_HOUR, $chatId);
     }
 
     private function isActiveAdminSession(int $chatId): bool
     {
-        return $this->cache->get("admin_session", $chatId) === "$chatId";
+        return $this->cache->getMessage("admin_session", $chatId) === "$chatId";
     }
 }

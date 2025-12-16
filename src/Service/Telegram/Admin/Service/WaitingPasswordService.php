@@ -56,7 +56,7 @@ class WaitingPasswordService
     {
         $messageId = $this->incorrectPasswordMessage->sendMessage($chatId);
 
-        $this->cache->saveAndClean(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
+        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
     }
 
     public function answerCallbackQuery($callbackId): void

@@ -2,6 +2,8 @@
 
 namespace App\Service\Telegram;
 
+use App\Service\Telegram\Context\ContextInterface;
+use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\TelegramBotService;
 use Redis;
 
@@ -154,5 +156,12 @@ final class TelegramMessageCache
     public function setMessage(string $keyType, int $chatId, int $newMessage): void
     {
         $this->set($this->getKey($keyType, $chatId), $newMessage);
+    }
+
+    public function setExContext(string $type, int $chatId, int $ttl, string $context): void
+    {
+        $key = $this->getKey($type, $chatId);
+
+        $this->setEx($key, $ttl, $context);
     }
 }

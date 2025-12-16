@@ -26,7 +26,6 @@ readonly class PayloadHandler
     {
         if ($payload instanceof MyChatMemberPayload) {
             $this->myChatMemberService->makeAction($payload);
-
             return;
         }
 
@@ -37,9 +36,6 @@ readonly class PayloadHandler
 
         /** tODO добавиить канал Тест бота в май чат мембер */
         $this->security->setCurrentTelegramUser($payload);
-
-        $this->adminPayloadRouter->route($payload);
-
         if ($this->adminSessionService->isAdminSessionActive()) {
             $this->adminPayloadRouter->route($payload);
             return;
