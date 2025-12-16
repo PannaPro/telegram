@@ -18,6 +18,6 @@ final class InfoService
     {
         $messageId = $this->message->sendInfo($chatId);
 
-        $this->cache->clear(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
+        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
     }
 }

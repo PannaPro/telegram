@@ -41,20 +41,19 @@ class SubscriptionService
 
         $messageId = $this->message->sendNeedSubscription($chatId);
 
-        $this->cache->saveAndCleanup(TelegramCacheKey::START_MENU, $chatId, $messageId);
-        $this->cache->cleanup(TelegramCacheKey::STEP, $chatId);
+        $this->cache->saveAndClean(TelegramCacheKey::START_MENU, $chatId, $messageId);
     }
 
     public function check(int $chatId): bool
     {
-        $cached = $this->cache->get(TelegramCacheKey::SUBSCRIPTION, $chatId);
+        $cached = $this->cache->getMessage(TelegramCacheKey::SUBSCRIPTION, $chatId);
         if ($cached == true) {
             return true;
         }
 
         $hasSubscription = $this->message->checkSubscription($chatId);
 
-        $this->cache->setEx(TelegramCacheKey::SUBSCRIPTION, $chatId, TelegramCacheKey::TTL_10_MINUTES, $hasSubscription);
+        $this->cache->setExMessage(TelegramCacheKey::SUBSCRIPTION, $chatId, TelegramCacheKey::TTL_10_MINUTES, $hasSubscription);
 
         return $hasSubscription;
     }

@@ -27,13 +27,46 @@ class AdminReferralMessage
             Всего: $total
             Сегодня: $today
             За неделю: $week
-
-            Поиск по рефералам:
             MARKDOWN;
 
         $keyboard = new InlineKeyboardMarkup([
             [
-                ['text' => '🏆 Показать топов', 'callback_data' => 'show_top_referral'],
+                ['text' => '🔍 Поиск по рефералам', 'callback_data' => 'search_top_referral'],
+            ]
+        ]);
+
+        $message = $this->bot->sendMessage(
+            $chatId,
+            $text,
+            TelegramParseMode::MARKDOWN,
+            false,
+            null,
+            $keyboard
+        );
+
+        return $message->getMessageId();
+    }
+
+    public function sendReferralSearchResult(int $chatId, array $result, string $textHeader): int
+    {
+        $text = <<<MARKDOWN
+            $textHeader
+
+            *Топ найденных игроков:*
+            MARKDOWN;
+
+        $keyboard = new InlineKeyboardMarkup([
+            [
+                ['text' => 'Наградить участников', 'callback_data' => 'reward_participant'],
+            ],
+            [
+                ['text' => 'Скачать результаты', 'callback_data' => 'download_search_result'],
+            ],
+            [
+                ['text' => '🔍 Новый поиск', 'callback_data' => 'search_top_referral'],
+            ],
+            [
+                ['text' => 'Главное меню', 'callback_data' => 'back_to_admin_menu'],
             ]
         ]);
 

@@ -38,7 +38,7 @@ class MyChatMemberService
                 ->setLastName($payload->getLastName());
 
             /** Set referralWindow on 5 minutes */
-            $this->cache->setEx(TelegramCacheKey::REFERRAL_WINDOW, $chatId, TelegramCacheKey::TTL_5_MINUTES, 1);
+            $this->cache->setExMessage(TelegramCacheKey::REFERRAL_WINDOW, $chatId, TelegramCacheKey::TTL_5_MINUTES, 1);
         }
 
         $this->telegramUserRepository->save($user);

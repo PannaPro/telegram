@@ -49,30 +49,4 @@ class AdminTopReferralMessage
 
         return $message->getMessageId();
     }
-
-    public function sendApproveMessage(int $chatId, string $text): int
-    {
-        $keyboard = new InlineKeyboardMarkup([
-            [
-                ['text' => '🔍 Найти', 'callback_data' => 'search_referral'],
-            ],
-            [
-                ['text' => '✏️ Редактировать', 'callback_data' => 'back_to_chose_search_date'],
-            ],
-            [
-                ['text' => '⬅️ Вернуться в главное меню', 'callback_data' => 'back_to_admin_menu'],
-            ]
-        ]);
-
-        $message = $this->bot->sendMessage(
-            $chatId,
-            $text,
-            TelegramParseMode::MARKDOWN,
-            false,
-            null,
-            $keyboard
-        );
-
-        return $message->getMessageId();
-    }
 }
