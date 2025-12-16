@@ -26,7 +26,7 @@ class AdminReferralService
         $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
     }
 
-    public function search(ReferralSearchContext $context): void
+    public function search(ReferralSearchContext $context, int $contextMessage): void
     {
         $chatId = $context->getChatId();
 
@@ -36,6 +36,6 @@ class AdminReferralService
 
         $messageId = $this->referralMessage->sendReferralSearchResult($chatId, $result, $textHeader);
 
-        $this->cache->saveAndCleanup(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $messageId);
+        $this->cache->saveAndCleanup(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $contextMessage, $messageId);
     }
 }
