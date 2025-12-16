@@ -38,13 +38,13 @@ readonly class PayloadHandler
         /** tODO добавиить канал Тест бота в май чат мембер */
         $this->security->setCurrentTelegramUser($payload);
 
-//        $this->adminPayloadRouter->route($payload);
+        $this->adminPayloadRouter->route($payload);
 
-//        if ($this->adminSessionService->isAdminSessionActive()) {
-//            $this->adminPayloadRouter->route($payload);
-//            return;
-//        }
-//
+        if ($this->adminSessionService->isAdminSessionActive()) {
+            $this->adminPayloadRouter->route($payload);
+            return;
+        }
+
         $this->userPayloadRouter->route($payload);
     }
 }
