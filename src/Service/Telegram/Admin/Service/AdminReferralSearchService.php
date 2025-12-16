@@ -29,6 +29,8 @@ class AdminReferralSearchService
         $this->setContext($chatId);
 
         $messageId = $this->referralSearchMessage->sendParticipantStatusMessage($chatId);
+
+        $this->cache->deleteMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $this->cache->setExMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, TelegramCacheKey::TTL_1_HOUR, $messageId);
         $this->cache->cleanup(TelegramCacheKey::STEP, $chatId);
         $this->cache->cleanup(TelegramCacheKey::START_MENU, $chatId);
