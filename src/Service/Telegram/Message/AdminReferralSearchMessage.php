@@ -144,7 +144,7 @@ class AdminReferralSearchMessage
                 ['text' => '🔍 Найти', 'callback_data' => 'search_referral'],
             ],
             [
-                ['text' => '✏️ Редактировать', 'callback_data' => 'back_to_participant_menu'],
+                ['text' => '✏️ Редактировать', 'callback_data' => 'back_to_referral_status'],
             ],
             [
                 ['text' => '⬅️ Вернуться в главное меню', 'callback_data' => 'back_to_admin_menu'],

@@ -76,7 +76,7 @@ class ReferralSearchCommandHandler
             case 'participant_referral':
                 $this->searchService->participantStatusAction($chatId, $callbackId, $context, $data);
                 break;
-            case 'back_to_participant_type':
+            case 'back_to_referral_status':
                 $this->searchService->backToParticipantAction($chatId, $callbackId, $context);
                 break;
             case 'all_period':
