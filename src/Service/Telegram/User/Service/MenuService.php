@@ -22,11 +22,11 @@ class MenuService
         $this->cache->cleanup(TelegramCacheKey::STEP, $chatId);
     }
 
-    public function sendPreview(int $chatId, int $currentMessage): void
+    public function sendPreview(int $chatId): void
     {
         $messageId = $this->message->sendPreview($chatId);
 
-        $this->cache->saveAndCleanup(TelegramCacheKey::START_MENU, $chatId, $currentMessage, $messageId);
+        $this->cache->saveAndClean(TelegramCacheKey::START_MENU, $chatId, $messageId);
         $this->cache->cleanup(TelegramCacheKey::STEP, $chatId);
     }
 }

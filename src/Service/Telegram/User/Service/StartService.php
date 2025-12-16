@@ -23,6 +23,6 @@ class StartService
             return;
         }
 
-        $this->menuService->sendPreview($chatId, $messageId);
+        $this->menuService->sendPreview($chatId);
     }
 }
