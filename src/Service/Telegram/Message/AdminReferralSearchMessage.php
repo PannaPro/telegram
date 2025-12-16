@@ -64,7 +64,7 @@ class AdminReferralSearchMessage
                 ['text' => 'За неделю', 'callback_data' => 'week_period'],
             ],
             [
-                ['text' => '⬅️ Назад', 'callback_data' => 'back_to_participant_type'],
+                ['text' => '⬅️ Назад', 'callback_data' => 'back_to_referral_status'],
                 ['text' => 'Главное меню', 'callback_data' => 'back_to_admin_menu'],
             ]
         ]);
