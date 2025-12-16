@@ -51,8 +51,7 @@ class TelegramUpdateGuard implements EventSubscriberInterface
         $this->webhookLogger->debug("Update_id $updateId has been received");
         $this->webhookPayloadLogger->debug($updateId, $payload);
 
-        $lastUpdate = $this->cache->get(TelegramCacheKey::LAST_UPDATE, $updateId);
-
+        $lastUpdate = $this->cache->getMessage(TelegramCacheKey::LAST_UPDATE, $updateId);
         if ($lastUpdate !== false && $updateId <= (int)$lastUpdate) {
             $this->webhookLogger->debug("$updateId Duplicate update ignored, current update: $lastUpdate");
 //            $event->setResponse(new Response('Duplicate update ignored', Response::HTTP_OK));
@@ -69,7 +68,7 @@ class TelegramUpdateGuard implements EventSubscriberInterface
         $updateId = $request->attributes->get('telegram_update_id');
 
         if ($updateId) {
-            $this->cache->setEx(TelegramCacheKey::LAST_UPDATE, $updateId, TelegramCacheKey::TTL_5_MINUTES, $updateId);
+            $this->cache->setExMessage(TelegramCacheKey::LAST_UPDATE, $updateId, TelegramCacheKey::TTL_5_MINUTES, $updateId);
             $this->webhookLogger->debug("Update_id $updateId stored in Redis");
             $this->webhookLogger->debug("Update_id $updateId response has been sent");
         }

@@ -18,7 +18,7 @@ class AdminMenuService
     {
         $messageId = $this->message->sendMessage($chatId);
 
-        $this->cache->clear(TelegramCacheKey::START_MENU, $chatId, $currentMessage, $messageId);
+        $this->cache->saveAndClean(TelegramCacheKey::START_MENU, $chatId, $currentMessage, $messageId);
         $this->cache->cleanup(TelegramCacheKey::STEP, $chatId);
     }
 }

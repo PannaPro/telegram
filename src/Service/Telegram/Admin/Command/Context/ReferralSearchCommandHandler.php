@@ -6,12 +6,14 @@ use App\Http\Dto\AbstractPayload;
 use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Http\Dto\MessageTelegramPayload;
 use App\Service\Telegram\Admin\Service\AdminReferralSearchService;
+use App\Service\Telegram\Common\UnknownCommandService;
 use App\Service\Telegram\Context\Dto\ReferralSearchContext;
 
 class ReferralSearchCommandHandler
 {
     public function __construct(
         private AdminReferralSearchService $searchService,
+        private UnknownCommandService $unknownCommandService,
     ) {
     }
 
@@ -33,6 +35,10 @@ class ReferralSearchCommandHandler
         $messageId = $payload->getMessageId();
         $text = $payload->getText();
 
+        if ($context->isBlockContext()) {
+            $this->unknownCommandService->makeAction($payload);
+        }
+
         try {
             $result = $this->parseInput($text);
             // TODO изменить на кастомную ContextException -> Domain
@@ -43,12 +49,12 @@ class ReferralSearchCommandHandler
 
         switch ($result['type']) {
             case 'integer':
-                $this->searchService->setParticipantCount($chatId, $context, $result['value']);
+                $this->searchService->participantCountAction($chatId, $messageId, $context, $result['value']);
                 break;
 
             case 'day_period':
             case 'date_range_period':
-                $this->searchService->setCustomSearchDate($chatId, $context, $result);
+                $this->searchService->customSearchDateAction($chatId, $messageId, $context, $result);
                 break;
         }
     }
@@ -60,18 +66,24 @@ class ReferralSearchCommandHandler
         $data = $payload->getCallbackData();
 
         switch ($data) {
+            case 'back_to_referral_menu':
+                $this->searchService->backToReferralMenuAction($chatId, $callbackId);
+                break;
             case 'back_to_admin_menu':
                 $this->searchService->backToAdminMenuAction($chatId, $callbackId);
                 break;
-            case 'back_to_referral_menu':
-                $this->searchService->backToReferralMenu($chatId, $callbackId);
+            case 'participant_referral':
+                $this->searchService->participantStatusAction($chatId, $callbackId, $context, $data);
+                break;
+            case 'back_to_participant_type':
+                $this->searchService->backToParticipantAction($chatId, $callbackId, $context);
                 break;
             case 'all_period':
             case 'current_day_period':
             case 'week_period':
-                $this->searchService->setSearchDate($chatId, $callbackId, $data, $context);
+                $this->searchService->searchDateAction($chatId, $callbackId, $context, $data);
                 break;
-            case 'back_to_chose_search_date':
+            case 'back_to_search_date':
                 $this->searchService->backToSearchDate($chatId, $callbackId, $context);
                 break;
             case 'search_referral':

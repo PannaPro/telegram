@@ -26,7 +26,7 @@ Content-Type: application/json
     }
 }
 
-### show_top_referral
+### search_referral
 POST http://127.0.0.1/test-webhook
 Content-Type: application/json
 
@@ -83,7 +83,7 @@ Content-Type: application/json
             }
         },
         "chat_instance": "5208739627955975931",
-        "data": "show_top_referral"
+        "data": "search_top_referral"
     }
 }
 
@@ -220,7 +220,7 @@ Content-Type: application/json
             }
         },
         "chat_instance": "5208739627955975931",
-        "data": "back_to_admin_menu"
+        "data": "back_to_participant_menu"
     }
 }
 

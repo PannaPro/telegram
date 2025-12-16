@@ -12,6 +12,7 @@ use App\Service\Telegram\User\Service\ParticipateService;
 use App\Service\Telegram\User\Service\ReferralService;
 use App\Service\Telegram\User\Service\StartService;
 use App\Service\Telegram\User\Service\SubscriptionService;
+use function Symfony\Component\String\b;
 
 readonly class UserCommandMessageHandler
 {
@@ -64,26 +65,33 @@ readonly class UserCommandMessageHandler
                 $this->unknownCommandService->makeAction($payload);
                 break;
             case str_contains($text, '/start'):
-                $this->referralText($chatId, $text);
-
+                $this->addReferral($chatId, $text);
                 if (!$this->subscriptionService->check($chatId)) {
                     $this->subscriptionService->needSubscription($chatId);
                     break;
                 }
 
                 $this->startService->makeAction($messageId);
-
                 break;
             default:
                 $this->unknownCommandService->makeAction($payload);
         }
     }
 
-    private function referralText(int $chatId, string $text): void
+    private function addReferral(int $chatId, string $text): void
+    {
+        $referralLink = $this->parseReferralText($text);
+        if ($referralLink === TelegramDefaultValue::UNKNOWN) {
+            return;
+        }
+
+        $this->referralService->addReferral($chatId, $referralLink);
+    }
+
+    private function parseReferralText(string $text): string
     {
         $command = explode(' ', $text, 2);
-        $param = $command[1] ?? TelegramDefaultValue::UNKNOWN;
 
-        $this->referralService->addReferral($chatId, $param);
+        return $command[1] ?? TelegramDefaultValue::UNKNOWN;
     }
 }

@@ -4,7 +4,6 @@ namespace App\Service\Telegram\Context;
 
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\TelegramMessageCache;
-use function Symfony\Component\Translation\t;
 
 class ContextStorage
 {
@@ -15,12 +14,12 @@ class ContextStorage
 
     public function hasContext(int $chatId): bool
     {
-        return $this->cache->get('context', $chatId) !== false;
+        return $this->cache->getMessage('context', $chatId) !== false;
     }
 
     public function getContext(int $chatId): ContextInterface|false
     {
-        $json = $this->cache->get('context', $chatId);
+        $json = $this->cache->getMessage('context', $chatId);
         if (!$json) {
             return false;
         }
@@ -37,19 +36,19 @@ class ContextStorage
         return false;
     }
 
-    public function setContext(int $chatId, ContextInterface $context, int $ttl = TelegramCacheKey::TTL_5_MINUTES): void
+    public function setContext(int $chatId, ContextInterface $context, int $ttl = TelegramCacheKey::TTL_10_MINUTES): void
     {
         $data = [
             'class' => get_class($context),
             'payload' => $context->toArray(),
         ];
 
-        $this->cache->setEx('context', $chatId, $ttl, json_encode($data));
+        $this->cache->setExMessage('context', $chatId, $ttl, json_encode($data));
     }
 
     public function unsetContext(int $chatId): void
     {
-        $this->cache->delete('context', $chatId);
+        $this->cache->deleteMessage('context', $chatId);
     }
 
     public function updateContext(int $chatId, ContextInterface $context, int $ttl = TelegramCacheKey::TTL_5_MINUTES): void
@@ -59,6 +58,6 @@ class ContextStorage
             'payload' => $context->toArray(),
         ];
 
-        $this->cache->setEx('context', $chatId, $ttl, json_encode($data));
+        $this->cache->setExMessage('context', $chatId, $ttl, json_encode($data));
     }
 }

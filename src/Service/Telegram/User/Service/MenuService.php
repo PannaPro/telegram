@@ -14,19 +14,19 @@ class MenuService
     ) {
     }
 
-    public function sendStartMenu(int $chatId, int $currentMessage = 0): void
+    public function sendStartMenu(int $chatId): void
     {
         $messageId = $this->message->sendMenu($chatId);
 
-        $this->cache->clear(TelegramCacheKey::START_MENU, $chatId, $currentMessage, $messageId);
+        $this->cache->saveAndClean(TelegramCacheKey::START_MENU, $chatId, $messageId);
         $this->cache->cleanup(TelegramCacheKey::STEP, $chatId);
     }
 
-    public function sendPreview(int $chatId): void
+    public function sendPreview(int $chatId, int $currentMessage): void
     {
         $messageId = $this->message->sendPreview($chatId);
 
-        $this->cache->saveAndCleanup(TelegramCacheKey::START_MENU, $chatId, $messageId);
+        $this->cache->saveAndClean(TelegramCacheKey::START_MENU, $chatId, $messageId);
         $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 }

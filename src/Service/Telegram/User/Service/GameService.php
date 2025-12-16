@@ -18,6 +18,6 @@ class GameService
     {
         $messageId = $this->message->sendMessage($chatId);
 
-        $this->cache->clear(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
+        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
     }
 }

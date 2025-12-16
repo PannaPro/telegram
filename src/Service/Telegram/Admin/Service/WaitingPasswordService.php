@@ -48,15 +48,15 @@ class WaitingPasswordService
         $messageId = $this->waitingPasswordMessage->sendMessage($chatId);
 
         $this->contextStorage->setContext($chatId, new WaitingPasswordContext($chatId, true));
-        $this->cache->saveAndCleanup(TelegramCacheKey::START_MENU, $chatId, $messageId);
-        $this->cache->clear(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
+        $this->cache->cleanup(TelegramCacheKey::START_MENU, $chatId);
+        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
     }
 
     public function incorrectPassword(int $chatId, int $currentMessage): void
     {
         $messageId = $this->incorrectPasswordMessage->sendMessage($chatId);
 
-        $this->cache->clear(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
+        $this->cache->saveAndClean(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
     }
 
     public function answerCallbackQuery($callbackId): void
