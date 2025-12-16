@@ -145,7 +145,7 @@ class AdminReferralSearchService
     {
         $messageId = $this->topReferralMessage->sendErrorMessage($chatId, $errorText);
 
-        $this->cache->clear('errorMessage', $chatId, $currentMessage, $messageId);
+        $this->cache->saveAndCleanup('errorMessage', $chatId, $currentMessage, $messageId);
     }
 
     public function backToAdminMenuAction(int $chatId, int $callbackId): void
