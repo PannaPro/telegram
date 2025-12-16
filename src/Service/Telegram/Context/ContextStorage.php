@@ -58,6 +58,6 @@ class ContextStorage
             'payload' => $context->toArray(),
         ];
 
-        $this->cache->setExMessage('context', $chatId, $ttl, json_encode($data));
+        $this->cache->setExContext('context', $chatId, $ttl, json_encode($data));
     }
 }

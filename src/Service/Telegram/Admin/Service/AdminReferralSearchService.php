@@ -81,12 +81,11 @@ class AdminReferralSearchService
         $context->setBlockContext(true);
         $this->updateContext($chatId, $context);
 
-        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $contextMessage = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $textHeader = $context->getTextType() . " " . $context->getDateText() . " не менее $count рефералов";
 
-        $this->referralSearchMessage->editReferralSearchMessage($chatId, $messageId, $textHeader);
-        $this->bot->deleteMessage($chatId, $currentMessage);
-        $this->cache->saveAndCleanup('error_message', $chatId, $messageId);
+        $this->referralSearchMessage->editReferralSearchMessage($chatId, $contextMessage, $textHeader);
+        $this->cache->deleteMessage('error_message', $chatId);
     }
 
     public function customSearchDateAction(int $chatId, int $currentMessage, ReferralSearchContext $context, array $result): void
