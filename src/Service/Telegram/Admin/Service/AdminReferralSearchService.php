@@ -159,6 +159,14 @@ class AdminReferralSearchService
         $this->adminMenuService->handle($chatId);
     }
 
+    public function backToAdminMenuHandler(int $chatId, int $messageId): void
+    {
+        $this->unsetContext($chatId);
+
+        $this->adminMenuService->handle($chatId, $messageId);
+        $this->cache->deleteMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+    }
+
     public function backToParticipantAction(int $chatId, int $callbackId, ReferralSearchContext $context): void
     {
         $this->answerCallbackQuery($callbackId);

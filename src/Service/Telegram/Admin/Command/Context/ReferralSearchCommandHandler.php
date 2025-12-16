@@ -38,7 +38,7 @@ class ReferralSearchCommandHandler
         $text = $payload->getText();
 
         if ($text === '/start') {
-            $this->adminMenuService->handle($chatId, $messageId);
+            $this->searchService->backToAdminMenuHandler($chatId, $messageId);
             return;
         }
 
