@@ -110,7 +110,7 @@ final class TelegramMessageCache
         return $this->get($this->getKey($keyType, $keyValue));
     }
 
-    public function saveAndCleanup(string $keyType, int $chatId, int $currentMessage, int $newMessage = 0): void
+    public function saveAndCleanup(string $keyType, int $chatId, int $currentMessage, int $newMessage): void
     {
         $key = $this->getKey($keyType, $chatId);
 
