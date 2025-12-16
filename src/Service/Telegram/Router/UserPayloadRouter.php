@@ -9,7 +9,7 @@ use App\Service\Telegram\Context\ContextStorage;
 use App\Service\Telegram\User\Command\UserCommandCallbackQueryHandler;
 use App\Service\Telegram\User\Command\UserCommandMessageHandler;
 
-class UserPayloadRouter
+readonly class UserPayloadRouter
 {
     public function __construct(
         private ContextStorage $contextStorage,
@@ -22,10 +22,6 @@ class UserPayloadRouter
     public function route(AbstractPayload $payload): void
     {
         $chatId = $payload->getChatId();
-        if ($chatId < 0) {
-            return;
-        };
-
         if ($this->contextStorage->hasContext($chatId)) {
             $context = $this->contextStorage->getContext($chatId);
 

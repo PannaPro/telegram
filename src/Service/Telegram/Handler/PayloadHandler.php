@@ -10,7 +10,7 @@ use App\Service\Telegram\MyChatMember\MyChatMemberService;
 use App\Service\Telegram\Router\AdminPayloadRouter;
 use App\Service\Telegram\Router\UserPayloadRouter;
 
-class PayloadHandler
+readonly class PayloadHandler
 {
     public function __construct(
         private SecurityTelegramUserService $security,
@@ -30,13 +30,18 @@ class PayloadHandler
             return;
         }
 
-        /** tODO добавиить канал Тест бота в май чат мембер */
-//        $this->security->setCurrentTelegramUser($payload);
+        // TODO
+        if ($payload->getChatType() !== 'private') {
+            return;
+        }
 
-//        if ($this->adminSessionService->isAdminSessionActive()) {
-//            $this->adminPayloadRouter->route($payload);
-//            return;
-//        }
+        /** tODO добавиить канал Тест бота в май чат мембер */
+        $this->security->setCurrentTelegramUser($payload);
+
+        if ($this->adminSessionService->isAdminSessionActive()) {
+            $this->adminPayloadRouter->route($payload);
+            return;
+        }
 
         $this->userPayloadRouter->route($payload);
     }
