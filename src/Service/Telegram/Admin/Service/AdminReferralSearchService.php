@@ -157,6 +157,7 @@ class AdminReferralSearchService
         $this->unsetContext($chatId);
 
         $this->adminMenuService->handle($chatId);
+        $this->cache->deleteMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
     }
 
     public function backToAdminMenuHandler(int $chatId, int $messageId): void
