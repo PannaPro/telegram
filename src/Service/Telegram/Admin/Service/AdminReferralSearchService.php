@@ -85,6 +85,7 @@ class AdminReferralSearchService
         $textHeader = $context->getTextType() . " " . $context->getDateText() . " не менее $count рефералов";
 
         $this->referralSearchMessage->editReferralSearchMessage($chatId, $contextMessage, $textHeader);
+        $this->bot->deleteMessage($chatId, $currentMessage);
         $this->cache->deleteMessage('error_message', $chatId);
     }
 
