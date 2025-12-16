@@ -43,21 +43,22 @@ class AdminReferralSearchService
         $this->adminReferralService->makeAction($chatId);
 
         $this->cache->cleanup(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->cache->cleanup('error_message', $chatId);
     }
 
     public function participantStatusAction(int $chatId, int $callbackId, ReferralSearchContext $context, string $data): void
     {
         $this->answerCallbackQuery($callbackId);
+
         $context->setSearchType($data);
         $context->setTextType('Статус участник');
         $context->setBlockContext(false);
         $this->updateContext($chatId, $context);
 
-        $messageId = $this->cache->get(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
 
         $textHeader = $context->getTextType();
         $this->referralSearchMessage->editDataMessage($chatId, $messageId, $textHeader);
-        $this->cache->delete(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
     }
 
     public function searchDateAction(int $chatId, int $callbackId, ReferralSearchContext $context, string $data): void
@@ -68,7 +69,7 @@ class AdminReferralSearchService
         $context->setDateText($this->buildDateText($data));
         $this->updateContext($chatId, $context);
 
-        $messageId = $this->cache->get(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
 
         $textHeader = $context->getTextType() . ' ' . $context->getDateText();
         $this->referralSearchMessage->editCountMessage($chatId, $messageId, $textHeader);
@@ -80,12 +81,12 @@ class AdminReferralSearchService
         $context->setBlockContext(true);
         $this->updateContext($chatId, $context);
 
-        $messageId = $this->cache->get(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $textHeader = $context->getTextType() . " " . $context->getDateText() . " не менее $count рефералов";
 
         $this->referralSearchMessage->editReferralSearchMessage($chatId, $messageId, $textHeader);
         $this->bot->deleteMessage($chatId, $currentMessage);
-        $this->cache->saveAndCleanup('errorMessage', $chatId, $messageId);
+        $this->cache->saveAndCleanup('error_message', $chatId, $messageId);
     }
 
     public function customSearchDateAction(int $chatId, int $currentMessage, ReferralSearchContext $context, array $result): void
@@ -107,12 +108,12 @@ class AdminReferralSearchService
 
         $this->updateContext($chatId, $context);
 
-        $messageId = $this->cache->get(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $textHeader = $context->getTextType() . " " . $context->getDateText();
 
         $this->referralSearchMessage->editCountMessage($chatId, $messageId, $textHeader);
         $this->bot->deleteMessage($chatId, $currentMessage);
-        $this->cache->delete('errorMessage', $chatId);
+        $this->cache->deleteMessage('error_message', $chatId);
     }
 
     public function backToSearchDate(int $chatId, int $callbackId, ReferralSearchContext $context): void
@@ -125,7 +126,7 @@ class AdminReferralSearchService
         $context->setBlockContext(false);
         $this->updateContext($chatId, $context);
 
-        $messageId = $this->cache->get(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $textHeader = $context->getTextType();
         $this->referralSearchMessage->editDataMessage($chatId, $messageId, $textHeader);
     }
@@ -134,7 +135,7 @@ class AdminReferralSearchService
     {
         $this->answerCallbackQuery($callbackId);
 
-        $messageId = $this->cache->get(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $this->referralSearchMessage->editSearchMessage($chatId, $messageId);
 
         // TODO очередь
@@ -145,7 +146,7 @@ class AdminReferralSearchService
     {
         $messageId = $this->topReferralMessage->sendErrorMessage($chatId, $errorText);
 
-        $this->cache->saveAndCleanup('errorMessage', $chatId, $currentMessage, $messageId);
+        $this->cache->saveAndCleanup('error_message', $chatId, $currentMessage, $messageId);
     }
 
     public function backToAdminMenuAction(int $chatId, int $callbackId): void
@@ -171,7 +172,7 @@ class AdminReferralSearchService
 
         $this->updateContext($chatId, $context);
 
-        $messageId = $this->cache->get(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
 
         $this->referralSearchMessage->editParticipantMessage($chatId, $messageId);
     }
@@ -197,77 +198,6 @@ class AdminReferralSearchService
     {
         $this->contextStorage->unsetContext($chatId);
     }
-
-//    public function setSearchDate(int $chatId, int $callbackId, string $date, ReferralSearchContext $context): void
-//    {
-//        $this->answerCallbackQuery($callbackId);
-//
-//        $dateMessage = $this->createDateText($date);
-//        $context->setSearchDate($date);
-//        $context->setText($context->getText() . " $dateMessage");
-//        $this->contextStorage->updateContext($chatId, $context);
-//        $messageId = $this->countMessage->sendMessage($chatId, $dateMessage);
-//
-//        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $messageId);
-//        $this->cache->delete('errorMessage', $chatId);
-//    }
-//
-//    public function setCustomSearchDate(int $chatId, ReferralSearchContext $context, array $date): void
-//    {
-//        $key = $date['type'];
-//        if ($key === 'date_range_period') {
-//            $from = $date['from'];
-//            $to = $date['to'];
-//            $context->setDateType($key);
-//            $context->setRangeStart($date['from']);
-//            $context->setRangeEnd($date['to']);
-//            $dateText = "поиск с $from по $to";
-//        } else {
-//            $context->setDateType($key);
-//            $context->setSearchDate($date['value']);
-//            $dateText = "поиск за " . $date['value'];
-//        }
-//
-//        $newText = $context->getText() . " $dateText";
-//        $context->setText($newText);
-//
-//        $this->contextStorage->updateContext($chatId, $context);
-//        $messageId = $this->countMessage->sendMessage($chatId, $dateText);
-//
-//        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $messageId);
-//        $this->cache->delete('errorMessage', $chatId);
-//    }
-//
-//    public function setParticipantCount(int $chatId, ReferralSearchContext $context, int $count): void
-//    {
-//        $newText = $context->getText() . " кол-во рефералов $count";
-//        $context->setText($newText);
-//        $this->contextStorage->updateContext($chatId, $context);
-//
-//        $messageId = $this->topReferralMessage->sendApproveMessage($chatId, $newText);
-//
-//        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $messageId);
-//        $this->cache->delete('errorMessage', $chatId);
-//    }
-//
-//    public function backToSearchDate(int $chatId, int $callbackId, ReferralSearchContext $context): void
-//    {
-//        $this->answerCallbackQuery($callbackId);
-//
-//        $text = $context->getSearchType() === 'participant_referral' ? '*Поиск рефералов со статусов участник*' : TelegramDefaultValue::UNKNOWN;
-//        $context->setText($text);
-//        $this->contextStorage->updateContext($chatId, $context);
-//        $messageId = $this->dateMessage->sendMessage($chatId, $text);
-//
-//        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $messageId);
-//    }
-//
-//    public function executeSearchAction(int $chatId, int $callbackId, ReferralSearchContext $context): void
-//    {
-//        $this->answerCallbackQuery($callbackId);
-//
-//        $this->topReferralMessage->editMessage($context);
-//    }
 
     private function buildDateText(string $date): string
     {
