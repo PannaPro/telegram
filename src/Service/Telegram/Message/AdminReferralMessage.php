@@ -47,7 +47,7 @@ class AdminReferralMessage
         return $message->getMessageId();
     }
 
-    public function sendReferralSearchResult(int $c, array $result, string $textHeader): int
+    public function sendReferralSearchResult(int $chatId, array $result, string $textHeader): int
     {
         $text = <<<MARKDOWN
             $textHeader

@@ -5,6 +5,7 @@ namespace App\Service\Telegram\Admin\Command\Context;
 use App\Http\Dto\AbstractPayload;
 use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Http\Dto\MessageTelegramPayload;
+use App\Service\Telegram\Admin\Service\AdminMenuService;
 use App\Service\Telegram\Admin\Service\AdminReferralSearchService;
 use App\Service\Telegram\Common\UnknownCommandService;
 use App\Service\Telegram\Context\Dto\ReferralSearchContext;
@@ -14,6 +15,7 @@ class ReferralSearchCommandHandler
     public function __construct(
         private AdminReferralSearchService $searchService,
         private UnknownCommandService $unknownCommandService,
+        private AdminMenuService $adminMenuService,
     ) {
     }
 
@@ -34,6 +36,11 @@ class ReferralSearchCommandHandler
         $chatId = $payload->getChatId();
         $messageId = $payload->getMessageId();
         $text = $payload->getText();
+
+        if ($text === '/start') {
+            $this->adminMenuService->handle($chatId, $messageId);
+            return;
+        }
 
         if ($context->isBlockContext()) {
             $this->unknownCommandService->makeAction($payload);

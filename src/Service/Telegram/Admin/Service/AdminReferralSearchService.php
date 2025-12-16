@@ -141,7 +141,7 @@ class AdminReferralSearchService
         $this->referralSearchMessage->editSearchMessage($chatId, $messageId);
 
         // TODO очередь
-        $this->adminReferralService->search($context);
+        $this->adminReferralService->search($messageId, $context);
     }
 
     public function errorInputMessage(int $chatId, string $errorText, int $currentMessage): void
