@@ -36,6 +36,11 @@ class CallbackQueryTelegramPayload extends AbstractPayload
         return $this->callback_query['message']['chat']['id'] ?? 0;
     }
 
+    public function getChatType(): string
+    {
+        return $this->callback_query['message']['chat']['type'] ?? 'unknown';
+    }
+
     public function getMessageId(): int
     {
         return $this->callback_query['message']['message_id'] ?? 0;

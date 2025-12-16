@@ -13,7 +13,7 @@ use App\Service\Telegram\User\Service\ReferralService;
 use App\Service\Telegram\User\Service\StartService;
 use App\Service\Telegram\User\Service\SubscriptionService;
 
-class UserCommandMessageHandler
+readonly class UserCommandMessageHandler
 {
     public function __construct(
         private UnknownCommandService $unknownCommandService,
@@ -64,14 +64,26 @@ class UserCommandMessageHandler
                 $this->unknownCommandService->makeAction($payload);
                 break;
             case str_contains($text, '/start'):
-                $command = explode(' ', $text, 2);
-                $param = $command[1] ?? TelegramDefaultValue::UNKNOWN;
+                $this->referralText($chatId, $text);
 
-                $this->referralService->addReferral($chatId, $param);
+                if (!$this->subscriptionService->check($chatId)) {
+                    $this->subscriptionService->needSubscription($chatId);
+                    break;
+                }
+
                 $this->startService->makeAction($messageId);
+
                 break;
             default:
                 $this->unknownCommandService->makeAction($payload);
         }
+    }
+
+    private function referralText(int $chatId, string $text): void
+    {
+        $command = explode(' ', $text, 2);
+        $param = $command[1] ?? TelegramDefaultValue::UNKNOWN;
+
+        $this->referralService->addReferral($chatId, $param);
     }
 }

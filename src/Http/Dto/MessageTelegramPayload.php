@@ -52,7 +52,7 @@ class MessageTelegramPayload extends AbstractPayload implements TelegramUserIden
 
     public function getChatType(): string
     {
-        return $this->message['chat']['type'] ?? 'private';
+        return $this->message['chat']['type'];
     }
 
     public function getChatFirstName(): ?string

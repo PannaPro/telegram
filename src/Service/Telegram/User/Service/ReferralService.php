@@ -10,7 +10,7 @@ use App\Service\Telegram\Enum\TelegramDefaultValue;
 use App\Service\Telegram\Message\ReferralMessage;
 use App\Service\Telegram\TelegramMessageCache;
 
-class ReferralService
+readonly class ReferralService
 {
     public function __construct(
         private SecurityTelegramUserService $security,
