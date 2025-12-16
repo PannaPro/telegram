@@ -26,7 +26,7 @@ class MenuService
     {
         $messageId = $this->message->sendPreview($chatId);
 
-        $this->cache->saveAndClean(TelegramCacheKey::START_MENU, $chatId, $messageId);
-        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $messageId);
+        $this->cache->saveAndCleanup(TelegramCacheKey::START_MENU, $chatId, $currentMessage, $messageId);
+        $this->cache->cleanup(TelegramCacheKey::STEP, $chatId);
     }
 }
