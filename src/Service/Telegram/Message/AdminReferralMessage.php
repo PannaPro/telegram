@@ -47,26 +47,20 @@ class AdminReferralMessage
         return $message->getMessageId();
     }
 
-    public function sendReferralSearchResult(int $chatId, array $result, string $textHeader): int
+    public function sendReferralSearchResult(int $chatId, string $text): int
     {
-        $text = <<<MARKDOWN
-            $textHeader
-
-            *Топ найденных игроков:*
-            MARKDOWN;
-
         $keyboard = new InlineKeyboardMarkup([
             [
-                ['text' => 'Наградить участников', 'callback_data' => 'reward_participant'],
+                ['text' => '🏆 Наградить участников', 'callback_data' => 'reward_participant'],
             ],
             [
-                ['text' => 'Скачать результаты', 'callback_data' => 'download_search_result'],
+                ['text' => '📥️ Скачать результаты', 'callback_data' => 'download_search_result'],
             ],
             [
                 ['text' => '🔍 Новый поиск', 'callback_data' => 'search_top_referral'],
             ],
             [
-                ['text' => 'Главное меню', 'callback_data' => 'back_to_admin_menu'],
+                ['text' => '⬅ Главное меню', 'callback_data' => 'back_to_admin_menu'],
             ]
         ]);
 
