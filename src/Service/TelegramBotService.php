@@ -215,6 +215,11 @@ class TelegramBotService
         }
     }
 
+    public function sendFile(int $chatId, CURLFile $document, string $caption): void
+    {
+        $this->telegram->sendDocument($chatId, $document, $caption);
+    }
+
     public function deleteMessage(int $chatId, int $messageId): void
     {
         if ($messageId === 0) {
