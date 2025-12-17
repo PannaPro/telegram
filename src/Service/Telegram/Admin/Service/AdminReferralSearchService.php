@@ -9,6 +9,7 @@ use App\Service\Telegram\Message\AdminReferralSearchMessage;
 use App\Service\Telegram\Message\AdminTopReferralMessage;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
+use DateTime;
 
 class AdminReferralSearchService
 {
@@ -53,7 +54,7 @@ class AdminReferralSearchService
         $this->answerCallbackQuery($callbackId);
 
         $context->setSearchType($data);
-        $context->setTextType('Статус участник');
+        $context->setTextType($this->buildStatusText($data));
         $context->setBlockContext(false);
         $this->updateContext($chatId, $context);
 
@@ -66,10 +67,8 @@ class AdminReferralSearchService
     public function searchDateAction(int $chatId, int $callbackId, ReferralSearchContext $context, string $data): void
     {
         $this->answerCallbackQuery($callbackId);
-        $context->setDateType($data);
-        $context->setSearchDate((new \DateTime())->format('Y-m-d'));
-        $context->setDateText($this->buildDateText($data));
-        $this->updateContext($chatId, $context);
+
+        $this->manageSearchDateParameters($chatId, $context, $data);
 
         $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
 
@@ -85,6 +84,8 @@ class AdminReferralSearchService
 
         $contextMessage = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $textHeader = $context->getTextType() . " " . $context->getDateText() . " не менее $count рефералов";
+        $context->setTextType($textHeader);
+        $this->updateContext($chatId, $context);
 
         $this->referralSearchMessage->editReferralSearchMessage($chatId, $contextMessage, $textHeader);
         $this->bot->deleteMessage($chatId, $currentMessage);
@@ -124,6 +125,8 @@ class AdminReferralSearchService
 
         $context->setDateType(null);
         $context->setSearchDate(null);
+        $context->setRangeStart(null);
+        $context->setRangeEnd(null);
         $context->setDateText(null);
         $context->setBlockContext(false);
         $this->updateContext($chatId, $context);
@@ -210,16 +213,50 @@ class AdminReferralSearchService
         $this->contextStorage->unsetContext($chatId);
     }
 
-    private function buildDateText(string $date): string
+    private function buildStatusText(string $type): string
     {
-        if ($date === 'all_period') {
-            return 'за все время';
-        } elseif ($date === 'week_period') {
-            return 'за неделю';
-        } elseif ($date === 'current_day_period') {
-            return 'за сегодняшний день';
+        if ($type === 'participant_referral') {
+            return 'Статус участник';
         }
 
-        return $date;
+        return 'Статус участник и есть пополнение';
+    }
+
+    private function manageSearchDateParameters(int $chatId, ReferralSearchContext $context, string $dateType): void
+    {
+        if ($dateType === 'current_day_period') {
+            $date = new DateTime();
+            $text = "за " . $date->format('d-m-Y');
+
+            $context->setSearchDate($date->format('Y-m-d'));
+            $context->setRangeStart(null);
+            $context->setRangeEnd(null);
+        } elseif ($dateType === 'week_period'){
+            $today = new DateTime();
+            $sevenDaysAgo = (clone $today)->modify('-7 days');
+            $text = "с " . $sevenDaysAgo->format('d-m-Y') . " по " . $today->format('d-m-Y');
+
+            $context->setSearchDate(null);
+            $context->setRangeStart($sevenDaysAgo->format('Y-m-d'));
+            $context->setRangeEnd($today->format('Y-m-d'));
+        } elseif ($dateType === 'yesterday_period') {
+            $date = (new DateTime())->modify('-1 day');
+            $text = "за " . $date->format('d-m-Y');
+
+            $context->setSearchDate($date->format('Y-m-d'));
+            $context->setRangeStart(null);
+            $context->setRangeEnd(null);
+        } else {
+            $text = 'за все время';
+
+            $context->setSearchDate(null);
+            $context->setRangeStart(null);
+            $context->setRangeEnd(null);
+        }
+
+        $context->setDateType($dateType);
+        $context->setDateText($text);
+
+        $this->updateContext($chatId, $context);
     }
 }

@@ -5,17 +5,18 @@ namespace App\Service\Telegram\Admin\Command\Context;
 use App\Http\Dto\AbstractPayload;
 use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Http\Dto\MessageTelegramPayload;
-use App\Service\Telegram\Admin\Service\AdminMenuService;
 use App\Service\Telegram\Admin\Service\AdminReferralSearchService;
+use App\Service\Telegram\Admin\Service\AdminReferralService;
 use App\Service\Telegram\Common\UnknownCommandService;
 use App\Service\Telegram\Context\Dto\ReferralSearchContext;
+use DateTime;
 
 class ReferralSearchCommandHandler
 {
     public function __construct(
         private AdminReferralSearchService $searchService,
         private UnknownCommandService $unknownCommandService,
-        private AdminMenuService $adminMenuService,
+        private AdminReferralService $adminReferralService,
     ) {
     }
 
@@ -87,6 +88,7 @@ class ReferralSearchCommandHandler
                 $this->searchService->backToParticipantAction($chatId, $callbackId, $context);
                 break;
             case 'all_period':
+            case 'yesterday_period':
             case 'current_day_period':
             case 'week_period':
                 $this->searchService->searchDateAction($chatId, $callbackId, $context, $data);
@@ -97,6 +99,8 @@ class ReferralSearchCommandHandler
             case 'search_referral':
                 $this->searchService->executeSearchAction($chatId, $callbackId, $context);
                 break;
+            case 'download_search_result':
+                $this->adminReferralService->downloadResult($context);
         }
     }
 
@@ -137,7 +141,7 @@ class ReferralSearchCommandHandler
 
     private function parseSingleDate(string $date): array
     {
-        $dt = \DateTime::createFromFormat('d-m-Y', $date);
+        $dt = DateTime::createFromFormat('d-m-Y', $date);
 
         if (!$dt || $dt->format('d-m-Y') !== $date) {
             throw new \DomainException('Некорректная дата');
@@ -151,8 +155,8 @@ class ReferralSearchCommandHandler
 
     private function parseDateRange(string $from, string $to): array
     {
-        $fromDt = \DateTime::createFromFormat('d-m-Y', $from);
-        $toDt   = \DateTime::createFromFormat('d-m-Y', $to);
+        $fromDt = DateTime::createFromFormat('d-m-Y', $from);
+        $toDt   = DateTime::createFromFormat('d-m-Y', $to);
 
         if (
             !$fromDt || $fromDt->format('d-m-Y') !== $from ||

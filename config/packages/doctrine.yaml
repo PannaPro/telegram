@@ -27,6 +27,9 @@ doctrine:
         controller_resolver:
             auto_mapping: false
         dql:
+            datetime_functions:
+                date_format: DoctrineExtensions\Query\Postgresql\DateFormat
+                date: DoctrineExtensions\Query\Postgresql\Date
 
 when@test:
     doctrine:

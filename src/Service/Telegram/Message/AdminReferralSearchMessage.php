@@ -44,6 +44,34 @@ class AdminReferralSearchMessage
         return $message->getMessageId();
     }
 
+    public function editParticipantMessage(int $chatId, int $messageId): void
+    {
+        $text = <<<MARKDOWN
+        *Поиск по рефералам:*
+
+        Выберите статус рефералов.
+        MARKDOWN;
+
+        $keyboard = new InlineKeyboardMarkup([
+            [
+                ['text' => 'Участник', 'callback_data' => 'participant_referral'],
+                ['text' => 'Участник +ЦД', 'callback_data' => 'participant_cd_referral'],
+            ],
+            [
+                ['text' => '⬅️ Назад', 'callback_data' => 'back_to_referral_menu'],
+            ]
+        ]);
+
+        $this->bot->editMessageText(
+            $chatId,
+            $messageId,
+            $text,
+            TelegramParseMode::MARKDOWN,
+            false,
+            $keyboard
+        );
+    }
+
     public function editDataMessage(int $chatId, int $messageId, string $textHeader): void
     {
         $text = <<<MARKDOWN
@@ -60,40 +88,14 @@ class AdminReferralSearchMessage
         $keyboard = new InlineKeyboardMarkup([
             [
                 ['text' => 'За все время', 'callback_data' => 'all_period'],
+            ],
+            [
+                ['text' => 'Вчера', 'callback_data' => 'yesterday_period'],
                 ['text' => 'Сегодня', 'callback_data' => 'current_day_period'],
                 ['text' => 'За неделю', 'callback_data' => 'week_period'],
             ],
             [
                 ['text' => '⬅️ Назад', 'callback_data' => 'back_to_referral_status'],
-                ['text' => 'Главное меню', 'callback_data' => 'back_to_admin_menu'],
-            ]
-        ]);
-
-        $this->bot->editMessageText(
-            $chatId,
-            $messageId,
-            $text,
-            TelegramParseMode::MARKDOWN,
-            false,
-            $keyboard
-        );
-    }
-
-    public function editParticipantMessage(int $chatId, int $messageId): void
-    {
-        $text = <<<MARKDOWN
-        *Поиск по рефералам:*
-
-        Выберите статус рефералов.
-        MARKDOWN;
-
-        $keyboard = new InlineKeyboardMarkup([
-            [
-                ['text' => 'Участник', 'callback_data' => 'participant_referral'],
-                ['text' => 'Участник +ЦД', 'callback_data' => 'participant_cd_referral'],
-            ],
-            [
-                ['text' => '⬅️ Назад', 'callback_data' => 'back_to_referral_menu'],
             ]
         ]);
 
