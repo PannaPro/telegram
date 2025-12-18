@@ -5,6 +5,7 @@ namespace App\Service\Telegram\Admin\Command;
 use App\Http\Dto\MessageTelegramPayload;
 use App\Security\AdminSessionService;
 use App\Service\Telegram\Admin\Service\AdminMenuService;
+use App\Service\Telegram\Admin\Service\AdminParticipantService;
 use App\Service\Telegram\Admin\Service\AdminReferralService;
 use App\Service\Telegram\Common\UnknownCommandService;
 use App\Service\Telegram\User\Service\StartService;
@@ -17,6 +18,7 @@ class AdminCommandMessageHandler
         private StartService $startService,
         private AdminMenuService $adminMenuService,
         private AdminReferralService $adminReferralService,
+        private AdminParticipantService $adminParticipantService,
     ) {
     }
 
@@ -33,6 +35,9 @@ class AdminCommandMessageHandler
                 break;
             case '👥 Рефералы':
                 $this->adminReferralService->makeAction($chatId, $messageId);
+                break;
+            case '1️⃣ Участники':
+                $this->adminParticipantService->makeAction($chatId, $messageId);
                 break;
             case 'Выйти из режима администратора':
                 $this->adminSession->deactivateAdminSession($chatId);

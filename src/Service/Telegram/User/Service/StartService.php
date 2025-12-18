@@ -18,7 +18,7 @@ class StartService
         $chatId = $user->getChatId();
 
         if ($user->isParticipant()) {
-            $this->menuService->sendStartMenu($chatId);
+            $this->menuService->sendStartMenu($chatId, $messageId);
 
             return;
         }

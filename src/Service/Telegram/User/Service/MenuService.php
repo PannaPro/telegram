@@ -14,11 +14,11 @@ class MenuService
     ) {
     }
 
-    public function sendStartMenu(int $chatId): void
+    public function sendStartMenu(int $chatId, int $currentMessage): void
     {
         $messageId = $this->message->sendMenu($chatId);
 
-        $this->cache->saveAndClean(TelegramCacheKey::START_MENU, $chatId, $messageId);
+        $this->cache->saveAndCleanup(TelegramCacheKey::START_MENU, $chatId, $currentMessage, $messageId);
         $this->cache->cleanup(TelegramCacheKey::STEP, $chatId);
     }
 
