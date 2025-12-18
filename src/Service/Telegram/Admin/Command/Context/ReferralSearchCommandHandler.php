@@ -51,7 +51,7 @@ class ReferralSearchCommandHandler
         }
 
         try {
-            $result = $this->parseInput($text);
+            $result = $this->parseInput($text, $context->getDateType());
             // TODO изменить на кастомную ContextException -> Domain
         } catch (\DomainException $e) {
             $this->searchService->errorInputMessage($chatId, $e->getMessage(), $messageId);
@@ -59,7 +59,7 @@ class ReferralSearchCommandHandler
         }
 
         switch ($result['type']) {
-            case 'integer' && $context->getDateType():
+            case 'integer':
                 $this->searchService->participantCountAction($chatId, $messageId, $context, $result['value']);
                 break;
 
@@ -114,8 +114,12 @@ class ReferralSearchCommandHandler
         }
     }
 
-    private function parseInput(string $text): array
+    private function parseInput(string $text, ?string $dataType): array
     {
+        if (!$dataType) {
+            throw new \DomainException('Некорректная дата');
+        }
+
         $text = trim($text);
 
         $text = preg_replace('/[^0-9\-\s]/', '', $text);
