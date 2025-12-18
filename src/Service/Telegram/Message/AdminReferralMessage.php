@@ -75,4 +75,49 @@ class AdminReferralMessage
 
         return $message->getMessageId();
     }
+
+    public function sendReferralSearchEmptyResult(int $chatId, string $textHeader): int
+    {
+        $text = <<<MARKDOWN
+        *Критерии поиска:*
+        $textHeader
+
+        Поиск не дал результатов
+        MARKDOWN;
+
+        $keyboard = new InlineKeyboardMarkup([
+            [
+                ['text' => '🔍 Новый поиск', 'callback_data' => 'search_top_referral'],
+            ],
+            [
+                ['text' => '⬅ Главное меню', 'callback_data' => 'back_to_admin_menu'],
+            ]
+        ]);
+
+        $message = $this->bot->sendMessage(
+            $chatId,
+            $text,
+            TelegramParseMode::MARKDOWN,
+            false,
+            null,
+            $keyboard
+        );
+
+        return $message->getMessageId();
+    }
+
+    public function sendResultFile(int $chatId, \CURLFile $file): int
+    {
+        $caption = null;
+
+        $keyboard = new InlineKeyboardMarkup([
+            [
+                ['text' => 'Закрыть', 'callback_data' => 'close_pinned_message'],
+            ],
+        ]);
+
+        $message = $this->bot->sendDocument($chatId, $file, $caption, null, $keyboard);
+
+        return $message->getMessageId();
+    }
 }
