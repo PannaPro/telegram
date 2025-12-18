@@ -164,4 +164,9 @@ final class TelegramMessageCache
 
         $this->setEx($key, $ttl, $context);
     }
+
+    public function selfDestructMessage(int $chatId, int $messageId): void
+    {
+        $this->telegramBotService->deleteMessage($chatId, $messageId);
+    }
 }

@@ -84,9 +84,7 @@ readonly class AdminReferralService
         $result = $this->referralSearchRepository->findReferralBySearch($context);
         $filePath = $this->generateFile($context->getTextType(), $result);
 
-        $messageId = $this->referralMessage->sendResultFile($chatId, new CURLFile($filePath));
-
-        $this->cache->setMessage('pinned_message', $chatId, $messageId);
+        $this->referralMessage->sendResultFile($chatId, new CURLFile($filePath));
     }
 
     private function generateFile(string $title, array $data): string

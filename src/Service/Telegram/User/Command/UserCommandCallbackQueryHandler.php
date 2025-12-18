@@ -39,7 +39,7 @@ class UserCommandCallbackQueryHandler
                 $this->avatarService->handleCallbackQuery($callbackId);
                 break;
             case 'close_pinned_message':
-                $this->commonActionService->deletePinnedMessage($chatId, $callbackId);
+                $this->commonActionService->deletePinnedMessage($chatId, $callbackId, $messageId);
                 break;
             default:
                 $this->unknownCommandService->handleCallbackQuery($chatId, $data);
