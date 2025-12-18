@@ -14,6 +14,8 @@ class TelegramCacheKey
     public const TTL_1_HOUR = 3600;
     public const TTL_5_MINUTES = 360;
     public const TTL_10_MINUTES = 600;
+    public const TTL_24_HOURS = 86400;
+    public const TTL_48_HOURS = 172800;
 
     public const REFERRAL_SEARCH = 'admin_referral_search';
 }

@@ -36,7 +36,7 @@ class ContextStorage
         return false;
     }
 
-    public function setContext(int $chatId, ContextInterface $context, int $ttl = TelegramCacheKey::TTL_10_MINUTES): void
+    public function setContext(int $chatId, ContextInterface $context, int $ttl = TelegramCacheKey::TTL_1_HOUR): void
     {
         $data = [
             'class' => get_class($context),

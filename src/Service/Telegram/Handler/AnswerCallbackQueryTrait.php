@@ -4,8 +4,8 @@ namespace App\Service\Telegram\Handler;
 
 trait AnswerCallbackQueryTrait
 {
-    private function answerCallbackQuery($callbackId): void
+    private function answerCallbackQuery(int $callbackId, ?string $text = null): void
     {
-        $this->bot->answerCallbackQuery($callbackId);
+        $this->bot->answerCallbackQuery($callbackId, $text);
     }
 }
