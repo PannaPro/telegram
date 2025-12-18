@@ -114,18 +114,14 @@ class ReferralSearchCommandHandler
         }
     }
 
-    private function parseInput(string $text, ?string $dataType): array
+    private function parseInput(string $text, string $hasDateType): array
     {
-        if (!$dataType) {
-            throw new \DomainException('Некорректная дата');
-        }
-
         $text = trim($text);
 
         $text = preg_replace('/[^0-9\-\s]/', '', $text);
         $text = preg_replace('/\s+/', ' ', $text);
 
-        if (ctype_digit($text)) {
+        if (ctype_digit($text) && $hasDateType) {
             $count = (int)$text;
 
             if ($count > 1000) {

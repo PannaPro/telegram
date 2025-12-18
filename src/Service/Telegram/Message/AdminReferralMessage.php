@@ -112,7 +112,7 @@ class AdminReferralMessage
 
         $keyboard = new InlineKeyboardMarkup([
             [
-                ['text' => 'Закрыть', 'callback_data' => 'close_pinned_message'],
+                ['text' => '✖ Закрыть', 'callback_data' => 'close_pinned_message'],
             ],
         ]);
 
