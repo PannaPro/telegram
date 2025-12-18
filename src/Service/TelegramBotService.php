@@ -215,9 +215,19 @@ class TelegramBotService
         }
     }
 
-    public function sendFile(int $chatId, CURLFile $document, string $caption): void
+    public function sendDocument(
+        int $chatId,
+        CURLFile $document,
+        string $caption = null,
+        $replyToMessageId = null,
+        $replyMarkup = null,
+        $disableNotification = false,
+        $parseMode = null,
+    ): Message
     {
-        $this->telegram->sendDocument($chatId, $document, $caption);
+        return $this->telegram->sendDocument(
+            $chatId, $document, $caption, $replyToMessageId, $replyMarkup, $disableNotification, $parseMode
+        );
     }
 
     public function deleteMessage(int $chatId, int $messageId): void

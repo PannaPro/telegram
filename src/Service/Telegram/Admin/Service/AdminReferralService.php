@@ -6,18 +6,21 @@ use App\Repository\ReferralSearchRepository;
 use App\Repository\TelegramUserRepository;
 use App\Service\Telegram\Context\Dto\ReferralSearchContext;
 use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
 use App\Service\Telegram\Message\AdminReferralMessage;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
+use CURLFile;
 
-class AdminReferralService
+readonly class AdminReferralService
 {
+    use AnswerCallbackQueryTrait;
     public function __construct(
-        private TelegramUserRepository   $telegramUserRepository,
-        private TelegramMessageCache     $cache,
-        private AdminReferralMessage     $referralMessage,
+        private TelegramUserRepository $telegramUserRepository,
+        private TelegramMessageCache $cache,
+        private AdminReferralMessage $referralMessage,
         private ReferralSearchRepository $referralSearchRepository,
-        private TelegramBotService $telegramBotService,
+        private TelegramBotService $bot,
     )
     {
     }
@@ -30,36 +33,28 @@ class AdminReferralService
         $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
     }
 
-    public function search(ReferralSearchContext $context, int $contextMessage = 0): void
+    public function search(ReferralSearchContext $context): void
     {
         $chatId = $context->getChatId();
         $textHeader = $context->getTextType();
 
-        $text = $this->getReferralByFilters($context, $textHeader);
+        $result = $this->referralSearchRepository->findReferralBySearch($context);
+        $count = count($result);
 
-        $messageId = $this->referralMessage->sendReferralSearchResult($chatId, $text);
+        if ($count > 0) {
+            $text = $this->buildReferralResultText($result, $count, $textHeader);
+            $messageId = $this->referralMessage->sendReferralSearchResult($chatId, $text);
+        } else {
+            $messageId = $this->referralMessage->sendReferralSearchEmptyResult($chatId, $textHeader);
+        }
 
-//        $this->cache->saveAndCleanup(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $contextMessage, $messageId);
         $this->cache->saveAndClean(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $messageId);
     }
 
-    public function getReferralByFilters(ReferralSearchContext $context, string $textHeader): string
+    public function buildReferralResultText(array $result, int $count, string $textHeader): string
     {
-        $result = $this->referralSearchRepository->findReferralBySearch($context);
-
-        $count = count($result);
-
-        if ($count === 0) {
-            return <<<MARKDOWN
-            *Критерии поиска:*
-            $textHeader
-
-            Поиск не дал результатов
-            MARKDOWN;
-        }
-
         $lines = [];
-        $limit = 2;
+        $limit = 5;
 
         foreach (array_slice($result, 0, $limit) as $item) {
             $lines[] = "[@{$item['username']}](https://t.me/{$item['username']}) — {$item['referralCount']} рефералов";
@@ -82,13 +77,20 @@ class AdminReferralService
             MARKDOWN;
     }
 
-    public function downloadResult(ReferralSearchContext $context)
+    public function downloadResult(int $chatId, int $callbackId, ReferralSearchContext $context): void
     {
-        $chatId = $context->getChatId();
+        $this->answerCallbackQuery($callbackId);
 
         $result = $this->referralSearchRepository->findReferralBySearch($context);
+        $filePath = $this->generateFile($context->getTextType(), $result);
 
-        $title = $context->getTextType();
+        $messageId = $this->referralMessage->sendResultFile($chatId, new CURLFile($filePath));
+
+        $this->cache->setMessage('pinned_message', $chatId, $messageId);
+    }
+
+    private function generateFile(string $title, array $data): string
+    {
         $date = (new \DateTime())->format('d-m-Y H:i');
 
         $fileName = 'referrals_' . date('Ymd_His') . '.csv';
@@ -96,26 +98,19 @@ class AdminReferralService
 
         $handle = fopen($filePath, 'w');
 
-        // Заголовок файла
         fputcsv($handle, ["$title (запрос $date)"]);
-        fputcsv($handle, []); // пустая строка
+        fputcsv($handle, []);
+        fputcsv($handle, ['Chat_ID', 'Username', 'Кол-во рефералов']);
 
-        // Заголовки колонок
-        fputcsv($handle, ['ID', 'Пользователь', 'Юзернейм', 'Кол-во рефералов']);
-
-        // Данные
-        foreach ($result as $item) {
+        foreach ($data as $item) {
             fputcsv($handle, [
                 $item['chatId'],
-                $item['username'],
                 "@{$item['username']}",
                 $item['referralCount'],
             ]);
         }
 
         fclose($handle);
-
-        $this->telegramBotService->sendFile($chatId, new \CURLFile($filePath), 'Результаты');
 
         return $filePath;
     }

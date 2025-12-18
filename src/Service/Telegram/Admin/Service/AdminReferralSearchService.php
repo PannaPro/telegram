@@ -5,14 +5,17 @@ namespace App\Service\Telegram\Admin\Service;
 use App\Service\Telegram\Context\ContextStorage;
 use App\Service\Telegram\Context\Dto\ReferralSearchContext;
 use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
 use App\Service\Telegram\Message\AdminReferralSearchMessage;
 use App\Service\Telegram\Message\AdminTopReferralMessage;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
 use DateTime;
 
-class AdminReferralSearchService
+readonly class AdminReferralSearchService
 {
+    use AnswerCallbackQueryTrait;
+
     public function __construct(
         private TelegramMessageCache $cache,
         private TelegramBotService $bot,
@@ -144,7 +147,7 @@ class AdminReferralSearchService
         $this->referralSearchMessage->editSearchMessage($chatId, $messageId);
 
         // TODO очередь
-        $this->adminReferralService->search($context, $messageId);
+        $this->adminReferralService->search($context);
     }
 
     public function errorInputMessage(int $chatId, string $errorText, int $currentMessage): void
@@ -189,11 +192,6 @@ class AdminReferralSearchService
         $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
 
         $this->referralSearchMessage->editParticipantMessage($chatId, $messageId);
-    }
-
-    private function answerCallbackQuery($callbackId): void
-    {
-        $this->bot->answerCallbackQuery($callbackId);
     }
 
     private function updateContext(int $chatId, ReferralSearchContext $context): void

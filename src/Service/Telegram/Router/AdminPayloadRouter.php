@@ -9,7 +9,7 @@ use App\Service\Telegram\Admin\Command\AdminCommandCallbackHandler;
 use App\Service\Telegram\Admin\Command\AdminCommandMessageHandler;
 use App\Service\Telegram\Context\ContextStorage;
 
-class AdminPayloadRouter
+readonly class AdminPayloadRouter
 {
     public function __construct(
         private ContextStorage $contextStorage,

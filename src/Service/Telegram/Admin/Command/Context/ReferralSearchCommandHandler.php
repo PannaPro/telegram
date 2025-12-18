@@ -7,6 +7,7 @@ use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Http\Dto\MessageTelegramPayload;
 use App\Service\Telegram\Admin\Service\AdminReferralSearchService;
 use App\Service\Telegram\Admin\Service\AdminReferralService;
+use App\Service\Telegram\Common\CommonActionService;
 use App\Service\Telegram\Common\UnknownCommandService;
 use App\Service\Telegram\Context\Dto\ReferralSearchContext;
 use DateTime;
@@ -17,6 +18,7 @@ class ReferralSearchCommandHandler
         private AdminReferralSearchService $searchService,
         private UnknownCommandService $unknownCommandService,
         private AdminReferralService $adminReferralService,
+        private CommonActionService $commonActionService,
     ) {
     }
 
@@ -81,6 +83,7 @@ class ReferralSearchCommandHandler
             case 'back_to_admin_menu':
                 $this->searchService->backToAdminMenuAction($chatId, $callbackId);
                 break;
+            case 'participant_cd_referral':
             case 'participant_referral':
                 $this->searchService->participantStatusAction($chatId, $callbackId, $context, $data);
                 break;
@@ -100,7 +103,11 @@ class ReferralSearchCommandHandler
                 $this->searchService->executeSearchAction($chatId, $callbackId, $context);
                 break;
             case 'download_search_result':
-                $this->adminReferralService->downloadResult($context);
+                $this->adminReferralService->downloadResult($chatId, $callbackId, $context);
+                break;
+            case 'close_pinned_message':
+                $this->commonActionService->deletePinnedMessage($chatId, $callbackId);
+                break;
         }
     }
 

@@ -3,6 +3,7 @@
 namespace App\Service\Telegram\User\Command;
 
 use App\Http\Dto\CallbackQueryTelegramPayload;
+use App\Service\Telegram\Common\CommonActionService;
 use App\Service\Telegram\Common\UnknownCommandService;
 use App\Service\Telegram\User\Service\AvatarService;
 use App\Service\Telegram\User\Service\ParticipateService;
@@ -15,6 +16,7 @@ class UserCommandCallbackQueryHandler
         private SubscriptionService   $subscriptionService,
         private ParticipateService    $participateService,
         private AvatarService         $avatarService,
+        private CommonActionService $commonActionService,
     ) {
     }
 
@@ -36,9 +38,9 @@ class UserCommandCallbackQueryHandler
             case 'avatarSet':
                 $this->avatarService->handleCallbackQuery($callbackId);
                 break;
-//            case 'close_password_menu':
-//                $this->adminSession->deactivate($chatId, $messageId);
-//                break;
+            case 'close_pinned_message':
+                $this->commonActionService->deletePinnedMessage($chatId, $callbackId);
+                break;
             default:
                 $this->unknownCommandService->handleCallbackQuery($chatId, $data);
         }
