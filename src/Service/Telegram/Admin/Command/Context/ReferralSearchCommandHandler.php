@@ -75,6 +75,7 @@ class ReferralSearchCommandHandler
         $chatId = $payload->getChatId();
         $callbackId = $payload->getCallbackQueryId();
         $data = $payload->getCallbackData();
+        $messageId = $payload->getMessageId();
 
         switch ($data) {
             case 'back_to_referral_menu':
@@ -106,7 +107,7 @@ class ReferralSearchCommandHandler
                 $this->adminReferralService->downloadResult($chatId, $callbackId, $context);
                 break;
             case 'close_pinned_message':
-                $this->commonActionService->deletePinnedMessage($chatId, $callbackId);
+                $this->commonActionService->deletePinnedMessage($chatId, $callbackId, $messageId);
                 break;
             case 'search_top_referral':
                 $this->searchService->makeTopReferralAction($chatId, $callbackId);

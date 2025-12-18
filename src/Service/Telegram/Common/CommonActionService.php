@@ -16,10 +16,10 @@ readonly class CommonActionService
     ) {
     }
 
-    public function deletePinnedMessage(int $chatId, int $callbackId): void
+    public function deletePinnedMessage(int $chatId, int $callbackId, int $messageId): void
     {
         $this->answerCallbackQuery($callbackId);
 
-        $this->cache->deleteMessage('close_pinned_message', $chatId);
+        $this->cache->selfDestructMessage($chatId, $messageId);
     }
 }
