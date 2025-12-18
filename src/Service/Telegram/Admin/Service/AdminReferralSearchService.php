@@ -29,7 +29,7 @@ readonly class AdminReferralSearchService
 
     public function makeTopReferralAction(int $chatId, int $callbackId): void
     {
-        $this->answerCallbackQuery($callbackId);
+        $this->answerCallbackQuery($callbackId, 'контекст: поиск рефералов');
         $this->setContext($chatId);
 
         $messageId = $this->referralSearchMessage->sendParticipantStatusMessage($chatId);
@@ -42,7 +42,7 @@ readonly class AdminReferralSearchService
 
     public function backToReferralMenuAction(int $chatId, int $callbackId): void
     {
-        $this->answerCallbackQuery($callbackId);
+        $this->answerCallbackQuery($callbackId, 'контекст закрыт');
         $this->unsetContext($chatId);
 
         $this->adminMenuService->handle($chatId);
@@ -54,7 +54,7 @@ readonly class AdminReferralSearchService
 
     public function participantStatusAction(int $chatId, int $callbackId, ReferralSearchContext $context, string $data): void
     {
-        $this->answerCallbackQuery($callbackId);
+        $this->answerCallbackQuery($callbackId, 'статус выбран');
 
         $context->setSearchType($data);
         $context->setTextType($this->buildStatusText($data));
@@ -69,7 +69,7 @@ readonly class AdminReferralSearchService
 
     public function searchDateAction(int $chatId, int $callbackId, ReferralSearchContext $context, string $data): void
     {
-        $this->answerCallbackQuery($callbackId);
+        $this->answerCallbackQuery($callbackId, 'дата выбрана');
 
         $this->manageSearchDateParameters($chatId, $context, $data);
 
@@ -141,7 +141,7 @@ readonly class AdminReferralSearchService
 
     public function executeSearchAction(int $chatId, int $callbackId, ReferralSearchContext $context): void
     {
-        $this->answerCallbackQuery($callbackId);
+        $this->answerCallbackQuery($callbackId, 'поиск подтвержден');
 
         $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $this->referralSearchMessage->editSearchMessage($chatId, $messageId);
@@ -159,7 +159,7 @@ readonly class AdminReferralSearchService
 
     public function backToAdminMenuAction(int $chatId, int $callbackId): void
     {
-        $this->answerCallbackQuery($callbackId);
+        $this->answerCallbackQuery($callbackId, 'контекст закрыт');
         $this->unsetContext($chatId);
 
         $this->adminMenuService->handle($chatId);

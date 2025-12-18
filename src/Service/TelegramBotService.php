@@ -254,10 +254,22 @@ class TelegramBotService
         return $this->telegram->getUpdates($offset);
     }
 
-    public function answerCallbackQuery(int $callbackId, string $text = null, bool $showAlert = false): void
+    public function answerCallbackQuery(
+        int $callbackId,
+        ?string $text = null,
+        bool $showAlert = false,
+        ?string $url = null,
+        int $cacheTime = 0
+    ): void
     {
         try {
-            $this->telegram->answerCallbackQuery($callbackId, $text, $showAlert);
+            $this->telegram->answerCallbackQuery(
+                $callbackId,
+                $text,
+                $showAlert,
+                $url,
+                $cacheTime
+            );
         } catch (Exception) {
 
         }

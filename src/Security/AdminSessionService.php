@@ -32,7 +32,7 @@ class AdminSessionService
 
     public function activateWaitingPassword(int $chatId, int $currentMessage): void
     {
-        $this->contextStorage->setContext($chatId, new WaitingPasswordContext($chatId, true));
+        $this->contextStorage->setContext($chatId, new WaitingPasswordContext($chatId, true), TelegramCacheKey::TTL_5_MINUTES);
 
         $this->waitingPasswordService->waitingPassword($chatId, $currentMessage);
     }
@@ -73,7 +73,7 @@ class AdminSessionService
 
     public function activateAdminSession(int $chatId): void
     {
-        $this->cache->setExMessage("admin_session", $chatId, TelegramCacheKey::TTL_1_HOUR, $chatId);
+        $this->cache->setExMessage("admin_session", $chatId, TelegramCacheKey::TTL_48_HOURS, $chatId);
     }
 
     private function isActiveAdminSession(int $chatId): bool

@@ -108,6 +108,8 @@ class ReferralSearchCommandHandler
             case 'close_pinned_message':
                 $this->commonActionService->deletePinnedMessage($chatId, $callbackId);
                 break;
+            case 'search_top_referral':
+                $this->searchService->makeTopReferralAction($chatId, $callbackId);
         }
     }
 
