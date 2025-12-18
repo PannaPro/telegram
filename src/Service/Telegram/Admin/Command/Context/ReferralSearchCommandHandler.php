@@ -59,7 +59,7 @@ class ReferralSearchCommandHandler
         }
 
         switch ($result['type']) {
-            case 'integer':
+            case 'integer' && $context->getDateType():
                 $this->searchService->participantCountAction($chatId, $messageId, $context, $result['value']);
                 break;
 
