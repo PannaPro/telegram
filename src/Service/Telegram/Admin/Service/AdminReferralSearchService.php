@@ -65,6 +65,7 @@ readonly class AdminReferralSearchService
 
         $textHeader = $context->getTextType();
         $this->referralSearchMessage->editDataMessage($chatId, $messageId, $textHeader);
+        $this->cache->deleteMessage('error_message', $chatId);
     }
 
     public function searchDateAction(int $chatId, int $callbackId, ReferralSearchContext $context, string $data): void
@@ -77,6 +78,7 @@ readonly class AdminReferralSearchService
 
         $textHeader = $context->getTextType() . ' ' . $context->getDateText();
         $this->referralSearchMessage->editCountMessage($chatId, $messageId, $textHeader);
+        $this->cache->deleteMessage('error_message', $chatId);
     }
 
     public function participantCountAction(int $chatId, int $currentMessage, ReferralSearchContext $context, int $count): void
