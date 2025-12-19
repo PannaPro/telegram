@@ -36,8 +36,8 @@ class TestCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $hash = hash('sha256', 301671507 . ':' . 'thismypassword');
-        dd($hash);
+        dd('das');
+
         return 1;
     }
 }

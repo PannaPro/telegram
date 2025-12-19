@@ -61,10 +61,11 @@ readonly class AdminReferralSearchService
         $context->setBlockContext(false);
         $this->updateContext($chatId, $context);
 
-        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $messageId = $this->cache->get(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
 
         $textHeader = $context->getTextType();
         $this->referralSearchMessage->editDataMessage($chatId, $messageId, $textHeader);
+
         $this->cache->deletePreviousMessage(TelegramCacheKey::ERROR_MESSAGE, $chatId);
     }
 
@@ -74,7 +75,7 @@ readonly class AdminReferralSearchService
 
         $this->manageSearchDateParameters($chatId, $context, $data);
 
-        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $messageId = $this->cache->get(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
 
         $textHeader = $context->getTextType() . ' ' . $context->getDateText();
         $this->referralSearchMessage->editCountMessage($chatId, $messageId, $textHeader);
@@ -88,13 +89,14 @@ readonly class AdminReferralSearchService
         $context->setBlockContext(true);
         $this->updateContext($chatId, $context);
 
-        $contextMessage = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $contextMessage = $this->cache->get(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+
         $textHeader = $context->getTextType() . " " . $context->getDateText() . " не менее $count рефералов";
         $context->setTextType($textHeader);
         $this->updateContext($chatId, $context);
 
         $this->referralSearchMessage->editReferralSearchMessage($chatId, $contextMessage, $textHeader);
-        $this->bot->deleteMessage($chatId, $currentMessage);
+        $this->cache->delete($chatId, $currentMessage);
         $this->cache->deletePreviousMessage(TelegramCacheKey::ERROR_MESSAGE, $chatId);
     }
 
@@ -117,11 +119,11 @@ readonly class AdminReferralSearchService
 
         $this->updateContext($chatId, $context);
 
-        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $contextMessage = $this->cache->get(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $textHeader = $context->getTextType() . " " . $context->getDateText();
 
-        $this->referralSearchMessage->editCountMessage($chatId, $messageId, $textHeader);
-        $this->bot->deleteMessage($chatId, $currentMessage);
+        $this->referralSearchMessage->editCountMessage($chatId, $contextMessage, $textHeader);
+        $this->cache->deleteMessage($chatId, $currentMessage);
         $this->cache->deletePreviousMessage(TelegramCacheKey::ERROR_MESSAGE, $chatId);
     }
 
@@ -137,17 +139,17 @@ readonly class AdminReferralSearchService
         $context->setBlockContext(false);
         $this->updateContext($chatId, $context);
 
-        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $contextMessage = $this->cache->get(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $textHeader = $context->getTextType();
-        $this->referralSearchMessage->editDataMessage($chatId, $messageId, $textHeader);
+        $this->referralSearchMessage->editDataMessage($chatId, $contextMessage, $textHeader);
     }
 
     public function executeSearchAction(int $chatId, int $callbackId, ReferralSearchContext $context): void
     {
         $this->answerCallbackQuery($callbackId, 'поиск подтвержден');
 
-        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
-        $this->referralSearchMessage->editSearchMessage($chatId, $messageId);
+        $contextMessage = $this->cache->get(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->referralSearchMessage->editSearchMessage($chatId, $contextMessage);
 
         // TODO очередь
         $this->adminReferralService->search($context);
@@ -158,7 +160,7 @@ readonly class AdminReferralSearchService
         $messageId = $this->topReferralMessage->sendErrorMessage($chatId, $errorText);
 
         $this->cache->deleteMessage($chatId, $currentMessage);
-        $this->cache->replaceMessage(TelegramCacheKey::ERROR_MESSAGE, $chatId, $messageId);
+        $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 
     public function backToAdminMenuAction(int $chatId, int $callbackId): void
@@ -175,7 +177,7 @@ readonly class AdminReferralSearchService
         $this->unsetContext($chatId);
 
         $this->adminMenuService->handle($chatId, $messageId);
-        $this->cache->deletePreviousMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->cache->delete(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
     }
 
     public function backToParticipantAction(int $chatId, int $callbackId, ReferralSearchContext $context): void
