@@ -29,7 +29,8 @@ class UnknownCommandService
 
         $messageId = $this->message->sendMessage($chatId);
 
-        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
+        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 
     public function handleCallbackQuery(int $chatId, string $data): void
@@ -43,6 +44,6 @@ class UnknownCommandService
 
         $messageId = $this->message->sendMessage($chatId);
 
-        $this->cache->saveAndClean(TelegramCacheKey::STEP, $chatId, $messageId);
+        $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 }

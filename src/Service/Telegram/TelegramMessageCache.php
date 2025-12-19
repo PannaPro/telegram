@@ -19,7 +19,31 @@ final class TelegramMessageCache
     {
         return "$keyType:$keyValue";
     }
-//
+
+    public function setEx(string $keyType, int $keyValue, int $ttl, mixed $value): void
+    {
+        $this->redis->setEx($this->getKey($keyType, $keyValue), $ttl, $value);
+    }
+
+    public function get(string $keyType, int $keyValue): mixed
+    {
+        return $this->redis->get($this->getKey($keyType, $keyValue));
+    }
+
+    public function set(string $keyType, int $keyValue, mixed $value): void
+    {
+        $this->redis->set($this->getKey($keyType, $keyValue), $value);
+    }
+
+    public function exist(string $keyType, int $keyValue): bool
+    {
+        return $this->redis->exists($this->getKey($keyType, $keyValue));
+    }
+
+    public function delete(string $keyType, int $keyValue): void
+    {
+        $this->redis->delete($this->getKey($keyType, $keyValue));
+    }
 //    public function getMessages(string $type, int $chatId): array
 //    {
 //        $json = $this->redis->get($this->getKey($type, $chatId));
@@ -159,11 +183,16 @@ final class TelegramMessageCache
 ////        $this->set($this->getKey($keyType, $chatId), $newMessage);
 //    }
 
+    public function setExMessage(string $type, int $updateId, int $ttl, mixed $value)
+    {
+        $this->redis->hSet($type, (string)$updateId, $value);
+
+        $this->redis->expire($type, $ttl);
+    }
+
     public function setExContext(string $type, int $chatId, int $ttl, string $context): void
     {
-        $key = $this->getKey($type, $chatId);
-
-        $this->redis->setEx($key, $ttl, $context);
+        $this->redis->setEx($this->getKey($type, $chatId), $ttl, $context);
     }
 
     public function getContext(int $chatId): ?array
@@ -200,7 +229,7 @@ final class TelegramMessageCache
         }
     }
 
-    public function deleteMessage(int $chatId, int $messageId): void
+    public function deleteMessage(string|int $chatId, int $messageId): void
     {
         $this->telegramBotService->deleteMessage($chatId, $messageId);
     }

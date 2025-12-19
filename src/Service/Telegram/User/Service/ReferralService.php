@@ -30,13 +30,14 @@ readonly class ReferralService
 
         $messageId = $this->referralMessage->sendMessage($chatId, $referralCode, $referralCount);
 
-        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
+        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 
     private function makeReferralCode(TelegramUser $user): string
     {
         $link = $user->getReferralLink();
-        if ($link === 'unknown') {
+        if ($link === TelegramDefaultValue::UNKNOWN) {
             $link = $this->generateCode($user->getId());
             $user->setReferralLink($link);
             $this->telegramUserRepository->save($user);
@@ -65,7 +66,7 @@ readonly class ReferralService
             return;
         }
 
-        $referrer = $this->telegramUserRepository->findOneBy(['referralLink' => $referralLink]);
+        $referrer = $this->telegramUserRepository->findOneBy([TelegramDefaultValue::REFERRAL_LINK => $referralLink]);
         if (!$referrer || $referrer->getChatId() === $chatId) {
             return;
         }

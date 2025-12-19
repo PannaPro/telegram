@@ -14,12 +14,12 @@ class ContextStorage
 
     public function hasContext(int $chatId): bool
     {
-        return $this->cache->getMessage('context', $chatId) !== false;
+        return $this->cache->exist(TelegramCacheKey::CONTEXT, $chatId) !== false;
     }
 
     public function getContext(int $chatId): ContextInterface|false
     {
-        $json = $this->cache->getMessage('context', $chatId);
+        $json = $this->cache->get(TelegramCacheKey::CONTEXT, $chatId);
         if (!$json) {
             return false;
         }
@@ -48,10 +48,10 @@ class ContextStorage
 
     public function unsetContext(int $chatId): void
     {
-        $this->cache->deleteMessage('context', $chatId);
+        $this->cache->delete('context', $chatId);
     }
 
-    public function updateContext(int $chatId, ContextInterface $context, int $ttl = TelegramCacheKey::TTL_5_MINUTES): void
+    public function updateContext(int $chatId, ContextInterface $context, int $ttl = TelegramCacheKey::TTL_1_HOUR): void
     {
         $data = [
             'class' => get_class($context),

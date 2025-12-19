@@ -9,4 +9,5 @@ class TelegramDefaultValue
     public const ZERO = 0;
     public const KICKED = 'kicked';
     public const MEMBER = 'member';
+    public const REFERRAL_LINK = 'referralLink';
 }

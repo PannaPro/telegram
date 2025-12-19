@@ -60,7 +60,8 @@ class ParticipateService
 
         $messageId = $this->participateMessage->sendMessage($chatId, $username, $photo);
 
-        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
+        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 
     public function needUsernameMessage(int $chatId): void
