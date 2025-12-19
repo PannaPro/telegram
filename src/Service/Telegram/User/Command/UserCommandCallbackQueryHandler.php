@@ -35,7 +35,7 @@ class UserCommandCallbackQueryHandler
             case 'participate':
                 $this->participateService->handleCallbackQuery($callbackId);
                 break;
-            case 'avatarSet':
+            case 'set_game_avatar':
                 $this->avatarService->handleCallbackQuery($callbackId);
                 break;
             case 'close_pinned_message':
