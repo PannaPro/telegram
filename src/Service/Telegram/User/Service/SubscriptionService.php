@@ -46,14 +46,14 @@ class SubscriptionService
 
     public function check(int $chatId): bool
     {
-        $cached = $this->cache->getMessage(TelegramCacheKey::SUBSCRIPTION, $chatId);
+        $cached = $this->cache->get(TelegramCacheKey::SUBSCRIPTION, $chatId);
         if ($cached == true) {
             return true;
         }
 
         $hasSubscription = $this->message->checkSubscription($chatId);
 
-        $this->cache->setExMessage(TelegramCacheKey::SUBSCRIPTION, $chatId, TelegramCacheKey::TTL_10_MINUTES, $hasSubscription);
+        $this->cache->setEx(TelegramCacheKey::SUBSCRIPTION, $chatId, TelegramCacheKey::TTL_10_MINUTES, $hasSubscription);
 
         return $hasSubscription;
     }
