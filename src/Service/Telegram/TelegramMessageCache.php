@@ -75,94 +75,150 @@ final class TelegramMessageCache
 //        ]);
 //    }
 
-    private function setEx(string $key, int $ttl, mixed $value): void
-    {
-        $this->redis->setEx($key, $ttl, $value);
-    }
-
-    private function set(string $key, mixed $value): void
-    {
-        $this->redis->set($key, $value);
-    }
-
-    private function get(string $key): mixed
-    {
-        return $this->redis->get($key);
-    }
-
-    private function delete(string $key): int
-    {
-        return $this->redis->delete($key);
-    }
-
-    public function deleteMessage(string $keyType, int $chatId): void
-    {
-        $message = $this->getMessage($keyType, $chatId);
-        if ($message) {
-            $this->telegramBotService->deleteMessage($chatId, (int)$message);
-        }
-
-        $this->delete($this->getKey($keyType, $chatId));
-    }
-
-    public function getMessage(string $keyType, int $keyValue): mixed
-    {
-        return $this->get($this->getKey($keyType, $keyValue));
-    }
-
-    public function saveAndCleanup(string $keyType, int $chatId, int $currentMessage, int $newMessage): void
-    {
-        $key = $this->getKey($keyType, $chatId);
-
-        $oldMessage = $this->get($key);
-        if ($oldMessage) {
-            $this->telegramBotService->deleteMessage($chatId, (int)$oldMessage);
-        }
-
-        if ($currentMessage !== 0) {
-            $this->telegramBotService->deleteMessage($chatId, $currentMessage);
-        }
-
-        $this->set($key, $newMessage);
-    }
-
-    public function saveAndClean(string $keyType, int $chatId, int $newMessage): void
-    {
-        $key = $this->getKey($keyType, $chatId);
-
-        $oldMessage = $this->get($key);
-        if ($oldMessage) {
-            $this->telegramBotService->deleteMessage($chatId, (int)$oldMessage);
-        }
-
-        $this->set($key, $newMessage);
-    }
-
-    public function cleanup(string $keyType, int $chatId): void
-    {
-        $key = $this->getKey($keyType, $chatId);
-
-        $existingMessage = $this->redis->get($key);
-        if ($existingMessage) {
-            $this->telegramBotService->deleteMessage($chatId, (int)$existingMessage);
-        }
-    }
-
-    public function setExMessage(string $keyType, int $chatId, int $ttl, int $newMessage): void
-    {
-        $this->setEx($this->getKey($keyType, $chatId), $ttl, $newMessage);
-    }
-
-    public function setMessage(string $keyType, int $chatId, int $newMessage): void
-    {
-        $this->set($this->getKey($keyType, $chatId), $newMessage);
-    }
+//    private function setEx(string $key, int $ttl, mixed $value): void
+//    {
+//        $this->redis->setEx($key, $ttl, $value);
+//    }
+//
+//    private function set(string $key, mixed $value): void
+//    {
+//        $this->redis->set($key, $value);
+//    }
+//
+//    private function get(string $key): mixed
+//    {
+//        return $this->redis->get($key);
+//    }
+//
+//    private function delete(string $key): int
+//    {
+//        return $this->redis->delete($key);
+//    }
+//
+//    public function deleteMessage(string $keyType, int $chatId): void
+//    {
+//        $message = $this->getMessage($keyType, $chatId);
+//        if ($message) {
+//            $this->telegramBotService->deleteMessage($chatId, (int)$message);
+//        }
+//
+//        $this->delete($this->getKey($keyType, $chatId));
+//    }
+//
+//    public function getMessage(string $keyType, int $keyValue): mixed
+//    {
+//        return $this->get($this->getKey($keyType, $keyValue));
+//    }
+//
+//    public function saveAndCleanup(string $keyType, int $chatId, int $currentMessage, int $newMessage): void
+//    {
+//        $key = $this->getKey($keyType, $chatId);
+//
+//        $oldMessage = $this->get($key);
+//        if ($oldMessage) {
+//            $this->telegramBotService->deleteMessage($chatId, (int)$oldMessage);
+//        }
+//
+//        if ($currentMessage !== 0) {
+//            $this->telegramBotService->deleteMessage($chatId, $currentMessage);
+//        }
+//
+//        $this->set($key, $newMessage);
+//    }
+//
+//    public function saveAndClean(string $keyType, int $chatId, int $newMessage): void
+//    {
+//        $key = $this->getKey($keyType, $chatId);
+//
+//        $oldMessage = $this->get($key);
+//        if ($oldMessage) {
+//            $this->telegramBotService->deleteMessage($chatId, (int)$oldMessage);
+//        }
+//
+//        $this->set($key, $newMessage);
+//    }
+//
+//    public function cleanup(string $keyType, int $chatId): void
+//    {
+//        $key = $this->getKey($keyType, $chatId);
+//
+//        $existingMessage = $this->redis->get($key);
+//        if ($existingMessage) {
+//            $this->telegramBotService->deleteMessage($chatId, (int)$existingMessage);
+//        }
+//    }
+//
+//    public function setExMessage(string $keyType, int $chatId, int $ttl, int $newMessage): void
+//    {
+//        $this->setEx($this->getKey($keyType, $chatId), $ttl, $newMessage);
+//    }
+//
+//    public function setMessage(string $keyType, int $chatId, int $newMessage): void
+//    {
+//        $this->redis->hSet($keyType, $chatId, $newMessage);
+////        $this->set($this->getKey($keyType, $chatId), $newMessage);
+//    }
 
     public function setExContext(string $type, int $chatId, int $ttl, string $context): void
     {
         $key = $this->getKey($type, $chatId);
 
-        $this->setEx($key, $ttl, $context);
+        $this->redis->setEx($key, $ttl, $context);
+    }
+
+    public function getContext(int $chatId): ?array
+    {
+        $json = $this->redis->get($this->contextKey($chatId));
+
+        return $json ? json_decode($json, true, 512, JSON_THROW_ON_ERROR) : null;
+    }
+
+    public function deleteContext(int $chatId): void
+    {
+        $this->redis->del($this->contextKey($chatId));
+    }
+
+    public function setMessage(string $key, int $chatId, int $messageId): void
+    {
+        $this->redis->hSet($key, (string)$chatId, $messageId);
+    }
+
+    public function getMessage(string $key, int $chatId): ?int
+    {
+        $value = $this->redis->hGet($key, (string)$chatId);
+
+        return $value !== false ? (int)$value : null;
+    }
+
+    public function deletePreviousMessage(string $key, int $chatId): void
+    {
+        $messageId = $this->getMessage($key, $chatId);
+
+        if ($messageId) {
+            $this->telegramBotService->deleteMessage($chatId, $messageId);
+            $this->redis->hDel($key, (string)$chatId);
+        }
+    }
+
+    public function deleteMessage(int $chatId, int $messageId): void
+    {
+        $this->telegramBotService->deleteMessage($chatId, $messageId);
+    }
+
+    public function replaceMessage(string $key, int $chatId, int $newMessageId): void
+    {
+        $oldMessageId = $this->getMessage($key, $chatId);
+
+        if ($oldMessageId) {
+            $this->telegramBotService->deleteMessage($chatId, $oldMessageId);
+        }
+
+        $this->setMessage($key, $chatId, $newMessageId);
+    }
+
+    private function contextKey(int $chatId): string
+    {
+        return TelegramCacheKey::CONTEXT . ':' . $chatId;
     }
 
     public function selfDestructMessage(int $chatId, int $messageId): void

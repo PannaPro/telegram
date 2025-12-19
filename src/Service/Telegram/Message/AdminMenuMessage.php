@@ -22,7 +22,7 @@ class AdminMenuMessage
         $replyKeyboard = new ReplyKeyboardMarkup(
             [
                 ['👥 Рефералы'],
-//                ['1️⃣ Участники'],
+                ['1️⃣ Участники'],
                 ['Выйти из режима администратора']
             ],
             false,

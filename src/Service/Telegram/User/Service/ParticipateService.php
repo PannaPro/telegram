@@ -67,8 +67,8 @@ class ParticipateService
     {
         $messageId = $this->needUsernameMessage->sendMessage($chatId);
 
-        $this->cache->saveAndClean(TelegramCacheKey::STEP, $chatId, $messageId);
-        $this->cache->saveAndClean(TelegramCacheKey::START_MENU, $chatId, $messageId);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+        $this->cache->replaceMessage(TelegramCacheKey::START_MENU, $chatId, $messageId);
     }
 
     private function generateImage(int $chatId): string

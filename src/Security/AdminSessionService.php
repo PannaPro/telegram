@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Repository\AdminRepository;
 use App\Service\Telegram\Admin\Service\WaitingPasswordService;
 use App\Service\Telegram\Context\ContextStorage;
 use App\Service\Telegram\Context\Dto\WaitingPasswordContext;
@@ -15,7 +16,17 @@ class AdminSessionService
         private SecurityTelegramUserService $security,
         private ContextStorage $contextStorage,
         private WaitingPasswordService $waitingPasswordService,
+        private AdminRepository $adminRepository,
     ) {
+    }
+
+    public function checkPassword(int $chatId, string $text): bool
+    {
+        $hash = hash('sha256', $chatId . ':' . $text);
+
+        $exist = $this->adminRepository->findOneBy(['chatId' => $chatId, 'password' => $hash]);
+
+        return (bool)$exist;
     }
 
     public function answerCallbackQuery(int $callbackId): void

@@ -18,15 +18,16 @@ class MenuService
     {
         $messageId = $this->message->sendMenu($chatId);
 
-        $this->cache->saveAndCleanup(TelegramCacheKey::START_MENU, $chatId, $currentMessage, $messageId);
-        $this->cache->cleanup(TelegramCacheKey::STEP, $chatId);
+        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+        $this->cache->replaceMessage(TelegramCacheKey::START_MENU, $chatId, $messageId);
     }
 
     public function sendPreview(int $chatId): void
     {
         $messageId = $this->message->sendPreview($chatId);
 
-        $this->cache->saveAndClean(TelegramCacheKey::START_MENU, $chatId, $messageId);
-        $this->cache->cleanup(TelegramCacheKey::STEP, $chatId);
+        $this->cache->replaceMessage(TelegramCacheKey::START_MENU, $chatId, $messageId);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
     }
 }

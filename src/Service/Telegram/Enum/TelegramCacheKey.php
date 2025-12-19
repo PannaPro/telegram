@@ -10,6 +10,7 @@ class TelegramCacheKey
     public const SUBSCRIPTION = 'subscription';
     public const LAST_UPDATE = 'last_update';
     public const CONTEXT_MESSAGE = 'context_message';
+    public const CONTEXT = 'context';
 
     public const TTL_1_HOUR = 3600;
     public const TTL_5_MINUTES = 360;

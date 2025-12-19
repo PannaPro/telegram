@@ -41,7 +41,7 @@ class SubscriptionService
 
         $messageId = $this->message->sendNeedSubscription($chatId);
 
-        $this->cache->saveAndClean(TelegramCacheKey::START_MENU, $chatId, $messageId);
+        $this->cache->replaceMessage(TelegramCacheKey::START_MENU, $chatId, $messageId);
     }
 
     public function check(int $chatId): bool

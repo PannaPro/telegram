@@ -38,7 +38,7 @@ class WaitingPasswordCommandHandler
         $messageId = $payload->getMessageId();
         $text = $payload->getText();
 
-        if ($text === 'password') {
+        if ($this->adminSession->checkPassword($chatId, $text)) {
             $this->adminSession->deactivateWaitingPassword($chatId);
             $this->adminSession->activateAdminSession($chatId);
             $this->adminMenuService->handle($chatId, $messageId);
