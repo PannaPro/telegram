@@ -30,7 +30,8 @@ readonly class AdminReferralService
         $referrals = $this->telegramUserRepository->findReferralsStatistics();
         $messageId = $this->referralMessage->sendMessage($chatId, $referrals);
 
-        $this->cache->saveAndCleanup(TelegramCacheKey::STEP, $chatId, $currentMessage, $messageId);
+        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 
     public function search(ReferralSearchContext $context): void

@@ -22,7 +22,7 @@ class AdminSessionService
 
     public function checkPassword(int $chatId, string $text): bool
     {
-        $hash = hash('sha256', $chatId . ':' . $text);
+        $hash = hash('sha256', $chatId . ':' . strtolower($text));
 
         $exist = $this->adminRepository->findOneBy(['chatId' => $chatId, 'password' => $hash]);
 
@@ -65,7 +65,7 @@ class AdminSessionService
 
     public function deactivateAdminSession(int $chatId): void
     {
-        $this->cache->deleteMessage("admin_session", $chatId);
+        $this->cache->delete(TelegramCacheKey::ADMIN_SESSION, $chatId);
     }
 
     public function isAdminSessionActive(): bool
@@ -84,11 +84,11 @@ class AdminSessionService
 
     public function activateAdminSession(int $chatId): void
     {
-        $this->cache->setExMessage("admin_session", $chatId, TelegramCacheKey::TTL_48_HOURS, $chatId);
+        $this->cache->setEx(TelegramCacheKey::ADMIN_SESSION, $chatId, TelegramCacheKey::TTL_48_HOURS, $chatId);
     }
 
     private function isActiveAdminSession(int $chatId): bool
     {
-        return $this->cache->getMessage("admin_session", $chatId) === "$chatId";
+        return $this->cache->get(TelegramCacheKey::ADMIN_SESSION, $chatId) === "$chatId";
     }
 }
