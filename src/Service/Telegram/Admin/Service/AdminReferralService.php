@@ -44,12 +44,13 @@ readonly class AdminReferralService
 
         if ($count > 0) {
             $text = $this->buildReferralResultText($result, $count, $textHeader);
-            $messageId = $this->referralMessage->sendReferralSearchResult($chatId, $text);
+            $contextMessage = $this->referralMessage->sendReferralSearchResult($chatId, $text);
         } else {
-            $messageId = $this->referralMessage->sendReferralSearchEmptyResult($chatId, $textHeader);
+            $contextMessage = $this->referralMessage->sendReferralSearchEmptyResult($chatId, $textHeader);
         }
 
-        $this->cache->saveAndClean(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $messageId);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->cache->set(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $contextMessage);
     }
 
     public function buildReferralResultText(array $result, int $count, string $textHeader): string
