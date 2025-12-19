@@ -18,7 +18,7 @@ class GameService
     {
         $messageId = $this->message->sendMessage($chatId);
 
-        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
         $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 }

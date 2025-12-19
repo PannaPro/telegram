@@ -123,7 +123,7 @@ readonly class AdminReferralSearchService
         $textHeader = $context->getTextType() . " " . $context->getDateText();
 
         $this->referralSearchMessage->editCountMessage($chatId, $contextMessage, $textHeader);
-        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
         $this->cache->deletePreviousMessage(TelegramCacheKey::ERROR_MESSAGE, $chatId);
     }
 
@@ -160,7 +160,7 @@ readonly class AdminReferralSearchService
     {
         $messageId = $this->topReferralMessage->sendErrorMessage($chatId, $errorText);
 
-        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
         $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 

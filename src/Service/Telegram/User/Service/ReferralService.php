@@ -30,7 +30,7 @@ readonly class ReferralService
 
         $messageId = $this->referralMessage->sendMessage($chatId, $referralCode, $referralCount);
 
-        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
         $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 

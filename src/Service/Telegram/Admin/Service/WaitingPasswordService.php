@@ -24,7 +24,7 @@ class WaitingPasswordService
 
     public function waitingPassword(int $chatId, int $currentMessage): void
     {
-        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
         $messageId = $this->waitingPasswordMessage->sendMessage($chatId);
 
         $this->contextStorage->setContext($chatId, new WaitingPasswordContext($chatId, true), TelegramCacheKey::TTL_5_MINUTES);
@@ -36,7 +36,7 @@ class WaitingPasswordService
     {
         $messageId = $this->incorrectPasswordMessage->sendMessage($chatId);
 
-        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
         $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 

@@ -18,7 +18,7 @@ class MenuService
     {
         $messageId = $this->message->sendMenu($chatId);
 
-        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
         $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
         $this->cache->replaceMessage(TelegramCacheKey::START_MENU, $chatId, $messageId);
     }

@@ -18,7 +18,7 @@ final class InfoService
     {
         $messageId = $this->message->sendInfo($chatId);
 
-        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
         $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 }
