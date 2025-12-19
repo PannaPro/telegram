@@ -5,12 +5,13 @@ namespace App\Service\Telegram\Admin\Service;
 use App\Service\Telegram\Context\ContextStorage;
 use App\Service\Telegram\Context\Dto\ReferralSearchContext;
 use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\Enum\TelegramParseMode;
 use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
 use App\Service\Telegram\Message\AdminReferralSearchMessage;
-use App\Service\Telegram\Message\AdminTopReferralMessage;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
 use DateTime;
+use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
 readonly class AdminReferralSearchService
 {
@@ -21,10 +22,34 @@ readonly class AdminReferralSearchService
         private TelegramBotService $bot,
         private ContextStorage $contextStorage,
         private AdminMenuService $adminMenuService,
-        private AdminTopReferralMessage $topReferralMessage,
         private AdminReferralSearchMessage $referralSearchMessage,
         private AdminReferralService $adminReferralService,
     ) {
+    }
+
+    public function sendMessage(int $chatId): int
+    {
+        $text = <<<MARKDOWN
+            Поиск по рефералам:
+            MARKDOWN;
+
+        $keyboard = new InlineKeyboardMarkup([
+            [
+                ['text' => 'Рефералы', 'callback_data' => 'participant_referral'],
+                ['text' => 'Рефералы +ЦД', 'callback_data' => 'target_action_referral'],
+            ]
+        ]);
+
+        $message = $this->bot->sendMessage(
+            $chatId,
+            $text,
+            TelegramParseMode::MARKDOWN,
+            false,
+            null,
+            $keyboard
+        );
+
+        return $message->getMessageId();
     }
 
     public function makeTopReferralAction(int $chatId, int $callbackId): void
@@ -157,7 +182,7 @@ readonly class AdminReferralSearchService
 
     public function errorInputMessage(int $chatId, string $errorText, int $currentMessage): void
     {
-        $messageId = $this->topReferralMessage->sendErrorMessage($chatId, $errorText);
+        $messageId = $this->referralSearchMessage->sendErrorMessage($chatId, $errorText);
 
         $this->cache->deleteCurrentMessage($chatId, $currentMessage);
         $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);

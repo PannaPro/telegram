@@ -14,6 +14,13 @@ class AdminReferralSearchMessage
     {
     }
 
+    public function sendErrorMessage(int $chatId, string $text): int
+    {
+        $message = $this->bot->sendMessage($chatId, $text, TelegramParseMode::MARKDOWN);
+
+        return $message->getMessageId();
+    }
+
     public function sendParticipantStatusMessage(int $chatId): int
     {
         $text = <<<MARKDOWN

@@ -31,7 +31,7 @@ class UserMenuMessage
 //        );
 
         $caption = <<<MARKDOWN
-            👋 *Добро пожаловать в PAKETAGAME!*
+            🚀 *Добро пожаловать в PAKETAGAME!*
 
             Присоединяйся к борьбе за крутые призы!
             MARKDOWN;

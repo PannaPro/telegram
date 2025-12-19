@@ -16,7 +16,7 @@ class UnknownCommandMessage
     public function sendMessage(int $chatId): int
     {
         $text = <<<MARKDOWN
-        😅 Ой! Кажется такой команды нет.
+        🤡 Ой! Кажется такой команды нет.
         MARKDOWN;
 
         $message = $this->bot->sendMessage(
