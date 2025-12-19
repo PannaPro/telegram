@@ -14,7 +14,7 @@ class MenuService
     ) {
     }
 
-    public function sendStartMenu(int $chatId, int $currentMessage): void
+    public function sendStartMenu(int $chatId, int $currentMessage = 0): void
     {
         $messageId = $this->message->sendMenu($chatId);
 

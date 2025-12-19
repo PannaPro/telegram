@@ -30,7 +30,7 @@ class ParticipateMessage
 
         $keyboard = new InlineKeyboardMarkup([
             [
-                ['text' => "Готово!", 'callback_data' => 'avatarSet'],
+                ['text' => "Готово!", 'callback_data' => 'set_game_avatar'],
             ],
         ]);
 
