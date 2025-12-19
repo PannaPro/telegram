@@ -49,8 +49,8 @@ readonly class AdminReferralService
             $contextMessage = $this->referralMessage->sendReferralSearchEmptyResult($chatId, $textHeader);
         }
 
-        $this->cache->deletePreviousMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
-        $this->cache->set(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $contextMessage);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+        $this->cache->replaceMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $contextMessage);
     }
 
     public function buildReferralResultText(array $result, int $count, string $textHeader): string
