@@ -20,9 +20,6 @@ class ContextStorage
     public function getContext(int $chatId): ContextInterface|false
     {
         $json = $this->cache->get(TelegramCacheKey::CONTEXT, $chatId);
-        if (!$json) {
-            return false;
-        }
 
         $data = json_decode($json, true);
 
@@ -43,12 +40,12 @@ class ContextStorage
             'payload' => $context->toArray(),
         ];
 
-        $this->cache->setExContext('context', $chatId, $ttl, json_encode($data));
+        $this->cache->setEx(TelegramCacheKey::CONTEXT, $chatId, $ttl, json_encode($data));
     }
 
     public function unsetContext(int $chatId): void
     {
-        $this->cache->delete('context', $chatId);
+        $this->cache->delete(TelegramCacheKey::CONTEXT, $chatId);
     }
 
     public function updateContext(int $chatId, ContextInterface $context, int $ttl = TelegramCacheKey::TTL_1_HOUR): void
@@ -58,6 +55,6 @@ class ContextStorage
             'payload' => $context->toArray(),
         ];
 
-        $this->cache->setExContext('context', $chatId, $ttl, json_encode($data));
+        $this->cache->setEx(TelegramCacheKey::CONTEXT, $chatId, $ttl, json_encode($data));
     }
 }

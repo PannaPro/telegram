@@ -24,31 +24,10 @@ class WaitingPasswordService
 
     public function waitingPassword(int $chatId, int $currentMessage): void
     {
-        /** TODO создать сервис приглашения в закрытый канал, генерацию ссылок одноразовых
-         *   в админке, кнопка рефералы, всего участников в боте (не боты и каналы)
-         *   показть топов -реферал -реферал+ЦД -
-         *      реферал - искать в базе тех кто participant >
-         *      реферал+ЦД - искать в базе тех кто participant - hasPaid >
-         *   выберите даты
-         *      за все время, Даты 01-12-2025 30-12-2025, День 22-12-2025
-         *      кол-во рефералов - рефералы любое / цифра
-         *   response:
-         *      возвращать Топ-5 и всего кол-во
-         *      кнопка, выгрузить в файл
-         *      наградить участников
-         *      назад - Показать топов - реферал или реферал+ЦД
-         *
-         *    если не найдено, показать шаг Показать топов - реферал или реферал+ЦД
-         *
-         *   Выгрузить Excel - заголовок, формируется из параметров запроса, юезрнейм телеграм айди кол-во по убыванию
-         *
-         *  Доп научиться создать приватные одноразовые ссылки на закрытый чат
-         *  Починить чат айди в редис апдейте гард.
-         */
+        $this->cache->deleteMessage($chatId, $currentMessage);
         $messageId = $this->waitingPasswordMessage->sendMessage($chatId);
 
-        $this->contextStorage->setContext($chatId, new WaitingPasswordContext($chatId, true));
-        $this->cache->deleteMessage($chatId, $currentMessage);
+        $this->contextStorage->setContext($chatId, new WaitingPasswordContext($chatId, true), TelegramCacheKey::TTL_5_MINUTES);
         $this->cache->deletePreviousMessage(TelegramCacheKey::START_MENU, $chatId);
         $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }

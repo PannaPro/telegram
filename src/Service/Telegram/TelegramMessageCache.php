@@ -190,23 +190,6 @@ final class TelegramMessageCache
         $this->redis->expire($type, $ttl);
     }
 
-    public function setExContext(string $type, int $chatId, int $ttl, string $context): void
-    {
-        $this->redis->setEx($this->getKey($type, $chatId), $ttl, $context);
-    }
-
-    public function getContext(int $chatId): ?array
-    {
-        $json = $this->redis->get($this->contextKey($chatId));
-
-        return $json ? json_decode($json, true, 512, JSON_THROW_ON_ERROR) : null;
-    }
-
-    public function deleteContext(int $chatId): void
-    {
-        $this->redis->del($this->contextKey($chatId));
-    }
-
     public function setMessage(string $key, int $chatId, int $messageId): void
     {
         $this->redis->hSet($key, (string)$chatId, $messageId);
@@ -229,7 +212,7 @@ final class TelegramMessageCache
         }
     }
 
-    public function deleteMessage(string|int $chatId, int $messageId): void
+    public function deleteMessage(int $chatId, int $messageId): void
     {
         $this->telegramBotService->deleteMessage($chatId, $messageId);
     }
@@ -243,11 +226,6 @@ final class TelegramMessageCache
         }
 
         $this->setMessage($key, $chatId, $newMessageId);
-    }
-
-    private function contextKey(int $chatId): string
-    {
-        return TelegramCacheKey::CONTEXT . ':' . $chatId;
     }
 
     public function selfDestructMessage(int $chatId, int $messageId): void

@@ -20,6 +20,6 @@ class AdminMenuService
 
         $this->cache->deleteMessage($chatId, $currentMessage);
         $this->cache->replaceMessage(TelegramCacheKey::START_MENU, $chatId, $messageId);
-        $this->cache->deleteMessage(TelegramCacheKey::STEP, $chatId);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
     }
 }
