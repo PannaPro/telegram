@@ -35,7 +35,7 @@ readonly class UserCommandMessageHandler
 
         switch ($text) {
             case '/start':
-            case 'Вернуться в меню':
+            case '⬅ Вернуться в меню':
             if (!$this->subscriptionService->check($chatId)) {
                     $this->subscriptionService->needSubscription($chatId);
                     return;

@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Service\Telegram\Admin\Service;
+
+use App\Repository\EventRepository;
+use App\Service\Telegram\Message\AdminGameMessage;
+use DateTimeInterface;
+
+class AdminGameService
+{
+    public function __construct(
+        private AdminGameMessage $gameMessage,
+        private EventRepository $eventRepository,
+    ) {
+    }
+
+    public function makeAction(int $chatId, int $currentMessage): void
+    {
+        $events = $this->eventRepository->findCurrentAndNextEvents();
+
+        $this->gameMessage->sendMessage($chatId, $this->formatEvents($events));
+    }
+
+    private function formatEvents(array $events): array
+    {
+        $normalize = function(array $list) {
+            return array_map(function($event) {
+                return [
+                    'name' => $event['eventName'],
+                    'from' => $event['periodFrom'] instanceof DateTimeInterface
+                        ? $event['periodFrom']->format('d-m-Y H:i')
+                        : null,
+                    'to' => $event['periodTo'] instanceof DateTimeInterface
+                        ? $event['periodTo']->format('d-m-Y H:i')
+                        : null,
+                    'isActive' => $event['isActive'],
+                ];
+            }, $list);
+        };
+
+        return [
+            'current' => isset($events['current']) ? $normalize($events['current']) : [],
+            'upcoming' => isset($events['upcoming']) ? $normalize($events['upcoming']) : [],
+            'totalUpcoming' => $events['totalUpcoming']
+        ];
+    }
+
+    public function createEvent(int $chatId, int $currentMessage = 0): void
+    {
+
+    }
+}

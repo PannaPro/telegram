@@ -156,7 +156,7 @@ class AdminReferralSearchMessage
                 ['text' => '✏️ Редактировать', 'callback_data' => 'back_to_referral_status'],
             ],
             [
-                ['text' => '⬅️ Вернуться в главное меню', 'callback_data' => 'back_to_admin_menu'],
+                ['text' => '⬅ Вернуться в главное меню', 'callback_data' => 'back_to_admin_menu'],
             ]
         ]);
 
