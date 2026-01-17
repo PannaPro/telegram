@@ -11,6 +11,7 @@ class AdminGameService
     public function __construct(
         private AdminGameMessage $gameMessage,
         private EventRepository $eventRepository,
+        private CreateEventService $createEventService,
     ) {
     }
 
@@ -47,6 +48,6 @@ class AdminGameService
 
     public function createEvent(int $chatId, int $currentMessage = 0): void
     {
-
+        $this->createEventService->sendMessage($chatId);
     }
 }

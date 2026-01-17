@@ -1,0 +1,331 @@
+<?php
+
+namespace App\Service\Telegram\Admin\Service;
+
+use App\Entity\Event;
+use App\Entity\EventType;
+use App\Repository\EventRepository;
+use App\Repository\EventTypeRepository;
+use App\Service\Telegram\Context\ContextStorage;
+use App\Service\Telegram\Context\Dto\CreateEventContext;
+use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
+use App\Service\Telegram\Message\CreateEventMessage;
+use App\Service\Telegram\TelegramMessageCache;
+use App\Service\TelegramBotService;
+use DateTimeImmutable;
+
+readonly class CreateEventService
+{
+    use AnswerCallbackQueryTrait;
+
+    public function __construct(
+        private TelegramMessageCache $cache,
+        private TelegramBotService $bot,
+        private ContextStorage $contextStorage,
+        private AdminMenuService $adminMenuService,
+        private CreateEventMessage $eventMessage,
+        private EventTypeRepository $eventTypeRepository,
+        private EventRepository $eventRepository,
+    ) {
+    }
+
+    public function sendMessage(int $chatId): int
+    {
+        $eventTypes = $this->eventTypeRepository->findAll();
+        
+        $context = new CreateEventContext($chatId);
+        $this->contextStorage->setContext($chatId, $context);
+
+        $messageId = $this->eventMessage->sendEventTypeMessage($chatId, $eventTypes);
+        $this->cache->replaceMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $messageId);
+
+        return $messageId;
+    }
+
+    public function selectEventTypeAction(int $chatId, int $callbackId, CreateEventContext $context, int $eventTypeId): void
+    {
+        $this->answerCallbackQuery($callbackId, 'категория выбрана');
+        
+        $eventType = $this->eventTypeRepository->find($eventTypeId);
+        if (!$eventType) {
+            $this->answerCallbackQuery($callbackId, 'категория не найдена');
+            return;
+        }
+
+        $context->setEventTypeId($eventTypeId);
+        $context->setEventTypeName($eventType->getName());
+        $context->setStep(2);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->eventMessage->editEventNameMessage($chatId, $messageId);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function eventNameAction(int $chatId, int $currentMessage, CreateEventContext $context, string $name): void
+    {
+        $context->setName($name);
+        $context->setStep(3);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->eventMessage->editEventDatesMessage($chatId, $messageId, $context->getFormattedText());
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function eventStartDateAction(int $chatId, int $currentMessage, CreateEventContext $context, string $dateTimeString): void
+    {
+        $result = $this->parseDateTimeString($dateTimeString);
+        if (!$result['success']) {
+            $errorId = $this->eventMessage->sendErrorMessage($chatId, $result['error']);
+            $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $errorId);
+            return;
+        }
+
+        $context->setPeriodFromDate($result['date']);
+        $context->setPeriodFromTime($result['time']);
+        $context->setStep(4);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->eventMessage->editEventEndDateMessage($chatId, $messageId, $context->getFormattedText());
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function eventEndDateAction(int $chatId, int $currentMessage, CreateEventContext $context, string $dateTimeString): void
+    {
+        $result = $this->parseDateTimeString($dateTimeString);
+        if (!$result['success']) {
+            $errorId = $this->eventMessage->sendErrorMessage($chatId, $result['error']);
+            $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $errorId);
+            return;
+        }
+
+        $context->setPeriodToDate($result['date']);
+        $context->setPeriodToTime($result['time']);
+
+        // Check if partner link is needed (only for Event type)
+        if ($context->getEventTypeName() === 'Ивент') {
+            $context->setStep(5);
+            $this->contextStorage->updateContext($chatId, $context);
+            $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+            $this->eventMessage->editPartnerLinkMessage($chatId, $messageId, $context->getFormattedText());
+        } else {
+            $context->setStep(6);
+            $this->contextStorage->updateContext($chatId, $context);
+            $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+            $this->eventMessage->editConfirmationMessage($chatId, $messageId, $context);
+        }
+
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function partnerLinkAction(int $chatId, int $currentMessage, CreateEventContext $context, string $link): void
+    {
+        $context->setPartnerChanelLink($link);
+        $context->setStep(6);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->eventMessage->editConfirmationMessage($chatId, $messageId, $context);
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function skipPartnerLinkAction(int $chatId, int $callbackId, CreateEventContext $context): void
+    {
+        $this->answerCallbackQuery($callbackId, 'ссылка пропущена');
+        $context->setStep(6);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->eventMessage->editConfirmationMessage($chatId, $messageId, $context);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function confirmEventAction(int $chatId, int $callbackId, CreateEventContext $context): void
+    {
+        $this->answerCallbackQuery($callbackId, 'событие создано');
+
+        $eventType = $this->eventTypeRepository->find($context->getEventTypeId());
+        if (!$eventType) {
+            $this->answerCallbackQuery($callbackId, 'ошибка при создании события');
+            return;
+        }
+
+        $event = new Event();
+        $event->setName($context->getName());
+        $event->setType($eventType);
+        $event->setIsActive(true);
+
+        // Parse and set dates
+        $periodFrom = $this->parseFullDateTime($context->getPeriodFromDate(), $context->getPeriodFromTime());
+        $periodTo = $this->parseFullDateTime($context->getPeriodToDate(), $context->getPeriodToTime());
+
+        if ($periodFrom) {
+            $event->setPeriodFrom($periodFrom);
+        }
+        if ($periodTo) {
+            $event->setPeriodTo($periodTo);
+        }
+
+        if ($context->getPartnerChanelLink()) {
+            $event->setPartnerChanelLink($context->getPartnerChanelLink());
+        }
+
+        $this->eventRepository->save($event, true);
+
+        $this->unsetContext($chatId);
+        $this->adminMenuService->handle($chatId);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function editEventAction(int $chatId, int $callbackId, CreateEventContext $context): void
+    {
+        $this->answerCallbackQuery($callbackId, 'редактирование');
+        
+        $context->setStep(1);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $eventTypes = $this->eventTypeRepository->findAll();
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->eventMessage->editEventTypeMessage($chatId, $messageId, $eventTypes);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function cancelEventAction(int $chatId, int $callbackId): void
+    {
+        $this->answerCallbackQuery($callbackId, 'создание события отменено');
+        $this->unsetContext($chatId);
+        $this->adminMenuService->handle($chatId);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function backToTypeAction(int $chatId, int $callbackId, CreateEventContext $context): void
+    {
+        $this->answerCallbackQuery($callbackId);
+        $context->setName(null);
+        $context->setStep(1);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $eventTypes = $this->eventTypeRepository->findAll();
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->eventMessage->editEventTypeMessage($chatId, $messageId, $eventTypes);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function backToNameAction(int $chatId, int $callbackId, CreateEventContext $context): void
+    {
+        $this->answerCallbackQuery($callbackId);
+        $context->setPeriodFromDate(null);
+        $context->setPeriodFromTime(null);
+        $context->setStep(2);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->eventMessage->editEventNameMessage($chatId, $messageId);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function backToStartDateAction(int $chatId, int $callbackId, CreateEventContext $context): void
+    {
+        $this->answerCallbackQuery($callbackId);
+        $context->setPeriodToDate(null);
+        $context->setPeriodToTime(null);
+        $context->setStep(3);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->eventMessage->editEventDatesMessage($chatId, $messageId, $context->getFormattedText());
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function backToEndDateAction(int $chatId, int $callbackId, CreateEventContext $context): void
+    {
+        $this->answerCallbackQuery($callbackId);
+        $context->setPartnerChanelLink(null);
+        $context->setStep(4);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->eventMessage->editEventEndDateMessage($chatId, $messageId, $context->getFormattedText());
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    private function parseDateTimeString(string $input): array
+    {
+        $input = trim($input);
+        
+        // Match format: dd-mm-yyyy hh:mm
+        if (!preg_match('/^(\d{2})-(\d{2})-(\d{4})\s+(\d{2}):(\d{2})$/', $input, $matches)) {
+            return [
+                'success' => false,
+                'error' => '❌ Неверный формат даты и времени. Используйте: дд-мм-гггг чч:мм',
+            ];
+        }
+
+        $day = (int)$matches[1];
+        $month = (int)$matches[2];
+        $year = (int)$matches[3];
+        $hour = (int)$matches[4];
+        $minute = (int)$matches[5];
+
+        // Validate ranges
+        if ($day < 1 || $day > 31 || $month < 1 || $month > 12 || $hour < 0 || $hour > 23 || $minute < 0 || $minute > 59) {
+            return [
+                'success' => false,
+                'error' => '❌ Неверные значения даты или времени.',
+            ];
+        }
+
+        $date = sprintf('%02d-%02d-%04d', $day, $month, $year);
+        $time = sprintf('%02d:%02d', $hour, $minute);
+
+        return [
+            'success' => true,
+            'date' => $date,
+            'time' => $time,
+        ];
+    }
+
+    private function parseFullDateTime(string $date, string $time): ?DateTimeImmutable
+    {
+        // Date format: dd-mm-yyyy
+        // Time format: hh:mm
+        if (!preg_match('/^(\d{2})-(\d{2})-(\d{4})$/', $date, $dateMatches)) {
+            return null;
+        }
+
+        if (!preg_match('/^(\d{2}):(\d{2})$/', $time, $timeMatches)) {
+            return null;
+        }
+
+        $day = (int)$dateMatches[1];
+        $month = (int)$dateMatches[2];
+        $year = (int)$dateMatches[3];
+        $hour = (int)$timeMatches[1];
+        $minute = (int)$timeMatches[2];
+
+        try {
+            return new DateTimeImmutable(sprintf('%04d-%02d-%02d %02d:%02d:00', $year, $month, $day, $hour, $minute));
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    private function updateContext(int $chatId, CreateEventContext $context): void
+    {
+        $this->contextStorage->updateContext($chatId, $context);
+    }
+
+    private function unsetContext($chatId): void
+    {
+        $this->contextStorage->unsetContext($chatId);
+    }
+}
