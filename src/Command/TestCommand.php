@@ -41,11 +41,21 @@ class TestCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-//        $events = $this->eventRepository->findCurrentAndNextEvents();
-//        dd($events);
-//        dd();
-        $this->adminGameService->makeAction(301671507, 0);
-        return 1;
+        $chatId = 301671507; // Your Telegram user ID
+        
+        $output->writeln('🚀 Запуск теста создания события...');
+        
+        try {
+            // Start creating event
+            $this->adminGameService->createEvent($chatId, 0);
+            $output->writeln('✅ Инициализация контекста создания события успешна!');
+            $output->writeln('📝 Отправлено сообщение с выбором категории события.');
+        } catch (\Exception $e) {
+            $output->writeln('❌ Ошибка: ' . $e->getMessage());
+            return 1;
+        }
+        
+        return 0;
     }
 
     private function formatEvents(array $events): array

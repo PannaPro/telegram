@@ -302,4 +302,28 @@ class TelegramBotService
         return $response['invite_link'];
     }
 
+    public function getUpdates(int $offset = 0, int $limit = 100, int $timeout = 0): array
+    {
+        try {
+            $response = $this->telegram->call('getUpdates', [
+                'offset' => $offset,
+                'limit' => $limit,
+                'timeout' => $timeout,
+                'allowed_updates' => ['message', 'callback_query', 'my_chat_member'],
+            ]);
+
+            $this->logger->debug('Got updates from Telegram', ['count' => count($response)]);
+
+            return $response;
+        } catch (TelegramBotException $e) {
+            $this->logger->error('Failed to get updates', ['error' => $e->getMessage()]);
+            throw TelegramApiException::sendMessageFailed();
+        }
+    }
+
+    public function getBotToken(): string
+    {
+        return $this->botToken;
+    }
+
 }

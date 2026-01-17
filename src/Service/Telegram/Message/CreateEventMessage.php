@@ -26,17 +26,17 @@ class CreateEventMessage
         $buttons = [];
         foreach ($eventTypes as $eventType) {
             $buttons[] = [
-                "text" => $eventType->getName(),
-                "callback_data" => "create_event_type_" . $eventType->getId(),
+                'text' => $eventType->getName(),
+                'callback_data' => 'create_event_type_' . $eventType->getId(),
             ];
         }
 
-        // Add back button
-        $buttons[] = [
-            ["text" => "⬅️ Назад", "callback_data" => "back_to_admin_menu"],
-        ];
-
-        $keyboard = new InlineKeyboardMarkup($buttons);
+        $keyboard = new InlineKeyboardMarkup([
+            $buttons,
+            [
+                ['text' => '⬅️ Назад', 'callback_data' => 'back_to_admin_menu'],
+            ]
+        ]);
 
         $message = $this->bot->sendMessage(
             $chatId,
@@ -60,20 +60,18 @@ class CreateEventMessage
 
         $buttons = [];
         foreach ($eventTypes as $eventType) {
-            $id = $eventType->getId();
-            $name = $eventType->getName();
             $buttons[] = [
-                "text" => $name,
-                "callback_data" => "create_event_type_" . $id,
+                'text' => $eventType->getName(),
+                'callback_data' => 'create_event_type_' . $eventType->getId(),
             ];
         }
 
-        // Add back button
-        $buttons[] = [
-            ["text" => "⬅️ Назад", "callback_data" => "back_to_admin_menu"],
-        ];
-
-        $keyboard = new InlineKeyboardMarkup($buttons);
+        $keyboard = new InlineKeyboardMarkup([
+            $buttons,
+            [
+                ['text' => '⬅️ Назад', 'callback_data' => 'back_to_admin_menu'],
+            ]
+        ]);
 
         $this->bot->editMessageText(
             $chatId,
