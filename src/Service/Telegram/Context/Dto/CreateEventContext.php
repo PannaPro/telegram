@@ -160,22 +160,33 @@ class CreateEventContext implements ContextInterface
         $this->blockContext = $blockContext;
     }
 
-    public function getFormattedText(): string
+    public function getFormattedText(bool $showPartnerLinkIfEmpty = false): string
     {
-        $text = "Создание события. Категория: {$this->eventTypeName}";
-        
+        $lines = [];
+
+        if ($this->eventTypeName) {
+            $lines[] = "Категория: *{$this->eventTypeName}*";
+        }
+
+        if ($this->name) {
+            $lines[] = "Название события: *{$this->name}*";
+        }
+
         if ($this->periodFromDate && $this->periodFromTime) {
-            $text .= ". Дата начала: {$this->periodFromDate} {$this->periodFromTime}";
+            $lines[] = "Дата начала: *{$this->periodFromDate} {$this->periodFromTime}*";
         }
-        
+
         if ($this->periodToDate && $this->periodToTime) {
-            $text .= ". Дата окончания: {$this->periodToDate} {$this->periodToTime}";
+            $lines[] = "Дата окончания: *{$this->periodToDate} {$this->periodToTime}*";
         }
-        
+
+        // Show partner link if it exists, or if we're on confirmation step
         if ($this->partnerChanelLink) {
-            $text .= ". Ссылка на канал партнера: {$this->partnerChanelLink}";
+            $lines[] = "Ссылка на канал партнера: *{$this->partnerChanelLink}*";
+        } elseif ($showPartnerLinkIfEmpty && $this->eventTypeName === 'Ивент') {
+            $lines[] = "Ссылка на канал партнера: *не указана*";
         }
-        
-        return $text;
+
+        return implode("\n", $lines);
     }
 }

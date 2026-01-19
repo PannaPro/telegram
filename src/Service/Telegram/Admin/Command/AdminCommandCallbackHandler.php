@@ -3,6 +3,7 @@
 namespace App\Service\Telegram\Admin\Command;
 
 use App\Http\Dto\CallbackQueryTelegramPayload;
+use App\Service\Telegram\Admin\Service\AdminMenuService;
 use App\Service\Telegram\Admin\Service\AdminReferralSearchService;
 use App\Service\Telegram\Common\CommonActionService;
 use App\Service\Telegram\Common\UnknownCommandService;
@@ -13,6 +14,7 @@ class AdminCommandCallbackHandler
         private UnknownCommandService $unknownCommandService,
         private AdminReferralSearchService $adminReferralSearchService,
         private CommonActionService $commonActionService,
+        private AdminMenuService $adminMenuService,
     ) {
     }
 
@@ -26,6 +28,9 @@ class AdminCommandCallbackHandler
         switch ($data) {
             case 'search_top_referral':
                 $this->adminReferralSearchService->makeTopReferralAction($chatId, $callbackId);
+                break;
+            case 'back_to_admin_menu':
+                $this->adminMenuService->handle($chatId, $messageId);
                 break;
             case 'close_pinned_message':
                 $this->commonActionService->deletePinnedMessage($chatId, $callbackId, $messageId);

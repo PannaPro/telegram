@@ -24,6 +24,7 @@ class GetUpdatesCommand extends Command
         private TelegramBotService $bot,
         private PayloadHandler $payloadHandler,
         private SerializerInterface $serializer,
+        private \App\Security\SecurityTelegramUserService $security,
     )
     {
         parent::__construct();
@@ -126,15 +127,30 @@ class GetUpdatesCommand extends Command
 
     private function processUpdate(array $update, OutputInterface $output = null): void
     {
-        // Convert raw update to payload using same logic as webhook
-        $payload = $this->createPayloadFromUpdate($update, $output);
-        
-        if ($payload) {
-            $output?->writeln("    📦 Payload type: " . get_class($payload));
-            $this->payloadHandler->handlePayload($payload);
-            $output?->writeln("    ✨ Handler executed");
-        } else {
-            $output?->writeln("    ⚠️ Could not create payload from update");
+        try {
+            // Convert raw update to payload using same logic as webhook
+            $payload = $this->createPayloadFromUpdate($update, $output);
+
+            if ($payload) {
+                $output?->writeln("    📦 Payload type: " . get_class($payload));
+                $output?->writeln("    👤 Chat ID: " . $payload->getChatId());
+
+                try {
+                    $this->payloadHandler->handlePayload($payload);
+                    $output?->writeln("    ✅ Handler executed successfully");
+                } catch (\Throwable $e) {
+                    $output?->writeln("    ❌ Handler error: " . $e->getMessage());
+                    $output?->writeln("    📍 File: " . $e->getFile() . ':' . $e->getLine());
+                    throw $e;
+                }
+            } else {
+                $output?->writeln("    ⚠️ Could not create payload from update");
+            }
+        } finally {
+            // CRITICAL: Clear user context after each update to avoid state pollution
+            // in long-running console process (unlike HTTP requests where DI container is fresh)
+            $this->security->clearCurrentUser();
+            $output?->writeln("    🧹 Context cleared");
         }
     }
 

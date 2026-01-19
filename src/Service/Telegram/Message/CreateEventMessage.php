@@ -26,17 +26,15 @@ class CreateEventMessage
         $buttons = [];
         foreach ($eventTypes as $eventType) {
             $buttons[] = [
-                'text' => $eventType->getName(),
-                'callback_data' => 'create_event_type_' . $eventType->getId(),
+                ['text' => $eventType->getName(), 'callback_data' => 'create_event_type_' . $eventType->getId()]
             ];
         }
 
-        $keyboard = new InlineKeyboardMarkup([
-            $buttons,
-            [
-                ['text' => '⬅️ Назад', 'callback_data' => 'back_to_admin_menu'],
-            ]
-        ]);
+        $buttons[] = [
+            ['text' => '⬅ Вернуться в меню', 'callback_data' => 'create_event_back_to_events_menu']
+        ];
+
+        $keyboard = new InlineKeyboardMarkup($buttons);
 
         $message = $this->bot->sendMessage(
             $chatId,
@@ -61,17 +59,15 @@ class CreateEventMessage
         $buttons = [];
         foreach ($eventTypes as $eventType) {
             $buttons[] = [
-                'text' => $eventType->getName(),
-                'callback_data' => 'create_event_type_' . $eventType->getId(),
+                ['text' => $eventType->getName(), 'callback_data' => 'create_event_type_' . $eventType->getId()]
             ];
         }
 
-        $keyboard = new InlineKeyboardMarkup([
-            $buttons,
-            [
-                ['text' => '⬅️ Назад', 'callback_data' => 'back_to_admin_menu'],
-            ]
-        ]);
+        $buttons[] = [
+            ['text' => '⬅ Вернуться в меню', 'callback_data' => 'create_event_back_to_events_menu']
+        ];
+
+        $keyboard = new InlineKeyboardMarkup($buttons);
 
         $this->bot->editMessageText(
             $chatId,
@@ -109,10 +105,12 @@ class CreateEventMessage
         return $message->getMessageId();
     }
 
-    public function editEventNameMessage(int $chatId, int $messageId): void
+    public function editEventNameMessage(int $chatId, int $messageId, string $currentData = ''): void
     {
         $text = <<<MARKDOWN
         *Создание события*
+
+        $currentData
 
         Введите название события:
         MARKDOWN;
@@ -310,7 +308,7 @@ class CreateEventMessage
         $text = <<<MARKDOWN
         *Подтверждение создания события*
 
-        {$context->getFormattedText()}
+        {$context->getFormattedText(true)}
 
         Подтвердить или отредактировать?
         MARKDOWN;
@@ -321,7 +319,7 @@ class CreateEventMessage
                 ['text' => '✏️ Редактировать', 'callback_data' => 'create_event_edit'],
             ],
             [
-                ['text' => '❌ Отменить', 'callback_data' => 'create_event_cancel'],
+                ['text' => '⬅ Вернуться в меню', 'callback_data' => 'create_event_back_to_events_menu'],
             ]
         ]);
 
@@ -342,7 +340,7 @@ class CreateEventMessage
         $text = <<<MARKDOWN
         *Подтверждение создания события*
 
-        {$context->getFormattedText()}
+        {$context->getFormattedText(true)}
 
         Подтвердить или отредактировать?
         MARKDOWN;
@@ -353,7 +351,7 @@ class CreateEventMessage
                 ['text' => '✏️ Редактировать', 'callback_data' => 'create_event_edit'],
             ],
             [
-                ['text' => '❌ Отменить', 'callback_data' => 'create_event_cancel'],
+                ['text' => '⬅ Вернуться в меню', 'callback_data' => 'create_event_back_to_events_menu'],
             ]
         ]);
 

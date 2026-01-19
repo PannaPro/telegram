@@ -97,10 +97,16 @@ class TelegramBotService
     ): Message {
         $attempt = 0;
 
+        $this->logger->info('Sending message to Telegram', [
+            'chatId' => $chatId,
+            'textLength' => strlen($text),
+            'parseMode' => $parseMode,
+        ]);
+
         while (true) {
             try {
                 $attempt++;
-                return $this->telegram->sendMessage(
+                $message = $this->telegram->sendMessage(
                     $chatId,
                     $text,
                     $parseMode,
@@ -112,6 +118,14 @@ class TelegramBotService
                     $protectContent,
                     $allowSendingWithoutReply
                 );
+
+                $this->logger->info('Message sent successfully', [
+                    'chatId' => $chatId,
+                    'messageId' => $message->getMessageId(),
+                    'attempt' => $attempt,
+                ]);
+
+                return $message;
             } catch (Throwable $e) {
                 $this->logger->error('Telegram sendMessage failed', [
                     'chatId' => $chatId,
@@ -177,10 +191,16 @@ class TelegramBotService
     ): Message {
         $attempt = 0;
 
+        $this->logger->info('Sending photo to Telegram', [
+            'chatId' => $chatId,
+            'captionLength' => $caption ? strlen($caption) : 0,
+            'parseMode' => $parseMode,
+        ]);
+
         while (true) {
             try {
                 $attempt++;
-                return $this->telegram->sendPhoto(
+                $message = $this->telegram->sendPhoto(
                     $chatId,
                     $photo,
                     $caption,
@@ -192,6 +212,14 @@ class TelegramBotService
                     $protectContent,
                     $allowSendingWithoutReply
                 );
+
+                $this->logger->info('Photo sent successfully', [
+                    'chatId' => $chatId,
+                    'messageId' => $message->getMessageId(),
+                    'attempt' => $attempt,
+                ]);
+
+                return $message;
             } catch (Throwable $e) {
                 $this->logger->error('Telegram sendPhoto failed', [
                     'chatId' => $chatId,

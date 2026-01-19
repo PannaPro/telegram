@@ -33,6 +33,12 @@ class CreateEventCommandHandler
         $messageId = $payload->getMessageId();
         $text = $payload->getText();
 
+        // Emergency exit - /start closes context and returns to admin menu
+        if ($text === '/start') {
+            $this->createEventService->emergencyExit($chatId, $messageId);
+            return;
+        }
+
         switch ($context->getStep()) {
             case 2: // Event name
                 $this->createEventService->eventNameAction($chatId, $messageId, $context, $text);
@@ -85,6 +91,7 @@ class CreateEventCommandHandler
                 $this->createEventService->editEventAction($chatId, $callbackId, $context);
                 break;
             case 'create_event_cancel':
+            case 'create_event_back_to_events_menu':
                 $this->createEventService->cancelEventAction($chatId, $callbackId);
                 break;
         }

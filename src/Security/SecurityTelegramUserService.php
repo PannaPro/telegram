@@ -25,4 +25,9 @@ class SecurityTelegramUserService
     {
         return $this->currentUser;
     }
+
+    public function clearCurrentUser(): void
+    {
+        $this->currentUser = null;
+    }
 }

@@ -3,7 +3,9 @@
 namespace App\Service\Telegram\Admin\Service;
 
 use App\Repository\EventRepository;
+use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Message\AdminGameMessage;
+use App\Service\Telegram\TelegramMessageCache;
 use DateTimeInterface;
 
 class AdminGameService
@@ -12,6 +14,7 @@ class AdminGameService
         private AdminGameMessage $gameMessage,
         private EventRepository $eventRepository,
         private CreateEventService $createEventService,
+        private TelegramMessageCache $cache,
     ) {
     }
 
@@ -19,7 +22,10 @@ class AdminGameService
     {
         $events = $this->eventRepository->findCurrentAndNextEvents();
 
-        $this->gameMessage->sendMessage($chatId, $this->formatEvents($events));
+        $messageId = $this->gameMessage->sendMessage($chatId, $this->formatEvents($events));
+
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 
     private function formatEvents(array $events): array
@@ -48,6 +54,6 @@ class AdminGameService
 
     public function createEvent(int $chatId, int $currentMessage = 0): void
     {
-        $this->createEventService->sendMessage($chatId);
+        $this->createEventService->sendMessage($chatId, $currentMessage);
     }
 }

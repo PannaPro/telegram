@@ -3,17 +3,18 @@
 namespace App\Service\Telegram\Admin\Service;
 
 use App\Entity\Event;
-use App\Entity\EventType;
 use App\Repository\EventRepository;
 use App\Repository\EventTypeRepository;
 use App\Service\Telegram\Context\ContextStorage;
 use App\Service\Telegram\Context\Dto\CreateEventContext;
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
+use App\Service\Telegram\Message\AdminGameMessage;
 use App\Service\Telegram\Message\CreateEventMessage;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotService;
 use DateTimeImmutable;
+use Doctrine\ORM\EntityManagerInterface;
 
 readonly class CreateEventService
 {
@@ -27,18 +28,28 @@ readonly class CreateEventService
         private CreateEventMessage $eventMessage,
         private EventTypeRepository $eventTypeRepository,
         private EventRepository $eventRepository,
+        private EntityManagerInterface $entityManager,
+        private AdminGameMessage $adminGameMessage,
     ) {
     }
 
-    public function sendMessage(int $chatId): int
+    public function sendMessage(int $chatId, int $currentMessage = 0): int
     {
         $eventTypes = $this->eventTypeRepository->findAll();
-        
+
         $context = new CreateEventContext($chatId);
         $this->contextStorage->setContext($chatId, $context);
 
         $messageId = $this->eventMessage->sendEventTypeMessage($chatId, $eventTypes);
+
+        // Save context message and delete previous messages (to remove keyboard and event list)
         $this->cache->replaceMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $messageId);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::START_MENU, $chatId);
+
+        if ($currentMessage > 0) {
+            $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        }
 
         return $messageId;
     }
@@ -59,7 +70,7 @@ readonly class CreateEventService
         $this->contextStorage->updateContext($chatId, $context);
 
         $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
-        $this->eventMessage->editEventNameMessage($chatId, $messageId);
+        $this->eventMessage->editEventNameMessage($chatId, $messageId, $context->getFormattedText());
         $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
     }
 
@@ -80,6 +91,7 @@ readonly class CreateEventService
         $result = $this->parseDateTimeString($dateTimeString);
         if (!$result['success']) {
             $errorId = $this->eventMessage->sendErrorMessage($chatId, $result['error']);
+            $this->cache->deleteCurrentMessage($chatId, $currentMessage);
             $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $errorId);
             return;
         }
@@ -100,6 +112,7 @@ readonly class CreateEventService
         $result = $this->parseDateTimeString($dateTimeString);
         if (!$result['success']) {
             $errorId = $this->eventMessage->sendErrorMessage($chatId, $result['error']);
+            $this->cache->deleteCurrentMessage($chatId, $currentMessage);
             $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $errorId);
             return;
         }
@@ -177,12 +190,18 @@ readonly class CreateEventService
             $event->setPartnerChanelLink($context->getPartnerChanelLink());
         }
 
-        $this->eventRepository->save($event, true);
+        $this->entityManager->persist($event);
+        $this->entityManager->flush();
 
         $this->unsetContext($chatId);
-        $this->adminMenuService->handle($chatId);
+
+        // Return to Events menu
         $this->cache->deletePreviousMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+
+        $events = $this->eventRepository->findCurrentAndNextEvents();
+        $messageId = $this->adminGameMessage->sendMessage($chatId, $this->formatEvents($events));
+        $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 
     public function editEventAction(int $chatId, int $callbackId, CreateEventContext $context): void
@@ -202,9 +221,26 @@ readonly class CreateEventService
     {
         $this->answerCallbackQuery($callbackId, 'создание события отменено');
         $this->unsetContext($chatId);
-        $this->adminMenuService->handle($chatId);
+
+        // Return to Events menu
         $this->cache->deletePreviousMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+
+        $events = $this->eventRepository->findCurrentAndNextEvents();
+        $messageId = $this->adminGameMessage->sendMessage($chatId, $this->formatEvents($events));
+        $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
+    }
+
+    public function emergencyExit(int $chatId, int $currentMessage): void
+    {
+        $this->unsetContext($chatId);
+
+        // Delete all messages and return to admin menu
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+
+        $this->adminMenuService->handle($chatId);
     }
 
     public function backToTypeAction(int $chatId, int $callbackId, CreateEventContext $context): void
@@ -229,7 +265,7 @@ readonly class CreateEventService
         $this->contextStorage->updateContext($chatId, $context);
 
         $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
-        $this->eventMessage->editEventNameMessage($chatId, $messageId);
+        $this->eventMessage->editEventNameMessage($chatId, $messageId, $context->getFormattedText());
         $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
     }
 
@@ -327,5 +363,29 @@ readonly class CreateEventService
     private function unsetContext($chatId): void
     {
         $this->contextStorage->unsetContext($chatId);
+    }
+
+    private function formatEvents(array $events): array
+    {
+        $normalize = function(array $list) {
+            return array_map(function($event) {
+                return [
+                    'name' => $event['eventName'],
+                    'from' => $event['periodFrom'] instanceof \DateTimeInterface
+                        ? $event['periodFrom']->format('d-m-Y H:i')
+                        : null,
+                    'to' => $event['periodTo'] instanceof \DateTimeInterface
+                        ? $event['periodTo']->format('d-m-Y H:i')
+                        : null,
+                    'isActive' => $event['isActive'],
+                ];
+            }, $list);
+        };
+
+        return [
+            'current' => isset($events['current']) ? $normalize($events['current']) : [],
+            'upcoming' => isset($events['upcoming']) ? $normalize($events['upcoming']) : [],
+            'totalUpcoming' => $events['totalUpcoming']
+        ];
     }
 }
