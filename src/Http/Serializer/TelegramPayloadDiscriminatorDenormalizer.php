@@ -20,7 +20,11 @@ class TelegramPayloadDiscriminatorDenormalizer implements DenormalizerInterface
     public function denormalize($data, $type, $format = null, array $context = []): mixed
     {
         if (isset($data['message'])) {
-            $data['_telegram_type'] = 'message';
+            if (isset($data['message']['new_chat_title'])) {
+                $data['_telegram_type'] = 'new_chat_title';
+            } else {
+                $data['_telegram_type'] = 'message';
+            }
         } elseif (isset($data['callback_query'])) {
             $data['_telegram_type'] = 'callback_query';
         } elseif (isset($data['inline_query'])) {

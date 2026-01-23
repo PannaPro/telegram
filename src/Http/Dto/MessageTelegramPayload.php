@@ -4,7 +4,7 @@ namespace App\Http\Dto;
 
 use DateTimeImmutable;
 
-class MessageTelegramPayload extends AbstractPayload implements TelegramUserIdentityInterface
+class MessageTelegramPayload extends AbstractPayload
 {
     public array $message;
 

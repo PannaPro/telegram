@@ -4,9 +4,11 @@ namespace App\Service\Telegram\Handler;
 
 use App\Http\Dto\AbstractPayload;
 use App\Http\Dto\MyChatMemberPayload;
+use App\Http\Dto\NewChatTitleTelegramPayload;
 use App\Security\SecurityTelegramUserService;
 use App\Security\AdminSessionService;
 use App\Service\Telegram\MyChatMember\MyChatMemberService;
+use App\Service\Telegram\NewChatTitle\NewChatTitleService;
 use App\Service\Telegram\Router\AdminPayloadRouter;
 use App\Service\Telegram\Router\UserPayloadRouter;
 
@@ -18,6 +20,7 @@ readonly class PayloadHandler
         private AdminPayloadRouter $adminPayloadRouter,
         private UserPayloadRouter $userPayloadRouter,
         private AdminSessionService $adminSessionService,
+        private NewChatTitleService $newChatTitleService,
     ) {
     }
 
@@ -26,6 +29,11 @@ readonly class PayloadHandler
     {
         if ($payload instanceof MyChatMemberPayload) {
             $this->myChatMemberService->makeAction($payload);
+            return;
+        }
+
+        if ($payload instanceof NewChatTitleTelegramPayload) {
+            $this->newChatTitleService->makeAction($payload);
             return;
         }
 

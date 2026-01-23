@@ -2,8 +2,8 @@ http://127.0.0.1/test-webhook
 
 HTTP/1.1 500 Internal Server Error
 Content-Type: text/html; charset=UTF-8
-X-Powered-By: PHP/8.4.15
-Date: Wed, 17 Dec 2025 12:57:15 GMT
+X-Powered-By: PHP/8.4.17
+Date: Fri, 23 Jan 2026 18:58:40 GMT
 Transfer-Encoding: chunked
 
 <script> Sfdump = window.Sfdump || (function (doc) {
@@ -618,23 +618,45 @@ pre.sf-dump .sf-dump-label {
 pre.sf-dump .sf-dump-ellipsis-note {
     color: #1299DA
 }</style>
-<pre class=sf-dump id=sf-dump-356530710 data-indent-pad="  "><span class=sf-dump-label></span> <span class=sf-dump-note>App\Service\Telegram\Context\Dto\ReferralSearchContext</span> {<a
-    class=sf-dump-ref>#783</a><samp data-depth=1 class=sf-dump-expanded>
-  +<span class=sf-dump-public title="Public property">chatId</span>: <span class=sf-dump-num>301671507</span>
-  +<span class=sf-dump-public title="Public property">searchType</span>: "<span class=sf-dump-str title="23 characters">participant_cd_referral</span>"
-  +<span class=sf-dump-public title="Public property">textType</span>: "<span class=sf-dump-str title="75 characters">&#1057;&#1090;&#1072;&#1090;&#1091;&#1089; &#1091;&#1095;&#1072;&#1089;&#1090;&#1085;&#1080;&#1082; &#1080; &#1077;&#1089;&#1090;&#1100; &#1087;&#1086;&#1087;&#1086;&#1083;&#1085;&#1077;&#1085;&#1080;&#1077; &#1079;&#1072; 2025-12-17 &#1095;&#1080;&#1089;&#1083;&#1086; &#1085;&#1077; &#1084;&#1077;&#1085;&#1077;&#1077; 10 &#1088;&#1077;&#1092;&#1077;&#1088;&#1072;&#1083;&#1086;&#1074;</span>"
-  +<span class=sf-dump-public title="Public property">dateType</span>: "<span class=sf-dump-str title="18 characters">current_day_period</span>"
-  +<span class=sf-dump-public title="Public property">dateText</span>: "<span class=sf-dump-str title="19 characters">&#1079;&#1072; 2025-12-17 &#1095;&#1080;&#1089;&#1083;&#1086;</span>"
-  +<span class=sf-dump-public title="Public property">searchDate</span>: "<span class=sf-dump-str title="10 characters">2025-12-17</span>"
-  +<span class=sf-dump-public title="Public property">rangeStart</span>: <span class=sf-dump-const>null</span>
-  +<span class=sf-dump-public title="Public property">rangeEnd</span>: <span class=sf-dump-const>null</span>
-  +<span class=sf-dump-public title="Public property">count</span>: <span class=sf-dump-num>10</span>
-  +<span class=sf-dump-public title="Public property">blockContext</span>: <span class=sf-dump-const>true</span>
+<pre class=sf-dump id=sf-dump-2006171212 data-indent-pad="  "><span class=sf-dump-label></span> <span
+    class=sf-dump-note>App\Http\Dto\NewChatTitleTelegramPayload</span> {<a class=sf-dump-ref>#2259</a><samp
+    data-depth=1 class=sf-dump-expanded>
+  +<span class=sf-dump-public title="Public property">update_id</span>: <span class=sf-dump-num>66431406</span>
+  +<span class=sf-dump-public title="Public property">message</span>: <span class=sf-dump-note>array:5</span> [<samp
+    data-depth=2 class=sf-dump-compact>
+    "<span class=sf-dump-key>message_id</span>" => <span class=sf-dump-num>1393</span>
+    "<span class=sf-dump-key>from</span>" => <span class=sf-dump-note>array:6</span> [<samp data-depth=3
+                                                                                            class=sf-dump-compact>
+      "<span class=sf-dump-key>id</span>" => <span class=sf-dump-num>301671507</span>
+      "<span class=sf-dump-key>is_bot</span>" => <span class=sf-dump-const>false</span>
+      "<span class=sf-dump-key>first_name</span>" => "<span class=sf-dump-str title="5 characters">Panna</span>"
+      "<span class=sf-dump-key>last_name</span>" => "<span class=sf-dump-str title="7 characters">Caliano</span>"
+      "<span class=sf-dump-key>username</span>" => "<span class=sf-dump-str title="8 characters">PannaPro</span>"
+      "<span class=sf-dump-key>language_code</span>" => "<span class=sf-dump-str title="2 characters">ru</span>"
+    </samp>]
+    "<span class=sf-dump-key>chat</span>" => <span class=sf-dump-note>array:5</span> [<samp data-depth=3
+                                                                                            class=sf-dump-compact>
+      "<span class=sf-dump-key>id</span>" => <span class=sf-dump-num>-5146459662</span>
+      "<span class=sf-dump-key>title</span>" => "<span class=sf-dump-str title="5 characters">&#1080;&#1075;&#1088;&#1072;3</span>"
+      "<span class=sf-dump-key>type</span>" => "<span class=sf-dump-str title="5 characters">group</span>"
+      "<span class=sf-dump-key>all_members_are_administrators</span>" => <span class=sf-dump-const>true</span>
+      "<span class=sf-dump-key>accepted_gift_types</span>" => <span class=sf-dump-note>array:5</span> [<samp
+    data-depth=4 class=sf-dump-compact>
+        "<span class=sf-dump-key>unlimited_gifts</span>" => <span class=sf-dump-const>false</span>
+        "<span class=sf-dump-key>limited_gifts</span>" => <span class=sf-dump-const>false</span>
+        "<span class=sf-dump-key>unique_gifts</span>" => <span class=sf-dump-const>false</span>
+        "<span class=sf-dump-key>premium_subscription</span>" => <span class=sf-dump-const>false</span>
+        "<span class=sf-dump-key>gifts_from_channels</span>" => <span class=sf-dump-const>false</span>
+      </samp>]
+    </samp>]
+    "<span class=sf-dump-key>date</span>" => <span class=sf-dump-num>1769193939</span>
+    "<span class=sf-dump-key>new_chat_title</span>" => "<span class=sf-dump-str title="5 characters">&#1080;&#1075;&#1088;&#1072;3</span>"
+  </samp>]
 </samp>}
 </pre>
-<script>Sfdump("sf-dump-356530710")</script>
+<script>Sfdump("sf-dump-2006171212")</script>
 
 Response file saved.
-> 2025-12-17T165714.500.html
+> 2026-01-23T225840.500.html
 
-Response code: 500 (Internal Server Error); Time: 334ms; Content length: 18532 bytes
+Response code: 500 (Internal Server Error); Time: 4136ms; Content length: 19434 bytes

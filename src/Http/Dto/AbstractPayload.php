@@ -10,6 +10,7 @@ use Symfony\Component\Serializer\Attribute\DiscriminatorMap;
         'message' => MessageTelegramPayload::class,
         'my_chat_member' => MyChatMemberPayload::class,
         'callback_query' => CallbackQueryTelegramPayload::class,
+        'new_chat_title' => NewChatTitleTelegramPayload::class
     ]
 )]
 abstract class AbstractPayload implements TelegramUserIdentityInterface

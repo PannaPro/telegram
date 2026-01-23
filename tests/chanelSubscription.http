@@ -90,3 +90,37 @@ Content-Type: application/json
         }
     }
 }
+
+### new_chat_title
+POST http://127.0.0.1/test-webhook
+Content-Type: application/json
+
+{
+    "update_id": 66431406,
+    "message": {
+        "message_id": 1393,
+        "from": {
+            "id": 301671507,
+            "is_bot": false,
+            "first_name": "Panna",
+            "last_name": "Caliano",
+            "username": "PannaPro",
+            "language_code": "ru"
+        },
+        "chat": {
+            "id": -5146459662,
+            "title": "\u0438\u0433\u0440\u04303",
+            "type": "group",
+            "all_members_are_administrators": true,
+            "accepted_gift_types": {
+                "unlimited_gifts": false,
+                "limited_gifts": false,
+                "unique_gifts": false,
+                "premium_subscription": false,
+                "gifts_from_channels": false
+            }
+        },
+        "date": 1769193939,
+        "new_chat_title": "\u0438\u0433\u0440\u04303"
+    }
+}
