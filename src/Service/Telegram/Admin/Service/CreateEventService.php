@@ -42,14 +42,10 @@ readonly class CreateEventService
 
         $messageId = $this->eventMessage->sendEventTypeMessage($chatId, $eventTypes);
 
-        // Save context message and delete previous messages (to remove keyboard and event list)
         $this->cache->replaceMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $messageId);
         $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
         $this->cache->deletePreviousMessage(TelegramCacheKey::START_MENU, $chatId);
-
-        if ($currentMessage > 0) {
-            $this->cache->deleteCurrentMessage($chatId, $currentMessage);
-        }
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
 
         return $messageId;
     }
@@ -57,7 +53,7 @@ readonly class CreateEventService
     public function selectEventTypeAction(int $chatId, int $callbackId, CreateEventContext $context, int $eventTypeId): void
     {
         $this->answerCallbackQuery($callbackId, 'категория выбрана');
-        
+
         $eventType = $this->eventTypeRepository->find($eventTypeId);
         if (!$eventType) {
             $this->answerCallbackQuery($callbackId, 'категория не найдена');
@@ -173,7 +169,6 @@ readonly class CreateEventService
         $event = new Event();
         $event->setName($context->getName());
         $event->setType($eventType);
-        $event->setIsActive(true);
 
         // Parse and set dates
         $periodFrom = $this->parseFullDateTime($context->getPeriodFromDate(), $context->getPeriodFromTime());
@@ -186,6 +181,13 @@ readonly class CreateEventService
             $event->setPeriodTo($periodTo);
         }
 
+        $now = new DateTimeImmutable();
+        if ($periodFrom && $periodFrom <= $now) {
+            $event->setIsActive(true);
+        } else {
+            $event->setIsActive(false);
+        }
+
         if ($context->getPartnerChanelLink()) {
             $event->setPartnerChanelLink($context->getPartnerChanelLink());
         }
@@ -195,7 +197,6 @@ readonly class CreateEventService
 
         $this->unsetContext($chatId);
 
-        // Return to Events menu
         $this->cache->deletePreviousMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
 
@@ -207,7 +208,7 @@ readonly class CreateEventService
     public function editEventAction(int $chatId, int $callbackId, CreateEventContext $context): void
     {
         $this->answerCallbackQuery($callbackId, 'редактирование');
-        
+
         $context->setStep(1);
         $this->contextStorage->updateContext($chatId, $context);
 
@@ -297,8 +298,7 @@ readonly class CreateEventService
     private function parseDateTimeString(string $input): array
     {
         $input = trim($input);
-        
-        // Match format: dd-mm-yyyy hh:mm
+
         if (!preg_match('/^(\d{2})-(\d{2})-(\d{4})\s+(\d{2}):(\d{2})$/', $input, $matches)) {
             return [
                 'success' => false,
@@ -332,8 +332,6 @@ readonly class CreateEventService
 
     private function parseFullDateTime(string $date, string $time): ?DateTimeImmutable
     {
-        // Date format: dd-mm-yyyy
-        // Time format: hh:mm
         if (!preg_match('/^(\d{2})-(\d{2})-(\d{4})$/', $date, $dateMatches)) {
             return null;
         }
@@ -353,11 +351,6 @@ readonly class CreateEventService
         } catch (\Exception $e) {
             return null;
         }
-    }
-
-    private function updateContext(int $chatId, CreateEventContext $context): void
-    {
-        $this->contextStorage->updateContext($chatId, $context);
     }
 
     private function unsetContext($chatId): void

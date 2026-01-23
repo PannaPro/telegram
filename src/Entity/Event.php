@@ -38,6 +38,9 @@ class Event
     #[ORM\Column]
     private ?bool $isActive = null;
 
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?TelegramEventGroup $eventGroup = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -123,6 +126,18 @@ class Event
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getEventGroup(): ?TelegramEventGroup
+    {
+        return $this->eventGroup;
+    }
+
+    public function setEventGroup(?TelegramEventGroup $eventGroup): static
+    {
+        $this->eventGroup = $eventGroup;
 
         return $this;
     }

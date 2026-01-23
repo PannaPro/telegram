@@ -3,6 +3,10 @@
 namespace App\Command;
 
 use App\Http\Dto\AbstractPayload;
+use App\Http\Dto\CallbackQueryTelegramPayload;
+use App\Http\Dto\MessageTelegramPayload;
+use App\Http\Dto\MyChatMemberPayload;
+use App\Security\SecurityTelegramUserService;
 use App\Service\Telegram\Handler\PayloadHandler;
 use App\Service\TelegramBotService;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -23,8 +27,7 @@ class GetUpdatesCommand extends Command
     public function __construct(
         private TelegramBotService $bot,
         private PayloadHandler $payloadHandler,
-        private SerializerInterface $serializer,
-        private \App\Security\SecurityTelegramUserService $security,
+        private SecurityTelegramUserService $security,
     )
     {
         parent::__construct();
@@ -61,7 +64,7 @@ class GetUpdatesCommand extends Command
     {
         try {
             $updates = $this->bot->getUpdates($this->offset, $limit);
-            
+
             if (empty($updates)) {
                 $output->writeln('ℹ️ No new updates');
                 return;
@@ -71,7 +74,7 @@ class GetUpdatesCommand extends Command
 
             foreach ($updates as $update) {
                 $updateId = $update['update_id'] ?? null;
-                
+
                 $output->writeln("─────────────────────");
                 $output->writeln("📮 Processing update ID: {$updateId}");
 
@@ -159,28 +162,28 @@ class GetUpdatesCommand extends Command
         try {
             if (isset($update['message'])) {
                 $output?->writeln("    🔍 Detected: MESSAGE from user {$update['message']['from']['id']}");
-                
-                $payload = new \App\Http\Dto\MessageTelegramPayload($update['update_id']);
+
+                $payload = new MessageTelegramPayload($update['update_id']);
                 $payload->message = $update['message'];
-                
+
                 return $payload;
-            } 
+            }
             elseif (isset($update['callback_query'])) {
                 $output?->writeln("    🔍 Detected: CALLBACK from user {$update['callback_query']['from']['id']}, data: {$update['callback_query']['data']}");
-                
-                $payload = new \App\Http\Dto\CallbackQueryTelegramPayload($update['update_id']);
+
+                $payload = new CallbackQueryTelegramPayload($update['update_id']);
                 $payload->callback_query = $update['callback_query'];
-                
+
                 return $payload;
-            } 
+            }
             elseif (isset($update['my_chat_member'])) {
                 $output?->writeln("    🔍 Detected: MY_CHAT_MEMBER");
-                
-                $payload = new \App\Http\Dto\MyChatMemberPayload($update['update_id']);
+
+                $payload = new MyChatMemberPayload($update['update_id']);
                 $payload->my_chat_member = $update['my_chat_member'];
-                
+
                 return $payload;
-            } 
+            }
             else {
                 $output?->writeln("    🔍 Unknown update type");
                 return null;

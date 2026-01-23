@@ -50,4 +50,19 @@ class MyChatMemberPayload extends AbstractPayload
     {
         return $this->my_chat_member['from']['id'] ?? 0;
     }
+
+    public function getChatTitle(): string
+    {
+        return $this->my_chat_member['chat']['title'] ?? 'unknown';
+    }
+
+    public function canInviteUsers(): bool
+    {
+        return $this->my_chat_member['new_chat_member']['can_invite_users'] ?? false;
+    }
+
+    public function isGroup(): bool
+    {
+        return in_array($this->getChatType(), ['group', 'supergroup'], true);
+    }
 }
