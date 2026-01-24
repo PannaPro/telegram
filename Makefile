@@ -10,6 +10,8 @@ cc:
 	docker compose exec app bin/console ca:cl
 test:
 	docker compose exec php bin/phpunit
+watch:
+	docker compose exec telegram-app bin/console telegram:get-updates --watch
 
 prod-up:
 	docker compose -f compose.yaml -f compose.prod.yaml down

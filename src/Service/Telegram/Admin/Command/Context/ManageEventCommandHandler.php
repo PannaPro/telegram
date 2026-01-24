@@ -7,6 +7,7 @@ use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Http\Dto\MessageTelegramPayload;
 use App\Service\Telegram\Admin\Service\AdminMenuService;
 use App\Service\Telegram\Admin\Service\ManageEventService;
+use App\Service\Telegram\Common\UnknownCommandService;
 use App\Service\Telegram\Context\Dto\ManageEventContext;
 use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
 use App\Service\TelegramBotService;
@@ -19,6 +20,7 @@ readonly class ManageEventCommandHandler
         private ManageEventService $manageEventService,
         private AdminMenuService $adminMenuService,
         private TelegramBotService $bot,
+        private UnknownCommandService $unknownCommandService,
     ) {
     }
 
@@ -46,6 +48,11 @@ readonly class ManageEventCommandHandler
             return;
         }
 
+        if ($context->getEditField() === 'title') {
+            $this->manageEventService->updateTitleAction($chatId, $messageId, $context, $text);
+            return;
+        }
+
         if ($context->getEditField() === 'start_date') {
             $this->manageEventService->updateStartDateAction($chatId, $messageId, $context, $text);
             return;
@@ -58,6 +65,12 @@ readonly class ManageEventCommandHandler
 
         if ($context->getEditField() === 'partner_link') {
             $this->manageEventService->updatePartnerLinkAction($chatId, $messageId, $context, $text);
+            return;
+        }
+
+        // If context is blocked and no active edit field - show unknown command
+        if ($context->isBlockContext()) {
+            $this->unknownCommandService->makeAction($payload);
             return;
         }
     }
@@ -93,19 +106,19 @@ readonly class ManageEventCommandHandler
             return;
         }
 
+        // Handle group selection (check BEFORE event selection due to prefix overlap)
+        if (str_starts_with($data, 'manage_event_select_group_')) {
+            $groupId = (int)str_replace('manage_event_select_group_', '', $data);
+            $this->answerCallbackQuery($callbackId, 'группа выбрана');
+            $this->manageEventService->selectGroupAction($chatId, $context, $groupId);
+            return;
+        }
+
         // Handle event selection
         if (str_starts_with($data, 'manage_event_select_')) {
             $eventId = (int)str_replace('manage_event_select_', '', $data);
             $this->answerCallbackQuery($callbackId, 'событие выбрано');
             $this->manageEventService->selectEventAction($chatId, $messageId, $eventId);
-            return;
-        }
-
-        // Handle group selection
-        if (str_starts_with($data, 'manage_event_select_group_')) {
-            $groupId = (int)str_replace('manage_event_select_group_', '', $data);
-            $this->answerCallbackQuery($callbackId, 'группа выбрана');
-            $this->manageEventService->selectGroupAction($chatId, $context, $groupId);
             return;
         }
 
@@ -130,6 +143,10 @@ readonly class ManageEventCommandHandler
             case 'manage_event_edit':
                 $this->answerCallbackQuery($callbackId);
                 $this->manageEventService->showEditMenuAction($chatId, $context);
+                break;
+            case 'manage_event_edit_title':
+                $this->answerCallbackQuery($callbackId, 'введите новое название');
+                $this->manageEventService->editTitleAction($chatId, $context);
                 break;
             case 'manage_event_edit_start_date':
                 $this->answerCallbackQuery($callbackId, 'введите новую дату начала');
@@ -162,6 +179,10 @@ readonly class ManageEventCommandHandler
             case 'manage_event_back_to_edit_menu':
                 $this->answerCallbackQuery($callbackId);
                 $this->manageEventService->backToEditMenuAction($chatId, $context);
+                break;
+            case 'manage_event_close_group_selection':
+                $this->answerCallbackQuery($callbackId);
+                $this->manageEventService->closeGroupSelectionAction($chatId, $context);
                 break;
             case 'manage_event_back_to_events_menu':
                 $this->answerCallbackQuery($callbackId);

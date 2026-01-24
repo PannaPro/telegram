@@ -161,6 +161,23 @@ class ManageEventService
         $this->manageEventMessage->editToEditMenu($chatId, $messageId, $event);
     }
 
+    public function editTitleAction(int $chatId, ManageEventContext $context): void
+    {
+        $event = $this->eventRepository->find($context->getEventId());
+
+        if (!$event) {
+            return;
+        }
+
+        $context->setEditField('title');
+        $context->setBlockContext(false);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+
+        $this->manageEventMessage->editToTitleEdit($chatId, $messageId, $event);
+    }
+
     public function editStartDateAction(int $chatId, ManageEventContext $context): void
     {
         $event = $this->eventRepository->find($context->getEventId());
@@ -222,35 +239,29 @@ class ManageEventService
 
         $availableGroups = $this->telegramEventGroupRepository->findAvailableGroups();
 
-        // If event already has a group, add it to the list (it's still "available" for this event)
+        // Exclude current group from the list
         if ($event->getEventGroup()) {
-            $currentGroup = $event->getEventGroup();
-            $hasCurrentGroup = false;
-            foreach ($availableGroups as $group) {
-                if ($group->getId() === $currentGroup->getId()) {
-                    $hasCurrentGroup = true;
-                    break;
-                }
-            }
-            if (!$hasCurrentGroup) {
-                $availableGroups[] = $currentGroup;
-            }
+            $currentGroupId = $event->getEventGroup()->getId();
+            $availableGroups = array_filter($availableGroups, function($group) use ($currentGroupId) {
+                return $group->getId() !== $currentGroupId;
+            });
+            $availableGroups = array_values($availableGroups); // Re-index array
         }
 
         if (empty($availableGroups)) {
-            $errorMessage = "❌ Нет доступных групп для выбора.";
+            $errorMessage = "❌ Нет других доступных групп для выбора.";
             $errorId = $this->manageEventMessage->sendErrorMessage($chatId, $errorMessage);
-            $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $errorId);
+            $this->cache->deleteCurrentMessage($chatId, $errorId);
             return;
         }
 
         $context->setEditField('group');
-        $context->setBlockContext(false);
+        $context->setBlockContext(true);
         $this->contextStorage->updateContext($chatId, $context);
 
-        $messageId = $this->manageEventMessage->sendEditGroupMessage($chatId, $availableGroups, 1);
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
 
-        $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
+        $this->manageEventMessage->editToGroupSelection($chatId, $messageId, $event, $availableGroups, 1);
     }
 
     public function groupPageAction(int $chatId, int $messageId, ManageEventContext $context, int $page): void
@@ -263,22 +274,37 @@ class ManageEventService
 
         $availableGroups = $this->telegramEventGroupRepository->findAvailableGroups();
 
-        // Include current group if exists
+        // Exclude current group from the list
         if ($event->getEventGroup()) {
-            $currentGroup = $event->getEventGroup();
-            $hasCurrentGroup = false;
-            foreach ($availableGroups as $group) {
-                if ($group->getId() === $currentGroup->getId()) {
-                    $hasCurrentGroup = true;
-                    break;
-                }
-            }
-            if (!$hasCurrentGroup) {
-                $availableGroups[] = $currentGroup;
-            }
+            $currentGroupId = $event->getEventGroup()->getId();
+            $availableGroups = array_filter($availableGroups, function($group) use ($currentGroupId) {
+                return $group->getId() !== $currentGroupId;
+            });
+            $availableGroups = array_values($availableGroups);
         }
 
-        $this->manageEventMessage->editEditGroupMessage($chatId, $messageId, $availableGroups, $page);
+        $this->manageEventMessage->editToGroupSelection($chatId, $messageId, $event, $availableGroups, $page);
+    }
+
+    public function updateTitleAction(int $chatId, int $currentMessage, ManageEventContext $context, string $text): void
+    {
+        $event = $this->eventRepository->find($context->getEventId());
+
+        if (!$event) {
+            return;
+        }
+
+        $event->setName(trim($text));
+        $this->entityManager->flush();
+
+        $context->setEditField(null);
+        $context->setBlockContext(true);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $contextMessageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->manageEventMessage->editEventDetailsMessage($chatId, $contextMessageId, $event);
+
+        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
     }
 
     public function updateStartDateAction(int $chatId, int $currentMessage, ManageEventContext $context, string $text): void
@@ -399,10 +425,24 @@ class ManageEventService
         $context->setBlockContext(true);
         $this->contextStorage->updateContext($chatId, $context);
 
-        $contextMessageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
-        $this->manageEventMessage->editEventDetailsMessage($chatId, $contextMessageId, $event);
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->manageEventMessage->editEventDetailsMessage($chatId, $messageId, $event);
+    }
 
-        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    public function closeGroupSelectionAction(int $chatId, ManageEventContext $context): void
+    {
+        $event = $this->eventRepository->find($context->getEventId());
+
+        if (!$event) {
+            return;
+        }
+
+        $context->setEditField(null);
+        $context->setBlockContext(true);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->manageEventMessage->editToEditMenu($chatId, $messageId, $event);
     }
 
     public function backToListAction(int $chatId, int $messageId): void
@@ -430,8 +470,6 @@ class ManageEventService
 
         $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $this->manageEventMessage->editEventDetailsMessage($chatId, $messageId, $event);
-
-        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
     }
 
     public function backToEditMenuAction(int $chatId, ManageEventContext $context): void
@@ -447,14 +485,7 @@ class ManageEventService
         $this->contextStorage->updateContext($chatId, $context);
 
         $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
-        $this->manageEventMessage->editEventDetailsMessage($chatId, $messageId, $event);
-
-        // Re-send edit menu
-        $this->cache->deleteCurrentMessage($chatId, $messageId);
-        $newMessageId = $this->manageEventMessage->sendEditMenuMessage($chatId, $event);
-        $this->cache->replaceMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $newMessageId);
-
-        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+        $this->manageEventMessage->editToEditMenu($chatId, $messageId, $event);
     }
 
     public function backToEventsMenuAction(int $chatId, int $messageId, AdminMenuService $adminMenuService): void

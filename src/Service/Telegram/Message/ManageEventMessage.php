@@ -208,6 +208,9 @@ class ManageEventMessage
 
         $buttons = [
             [
+                ['text' => 'Название', 'callback_data' => 'manage_event_edit_title'],
+            ],
+            [
                 ['text' => 'Дата начала', 'callback_data' => 'manage_event_edit_start_date'],
                 ['text' => 'Дата окончания', 'callback_data' => 'manage_event_edit_end_date'],
             ],
@@ -228,6 +231,28 @@ class ManageEventMessage
         ];
 
         $keyboard = new InlineKeyboardMarkup($buttons);
+
+        $this->bot->editMessageText(
+            $chatId,
+            $messageId,
+            $text,
+            TelegramParseMode::MARKDOWN,
+            false,
+            $keyboard
+        );
+    }
+
+    public function editToTitleEdit(int $chatId, int $messageId, Event $event): void
+    {
+        $detailsText = $this->formatEventDetails($event);
+
+        $text = $detailsText . "\n\n*📝 Редактирование названия*\n\nВведите новое название события:";
+
+        $keyboard = new InlineKeyboardMarkup([
+            [
+                ['text' => '❌ Отмена', 'callback_data' => 'manage_event_back_to_edit_menu'],
+            ]
+        ]);
 
         $this->bot->editMessageText(
             $chatId,
@@ -269,7 +294,7 @@ class ManageEventMessage
 
         $keyboard = new InlineKeyboardMarkup([
             [
-                ['text' => '⬅️ Назад', 'callback_data' => 'manage_event_back_to_edit_menu'],
+                ['text' => '❌ Отмена', 'callback_data' => 'manage_event_back_to_edit_menu'],
             ]
         ]);
 
@@ -294,9 +319,27 @@ class ManageEventMessage
                 ['text' => 'Удалить ссылку', 'callback_data' => 'manage_event_remove_partner_link'],
             ],
             [
-                ['text' => '⬅️ Назад', 'callback_data' => 'manage_event_back_to_edit_menu'],
+                ['text' => '❌ Отмена', 'callback_data' => 'manage_event_back_to_edit_menu'],
             ]
         ]);
+
+        $this->bot->editMessageText(
+            $chatId,
+            $messageId,
+            $text,
+            TelegramParseMode::MARKDOWN,
+            false,
+            $keyboard
+        );
+    }
+
+    public function editToGroupSelection(int $chatId, int $messageId, Event $event, array $groups, int $page = 1): void
+    {
+        $detailsText = $this->formatEventDetails($event);
+
+        $text = $detailsText . "\n\n*👥 Изменение группы*\n\nВыберите новую группу для проведения события:";
+
+        $keyboard = $this->buildGroupSelectionKeyboard($groups, $page);
 
         $this->bot->editMessageText(
             $chatId,
@@ -385,9 +428,9 @@ class ManageEventMessage
             $buttons[] = $paginationRow;
         }
 
-        // Add back button
+        // Add cancel button
         $buttons[] = [
-            ['text' => '⬅️ Назад', 'callback_data' => 'manage_event_back_to_edit_menu'],
+            ['text' => '❌ Отмена', 'callback_data' => 'manage_event_close_group_selection'],
         ];
 
         return new InlineKeyboardMarkup($buttons);

@@ -6,12 +6,14 @@ use App\Http\Dto\AbstractPayload;
 use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Http\Dto\MessageTelegramPayload;
 use App\Service\Telegram\Admin\Service\CreateEventService;
+use App\Service\Telegram\Common\UnknownCommandService;
 use App\Service\Telegram\Context\Dto\CreateEventContext;
 
 class CreateEventCommandHandler
 {
     public function __construct(
         private CreateEventService $createEventService,
+        private UnknownCommandService $unknownCommandService,
     ) {
     }
 
@@ -50,10 +52,19 @@ class CreateEventCommandHandler
                 $this->createEventService->eventEndDateAction($chatId, $messageId, $context, $text);
                 break;
             case 5: // Group selection (handled via callbacks)
-                // No text input on this step
+                // No text input on this step - show unknown command
+                if ($context->isBlockContext()) {
+                    $this->unknownCommandService->makeAction($payload);
+                }
                 break;
             case 6: // Partner link (optional, only for Event type)
                 $this->createEventService->partnerLinkAction($chatId, $messageId, $context, $text);
+                break;
+            default:
+                // For any other step with blocked context (step 1, 7, etc.) - show unknown command
+                if ($context->isBlockContext()) {
+                    $this->unknownCommandService->makeAction($payload);
+                }
                 break;
         }
     }
