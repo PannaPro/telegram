@@ -47,6 +47,9 @@ class AdminCommandMessageHandler
             case '🎮 Создать событие':
                 $this->adminGameService->createEvent($chatId, $messageId);
                 break;
+            case '✏️ Управлять событием':
+                $this->adminGameService->manageEvent($chatId, $messageId);
+                break;
             case 'Выйти из режима администратора':
                 $this->adminSession->deactivateAdminSession($chatId);
                 $this->startService->makeAction($messageId);

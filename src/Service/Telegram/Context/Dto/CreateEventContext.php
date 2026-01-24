@@ -15,6 +15,8 @@ class CreateEventContext implements ContextInterface
         public ?string $periodFromTime = null,
         public ?string $periodToDate = null,
         public ?string $periodToTime = null,
+        public ?int $telegramEventGroupId = null,
+        public ?string $telegramEventGroupTitle = null,
         public ?string $partnerChanelLink = null,
         public int $step = 1,
         public bool $blockContext = true,
@@ -32,6 +34,8 @@ class CreateEventContext implements ContextInterface
             'periodFromTime' => $this->periodFromTime,
             'periodToDate' => $this->periodToDate,
             'periodToTime' => $this->periodToTime,
+            'telegramEventGroupId' => $this->telegramEventGroupId,
+            'telegramEventGroupTitle' => $this->telegramEventGroupTitle,
             'partnerChanelLink' => $this->partnerChanelLink,
             'step' => $this->step,
             'blockContext' => $this->blockContext,
@@ -49,6 +53,8 @@ class CreateEventContext implements ContextInterface
             $data['periodFromTime'] ?? null,
             $data['periodToDate'] ?? null,
             $data['periodToTime'] ?? null,
+            $data['telegramEventGroupId'] ?? null,
+            $data['telegramEventGroupTitle'] ?? null,
             $data['partnerChanelLink'] ?? null,
             $data['step'] ?? 1,
             $data['blockContext'] ?? true,
@@ -140,6 +146,26 @@ class CreateEventContext implements ContextInterface
         $this->partnerChanelLink = $partnerChanelLink;
     }
 
+    public function getTelegramEventGroupId(): ?int
+    {
+        return $this->telegramEventGroupId;
+    }
+
+    public function setTelegramEventGroupId(?int $telegramEventGroupId): void
+    {
+        $this->telegramEventGroupId = $telegramEventGroupId;
+    }
+
+    public function getTelegramEventGroupTitle(): ?string
+    {
+        return $this->telegramEventGroupTitle;
+    }
+
+    public function setTelegramEventGroupTitle(?string $telegramEventGroupTitle): void
+    {
+        $this->telegramEventGroupTitle = $telegramEventGroupTitle;
+    }
+
     public function getStep(): int
     {
         return $this->step;
@@ -178,6 +204,10 @@ class CreateEventContext implements ContextInterface
 
         if ($this->periodToDate && $this->periodToTime) {
             $lines[] = "Дата окончания: *{$this->periodToDate} {$this->periodToTime}*";
+        }
+
+        if ($this->telegramEventGroupTitle) {
+            $lines[] = "Группа для проведения: *{$this->telegramEventGroupTitle}*";
         }
 
         // Show partner link if it exists, or if we're on confirmation step

@@ -258,7 +258,7 @@ class CreateEventMessage
                 ['text' => 'Пропустить', 'callback_data' => 'create_event_skip_partner_link'],
             ],
             [
-                ['text' => '⬅️ Назад', 'callback_data' => 'create_event_back_to_end_date'],
+                ['text' => '⬅️ Назад', 'callback_data' => 'create_event_back_to_group_selection'],
             ]
         ]);
 
@@ -289,7 +289,7 @@ class CreateEventMessage
                 ['text' => 'Пропустить', 'callback_data' => 'create_event_skip_partner_link'],
             ],
             [
-                ['text' => '⬅️ Назад', 'callback_data' => 'create_event_back_to_end_date'],
+                ['text' => '⬅️ Назад', 'callback_data' => 'create_event_back_to_group_selection'],
             ]
         ]);
 
@@ -370,5 +370,94 @@ class CreateEventMessage
         $message = $this->bot->sendMessage($chatId, $text, TelegramParseMode::MARKDOWN);
 
         return $message->getMessageId();
+    }
+
+    public function sendGroupSelectionMessage(int $chatId, string $currentData, array $groups, int $page = 1): int
+    {
+        $text = <<<MARKDOWN
+        *Создание события*
+
+        $currentData
+
+        Выберите группу для проведения события:
+        MARKDOWN;
+
+        $keyboard = $this->buildGroupSelectionKeyboard($groups, $page);
+
+        $message = $this->bot->sendMessage(
+            $chatId,
+            $text,
+            TelegramParseMode::MARKDOWN,
+            false,
+            null,
+            $keyboard
+        );
+
+        return $message->getMessageId();
+    }
+
+    public function editGroupSelectionMessage(int $chatId, int $messageId, string $currentData, array $groups, int $page = 1): void
+    {
+        $text = <<<MARKDOWN
+        *Создание события*
+
+        $currentData
+
+        Выберите группу для проведения события:
+        MARKDOWN;
+
+        $keyboard = $this->buildGroupSelectionKeyboard($groups, $page);
+
+        $this->bot->editMessageText(
+            $chatId,
+            $messageId,
+            $text,
+            TelegramParseMode::MARKDOWN,
+            false,
+            $keyboard
+        );
+    }
+
+    private function buildGroupSelectionKeyboard(array $groups, int $page): InlineKeyboardMarkup
+    {
+        $buttons = [];
+        $perPage = 5;
+        $totalGroups = count($groups);
+        $totalPages = (int)ceil($totalGroups / $perPage);
+
+        // Calculate offset
+        $offset = ($page - 1) * $perPage;
+        $groupsOnPage = array_slice($groups, $offset, $perPage);
+
+        // Add group buttons
+        foreach ($groupsOnPage as $group) {
+            $buttons[] = [
+                ['text' => $group->getTitle(), 'callback_data' => 'create_event_group_' . $group->getId()]
+            ];
+        }
+
+        // Add pagination row if needed
+        if ($totalPages > 1) {
+            $paginationRow = [];
+
+            if ($page > 1) {
+                $paginationRow[] = ['text' => '⬅', 'callback_data' => 'create_event_group_page_' . ($page - 1)];
+            }
+
+            $paginationRow[] = ['text' => "{$page}/{$totalPages}", 'callback_data' => 'create_event_group_page_current'];
+
+            if ($page < $totalPages) {
+                $paginationRow[] = ['text' => '➡', 'callback_data' => 'create_event_group_page_' . ($page + 1)];
+            }
+
+            $buttons[] = $paginationRow;
+        }
+
+        // Add back button
+        $buttons[] = [
+            ['text' => '⬅️ Назад', 'callback_data' => 'create_event_back_to_end_date'],
+        ];
+
+        return new InlineKeyboardMarkup($buttons);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Service\Telegram\Admin\Service;
 use App\Entity\Event;
 use App\Repository\EventRepository;
 use App\Repository\EventTypeRepository;
+use App\Repository\TelegramEventGroupRepository;
 use App\Service\Telegram\Context\ContextStorage;
 use App\Service\Telegram\Context\Dto\CreateEventContext;
 use App\Service\Telegram\Enum\TelegramCacheKey;
@@ -28,6 +29,7 @@ readonly class CreateEventService
         private CreateEventMessage $eventMessage,
         private EventTypeRepository $eventTypeRepository,
         private EventRepository $eventRepository,
+        private TelegramEventGroupRepository $telegramEventGroupRepository,
         private EntityManagerInterface $entityManager,
         private AdminGameMessage $adminGameMessage,
     ) {
@@ -35,6 +37,18 @@ readonly class CreateEventService
 
     public function sendMessage(int $chatId, int $currentMessage = 0): int
     {
+        // Check if there are available groups before starting event creation
+        $availableGroups = $this->telegramEventGroupRepository->findAvailableGroups();
+        if (empty($availableGroups)) {
+            $errorMessage = "Для создания игры нет доступной группы. Добавьте бота в группу и сделайте его админом.";
+            $errorId = $this->eventMessage->sendErrorMessage($chatId, $errorMessage);
+
+            $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+            $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $errorId);
+
+            return 0;
+        }
+
         $eventTypes = $this->eventTypeRepository->findAll();
 
         $context = new CreateEventContext($chatId);
@@ -116,27 +130,60 @@ readonly class CreateEventService
         $context->setPeriodToDate($result['date']);
         $context->setPeriodToTime($result['time']);
 
-        // Check if partner link is needed (only for Event type)
-        if ($context->getEventTypeName() === 'Ивент') {
-            $context->setStep(5);
-            $this->contextStorage->updateContext($chatId, $context);
-            $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
-            $this->eventMessage->editPartnerLinkMessage($chatId, $messageId, $context->getFormattedText());
-        } else {
-            $context->setStep(6);
-            $this->contextStorage->updateContext($chatId, $context);
-            $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
-            $this->eventMessage->editConfirmationMessage($chatId, $messageId, $context);
-        }
+        // After dates, always go to group selection (step 5)
+        $context->setStep(5);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $groups = $this->telegramEventGroupRepository->findAvailableGroups();
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->eventMessage->editGroupSelectionMessage($chatId, $messageId, $context->getFormattedText(), $groups, 1);
 
         $this->cache->deleteCurrentMessage($chatId, $currentMessage);
         $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
     }
 
+    public function selectGroupAction(int $chatId, int $callbackId, CreateEventContext $context, int $groupId): void
+    {
+        $this->answerCallbackQuery($callbackId, 'группа выбрана');
+
+        $group = $this->telegramEventGroupRepository->find($groupId);
+        if (!$group) {
+            $this->answerCallbackQuery($callbackId, 'группа не найдена');
+            return;
+        }
+
+        $context->setTelegramEventGroupId($groupId);
+        $context->setTelegramEventGroupTitle($group->getTitle());
+
+        // Check if partner link is needed (only for Event type)
+        if ($context->getEventTypeName() === 'Ивент') {
+            $context->setStep(6);
+            $this->contextStorage->updateContext($chatId, $context);
+            $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+            $this->eventMessage->editPartnerLinkMessage($chatId, $messageId, $context->getFormattedText());
+        } else {
+            $context->setStep(7);
+            $this->contextStorage->updateContext($chatId, $context);
+            $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+            $this->eventMessage->editConfirmationMessage($chatId, $messageId, $context);
+        }
+
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function groupPageAction(int $chatId, int $callbackId, CreateEventContext $context, int $page): void
+    {
+        $this->answerCallbackQuery($callbackId);
+
+        $groups = $this->telegramEventGroupRepository->findAvailableGroups();
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->eventMessage->editGroupSelectionMessage($chatId, $messageId, $context->getFormattedText(), $groups, $page);
+    }
+
     public function partnerLinkAction(int $chatId, int $currentMessage, CreateEventContext $context, string $link): void
     {
         $context->setPartnerChanelLink($link);
-        $context->setStep(6);
+        $context->setStep(7);
         $this->contextStorage->updateContext($chatId, $context);
 
         $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
@@ -148,7 +195,7 @@ readonly class CreateEventService
     public function skipPartnerLinkAction(int $chatId, int $callbackId, CreateEventContext $context): void
     {
         $this->answerCallbackQuery($callbackId, 'ссылка пропущена');
-        $context->setStep(6);
+        $context->setStep(7);
         $this->contextStorage->updateContext($chatId, $context);
 
         $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
@@ -190,6 +237,13 @@ readonly class CreateEventService
 
         if ($context->getPartnerChanelLink()) {
             $event->setPartnerChanelLink($context->getPartnerChanelLink());
+        }
+
+        if ($context->getTelegramEventGroupId()) {
+            $group = $this->telegramEventGroupRepository->find($context->getTelegramEventGroupId());
+            if ($group) {
+                $event->setEventGroup($group);
+            }
         }
 
         $this->entityManager->persist($event);
@@ -286,12 +340,27 @@ readonly class CreateEventService
     public function backToEndDateAction(int $chatId, int $callbackId, CreateEventContext $context): void
     {
         $this->answerCallbackQuery($callbackId);
+        $context->setTelegramEventGroupId(null);
+        $context->setTelegramEventGroupTitle(null);
         $context->setPartnerChanelLink(null);
         $context->setStep(4);
         $this->contextStorage->updateContext($chatId, $context);
 
         $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $this->eventMessage->editEventEndDateMessage($chatId, $messageId, $context->getFormattedText());
+        $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
+    }
+
+    public function backToGroupSelectionAction(int $chatId, int $callbackId, CreateEventContext $context): void
+    {
+        $this->answerCallbackQuery($callbackId);
+        $context->setPartnerChanelLink(null);
+        $context->setStep(5);
+        $this->contextStorage->updateContext($chatId, $context);
+
+        $groups = $this->telegramEventGroupRepository->findAvailableGroups();
+        $messageId = $this->cache->getMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
+        $this->eventMessage->editGroupSelectionMessage($chatId, $messageId, $context->getFormattedText(), $groups, 1);
         $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
     }
 
@@ -313,10 +382,18 @@ readonly class CreateEventService
         $minute = (int)$matches[5];
 
         // Validate ranges
-        if ($day < 1 || $day > 31 || $month < 1 || $month > 12 || $hour < 0 || $hour > 23 || $minute < 0 || $minute > 59) {
+        if ($month < 1 || $month > 12 || $hour < 0 || $hour > 23 || $minute < 0 || $minute > 59) {
             return [
                 'success' => false,
                 'error' => '❌ Неверные значения даты или времени.',
+            ];
+        }
+
+        // Validate date using checkdate
+        if (!checkdate($month, $day, $year)) {
+            return [
+                'success' => false,
+                'error' => '❌ Неверная дата. Проверьте количество дней в месяце.',
             ];
         }
 

@@ -49,7 +49,10 @@ class CreateEventCommandHandler
             case 4: // Event end date
                 $this->createEventService->eventEndDateAction($chatId, $messageId, $context, $text);
                 break;
-            case 5: // Partner link (optional)
+            case 5: // Group selection (handled via callbacks)
+                // No text input on this step
+                break;
+            case 6: // Partner link (optional, only for Event type)
                 $this->createEventService->partnerLinkAction($chatId, $messageId, $context, $text);
                 break;
         }
@@ -61,10 +64,25 @@ class CreateEventCommandHandler
         $callbackId = $payload->getCallbackQueryId();
         $data = $payload->getCallbackData();
 
-        // Parse callback data
+        // Parse callback data - ORDER MATTERS! Check page before group
         if (str_starts_with($data, 'create_event_type_')) {
             $eventTypeId = (int)str_replace('create_event_type_', '', $data);
             $this->createEventService->selectEventTypeAction($chatId, $callbackId, $context, $eventTypeId);
+            return;
+        }
+
+        if (str_starts_with($data, 'create_event_group_page_')) {
+            $pageStr = str_replace('create_event_group_page_', '', $data);
+            if ($pageStr !== 'current') {
+                $page = (int)$pageStr;
+                $this->createEventService->groupPageAction($chatId, $callbackId, $context, $page);
+            }
+            return;
+        }
+
+        if (str_starts_with($data, 'create_event_group_')) {
+            $groupId = (int)str_replace('create_event_group_', '', $data);
+            $this->createEventService->selectGroupAction($chatId, $callbackId, $context, $groupId);
             return;
         }
 
@@ -80,6 +98,9 @@ class CreateEventCommandHandler
                 break;
             case 'create_event_back_to_end_date':
                 $this->createEventService->backToEndDateAction($chatId, $callbackId, $context);
+                break;
+            case 'create_event_back_to_group_selection':
+                $this->createEventService->backToGroupSelectionAction($chatId, $callbackId, $context);
                 break;
             case 'create_event_skip_partner_link':
                 $this->createEventService->skipPartnerLinkAction($chatId, $callbackId, $context);

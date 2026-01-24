@@ -14,6 +14,7 @@ class AdminGameService
         private AdminGameMessage $gameMessage,
         private EventRepository $eventRepository,
         private CreateEventService $createEventService,
+        private ManageEventService $manageEventService,
         private TelegramMessageCache $cache,
     ) {
     }
@@ -25,7 +26,7 @@ class AdminGameService
         $messageId = $this->gameMessage->sendMessage($chatId, $this->formatEvents($events));
 
         $this->cache->deleteCurrentMessage($chatId, $currentMessage);
-        $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
+        $this->cache->replaceMessage(TelegramCacheKey::START_MENU, $chatId, $messageId);
     }
 
     private function formatEvents(array $events): array
@@ -55,5 +56,10 @@ class AdminGameService
     public function createEvent(int $chatId, int $currentMessage = 0): void
     {
         $this->createEventService->sendMessage($chatId, $currentMessage);
+    }
+
+    public function manageEvent(int $chatId, int $currentMessage = 0): void
+    {
+        $this->manageEventService->sendEventListMessage($chatId, $currentMessage);
     }
 }
