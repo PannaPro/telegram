@@ -6,6 +6,7 @@ use App\Http\Dto\AbstractPayload;
 use App\Http\Dto\CallbackQueryTelegramPayload;
 use App\Http\Dto\MessageTelegramPayload;
 use App\Http\Dto\MyChatMemberPayload;
+use App\Http\Dto\NewChatTitleTelegramPayload;
 use App\Security\SecurityTelegramUserService;
 use App\Service\Telegram\Handler\PayloadHandler;
 use App\Service\TelegramBotService;
@@ -161,6 +162,18 @@ class GetUpdatesCommand extends Command
     {
         try {
             if (isset($update['message'])) {
+
+                if (isset($update['message']['new_chat_title'])) {
+                    $output?->writeln(
+                        "    🔍 Detected: NEW_CHAT_TITLE from chat {$update['message']['chat']['id']}"
+                    );
+
+                    $payload = new NewChatTitleTelegramPayload($update['update_id']);
+                    $payload->message = $update['message'];
+
+                    return $payload;
+                }
+
                 $output?->writeln("    🔍 Detected: MESSAGE from user {$update['message']['from']['id']}");
 
                 $payload = new MessageTelegramPayload($update['update_id']);
