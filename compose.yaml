@@ -9,6 +9,40 @@ services:
       - backend_net
       - db_net
 
+  scheduler:
+    build:
+      context: .
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    env_file:
+      - .env
+      - .env.local
+    entrypoint: ["/app/docker-entrypoint-worker.sh"]
+    command: ["php", "bin/console", "messenger:consume", "scheduler_default", "-vv"]
+    restart: unless-stopped
+    networks:
+      - backend_net
+      - db_net
+
+  messenger-worker:
+    build:
+      context: .
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    env_file:
+      - .env
+      - .env.local
+    entrypoint: ["/app/docker-entrypoint-worker.sh"]
+    command: ["php", "bin/console", "messenger:consume", "event_status", "-vv"]
+    restart: unless-stopped
+    networks:
+      - backend_net
+      - db_net
+
   postgres:
     build:
       context: .docker/postgresql

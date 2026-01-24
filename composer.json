@@ -38,6 +38,7 @@
         "symfony/password-hasher": "^7.3",
         "symfony/property-access": "^7.3.3",
         "symfony/property-info": "^7.3.5",
+        "symfony/redis-messenger": "^7.3",
         "symfony/runtime": "^7.3.4",
         "symfony/scheduler": "7.3.*",
         "symfony/security-bundle": "^7.3.4",

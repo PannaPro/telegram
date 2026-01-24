@@ -8,10 +8,12 @@ framework:
             # async: '%env(MESSENGER_TRANSPORT_DSN)%'
             # failed: 'doctrine://default?queue_name=failed'
             sync: 'sync://'
+            event_status: '%env(REDIS_MESSENGER_DSN)%'
 
         routing:
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
+            App\Message\ManageEventStatusMessage: event_status
 
 # when@test:
 #    framework:

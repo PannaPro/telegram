@@ -66,6 +66,7 @@ RUN groupadd -g ${HOST_GID} app \
 USER app:app
 
 COPY --chmod=755 .docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+COPY --chmod=755 docker-entrypoint-worker.sh /app/docker-entrypoint-worker.sh
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
 
@@ -98,6 +99,7 @@ USER www-data
 COPY ./.docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
 
 COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+COPY --chmod=755 docker-entrypoint-worker.sh /app/docker-entrypoint-worker.sh
 
 EXPOSE 9000
 

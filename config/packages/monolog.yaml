@@ -4,6 +4,7 @@ monolog:
         - webhook
         - webhook_payload
         - action
+        - event_scheduler
 
 when@dev:
     monolog:
@@ -39,6 +40,12 @@ when@dev:
                 level: debug
                 channels: [ 'action' ]
                 max_files: 1
+            event_scheduler:
+                type: rotating_file
+                path: "%kernel.logs_dir%/event_scheduler.log"
+                level: debug
+                channels: [ 'event_scheduler' ]
+                max_files: 7
 
 when@test:
     monolog:
@@ -96,3 +103,9 @@ when@prod:
                 level: debug
                 channels: [ 'action' ]
                 max_files: 1
+            event_scheduler:
+                type: rotating_file
+                path: "%kernel.logs_dir%/event_scheduler.log"
+                level: info
+                channels: [ 'event_scheduler' ]
+                max_files: 7
