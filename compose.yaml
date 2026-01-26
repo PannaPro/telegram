@@ -9,40 +9,6 @@ services:
       - backend_net
       - db_net
 
-  scheduler:
-    build:
-      context: .
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    env_file:
-      - .env
-      - .env.local
-    entrypoint: ["/app/docker-entrypoint-worker.sh"]
-    command: ["php", "bin/console", "messenger:consume", "scheduler_default", "-vv"]
-    restart: unless-stopped
-    networks:
-      - backend_net
-      - db_net
-
-  messenger-worker:
-    build:
-      context: .
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    env_file:
-      - .env
-      - .env.local
-    entrypoint: ["/app/docker-entrypoint-worker.sh"]
-    command: ["php", "bin/console", "messenger:consume", "event_status", "-vv"]
-    restart: unless-stopped
-    networks:
-      - backend_net
-      - db_net
-
   postgres:
     build:
       context: .docker/postgresql
@@ -83,6 +49,43 @@ services:
     networks:
       - backend_net
       - db_net
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build:
+      context: .
+    command: php bin/console messenger:consume default --time-limit=3600 --memory-limit=256M
+    restart: always
+    volumes:
+      - log:/app/var/log
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+    networks:
+      - backend_net
+      - db_net
+
+  scheduler:
+    build:
+      context: .
+    command: php bin/console messenger:consume scheduler_event_status --sleep=60
+    restart: always
+    volumes:
+      - log:/app/var/log
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+    networks:
+      - backend_net
+      - db_net
 
 volumes:
   pgdata:
@@ -92,6 +95,7 @@ volumes:
   rabbitmq-data:
     name: app_rabbitmq_data
     driver: local
+  log:
 
 networks:
   backend_net:

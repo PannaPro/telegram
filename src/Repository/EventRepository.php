@@ -17,35 +17,6 @@ class EventRepository extends ServiceEntityRepository
         parent::__construct($registry, Event::class);
     }
 
-    public function findEvents(): array
-    {
-        $qb = $this->createQueryBuilder('e');
-        $expr = $qb->expr();
-        $today = new DateTimeImmutable('today');
-
-        $qb
-            ->select(
-                'e.name',
-                'e.periodFrom',
-                'e.periodTo',
-                'e.groupLink',
-                'e.partnerChanelLink',
-                't.name type',
-            )
-            ->innerJoin('e.type', 't')
-            ->andWhere(
-                $expr->orX(
-                    $expr->lte('e.periodFrom', ':today'),
-                    $expr->gte('e.periodTo', ':today')
-                )
-            )
-            ->andWhere($expr->eq('e.isActive', ':bool'))
-            ->setParameter('today', $today)
-            ->setParameter('bool', true);
-
-        return $qb->getQuery()->getResult();
-    }
-
     public function findCurrentAndNextEvents(): array
     {
         $qb = $this->createQueryBuilder('e');

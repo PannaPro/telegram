@@ -1,24 +1,34 @@
 framework:
     messenger:
-        # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
-        # failure_transport: failed
+        failure_transport: failed
 
         transports:
-            # https://symfony.com/doc/current/messenger.html#transport-configuration
-            # async: '%env(MESSENGER_TRANSPORT_DSN)%'
-            # failed: 'doctrine://default?queue_name=failed'
-            sync: 'sync://'
-            event_status: '%env(REDIS_MESSENGER_DSN)%'
+            default:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: telegram_app_exchange
+                        type: direct
+                    queues:
+                        default:
+                            arguments:
+                                x-dead-letter-exchange: failed_exchange
+                                x-dead-letter-routing-key: failed
+                retry_strategy:
+                    max_retries: 3
+                    delay: 10000
+                    multiplier: 2
+
+            failed:
+                dsn: '%env(MESSENGER_FAILED_DSN)%'
+                options:
+                    exchange:
+                        name: failed_exchange
+                        type: direct
+                    queues:
+                        failed_queue:
+                            binding_keys: [ failed ]
 
         routing:
-            # Route your messages to the transports
-            # 'App\Message\YourMessage': async
-            App\Message\ManageEventStatusMessage: event_status
+            'App\Message\ManageEventStatusMessage': default
 
-# when@test:
-#    framework:
-#        messenger:
-#            transports:
-#                # replace with your transport name here (e.g., my_transport: 'in-memory://')
-#                # For more Messenger testing tools, see https://github.com/zenstruck/messenger-test
-#                async: 'in-memory://'

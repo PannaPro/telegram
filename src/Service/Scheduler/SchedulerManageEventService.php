@@ -2,6 +2,7 @@
 
 namespace App\Service\Scheduler;
 
+use App\Entity\Event;
 use App\Repository\EventRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,60 +23,53 @@ class SchedulerManageEventService
     {
         $now = new DateTimeImmutable();
 
-        // Find events that should be activated (start time has come)
-        $eventsToActivate = $this->eventRepository->createQueryBuilder('e')
-            ->where('e.isActive = :inactive')
-            ->andWhere('e.periodFrom <= :now')
-            ->andWhere('e.periodTo > :now')
-            ->setParameter('inactive', false)
-            ->setParameter('now', $now)
-            ->getQuery()
-            ->getResult();
+        $eventsToProcess = [
+            'activate' => $this->eventRepository->createQueryBuilder('e')
+                ->where('e.isActive = :inactive')
+                ->andWhere('e.periodFrom <= :now')
+                ->andWhere('e.periodTo > :now')
+                ->setParameter('inactive', false)
+                ->setParameter('now', $now)
+                ->getQuery()
+                ->getResult(),
 
-        foreach ($eventsToActivate as $event) {
-            $event->setActive(true);
+            'deactivate' => $this->eventRepository->createQueryBuilder('e')
+                ->where('e.isActive = :active')
+                ->andWhere('e.periodTo <= :now')
+                ->setParameter('active', true)
+                ->setParameter('now', $now)
+                ->getQuery()
+                ->getResult(),
+        ];
 
-            $this->logger->info('Event activated', [
-                'event_id' => $event->getId(),
-                'event_name' => $event->getName(),
-                'new_status' => 'active',
-                'period_from' => $event->getPeriodFrom()->format('Y-m-d H:i:s'),
-                'period_to' => $event->getPeriodTo()->format('Y-m-d H:i:s'),
-            ]);
+        $totalUpdated = 0;
+
+        foreach ($eventsToProcess as $action => $events) {
+            /** @var Event $event */
+
+            foreach ($events as $event) {
+                $newStatus = $action === 'activate';
+                $event->setIsActive($newStatus);
+
+                $this->logger->info(sprintf(
+                    'Event %s: [%d] %s — new status: %s at %s',
+                    $action === 'activate' ? 'activated' : 'deactivated',
+                    $event->getId(),
+                    $event->getName(),
+                    $newStatus ? 'active' : 'inactive',
+                    $now->format('Y-m-d H:i:s')
+                ));
+            }
+
+            $totalUpdated += count($events);
         }
 
-        // Find events that should be deactivated (end time has passed)
-        $eventsToDeactivate = $this->eventRepository->createQueryBuilder('e')
-            ->where('e.isActive = :active')
-            ->andWhere('e.periodTo <= :now')
-            ->setParameter('active', true)
-            ->setParameter('now', $now)
-            ->getQuery()
-            ->getResult();
-
-        foreach ($eventsToDeactivate as $event) {
-            $event->setActive(false);
-
-            $this->logger->info('Event deactivated', [
-                'event_id' => $event->getId(),
-                'event_name' => $event->getName(),
-                'new_status' => 'inactive',
-                'period_from' => $event->getPeriodFrom()->format('Y-m-d H:i:s'),
-                'period_to' => $event->getPeriodTo()->format('Y-m-d H:i:s'),
-            ]);
-        }
-
-        // Flush all changes at once
-        if (count($eventsToActivate) > 0 || count($eventsToDeactivate) > 0) {
+        if ($totalUpdated > 0) {
             $this->entityManager->flush();
-
-            $this->logger->info('Event statuses updated', [
-                'activated_count' => count($eventsToActivate),
-                'deactivated_count' => count($eventsToDeactivate),
-                'total_updated' => count($eventsToActivate) + count($eventsToDeactivate),
-            ]);
         } else {
-            $this->logger->debug('No events to update');
+            $this->logger->info('No events to update', [
+                'timestamp' => $now->format('Y-m-d H:i:s'),
+            ]);
         }
     }
 }

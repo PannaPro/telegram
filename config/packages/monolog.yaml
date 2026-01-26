@@ -27,13 +27,13 @@ when@dev:
                 path: "%kernel.logs_dir%/webhook.log"
                 level: debug
                 channels: [ 'webhook' ]
-                max_files: 3
+                max_files: 1
             webhook_payload:
                 type: rotating_file
                 path: "%kernel.logs_dir%/webhook_payload.log"
                 level: debug
                 channels: [ 'webhook_payload' ]
-                max_files: 3
+                max_files: 1
             action:
                 type: rotating_file
                 path: "%kernel.logs_dir%/action.log"
@@ -45,7 +45,7 @@ when@dev:
                 path: "%kernel.logs_dir%/event_scheduler.log"
                 level: debug
                 channels: [ 'event_scheduler' ]
-                max_files: 7
+                max_files: 1
 
 when@test:
     monolog:
@@ -90,19 +90,19 @@ when@prod:
                 path: "%kernel.logs_dir%/webhook.log"
                 level: debug
                 channels: [ 'webhook' ]
-                max_files: 3
+                max_files: 7
             webhook_payload:
                 type: rotating_file
                 path: "%kernel.logs_dir%/webhook_payload.log"
                 level: debug
                 channels: [ 'webhook_payload' ]
-                max_files: 3
+                max_files: 7
             action:
                 type: rotating_file
                 path: "%kernel.logs_dir%/action.log"
                 level: debug
                 channels: [ 'action' ]
-                max_files: 1
+                max_files: 7
             event_scheduler:
                 type: rotating_file
                 path: "%kernel.logs_dir%/event_scheduler.log"

@@ -47,19 +47,11 @@ services:
       - backend_net
       - db_net
 
-#  scheduler-app:
-#    build:
-#      context: .
-#    command: php bin/console messenger:consume scheduler_app
-#    restart: always
-#    volumes:
-#      - log:/app/var/log
-#    depends_on:
-#      - rabbitmq
-#      - db
-#    networks:
-#      - default
-#      - shared_net
+  worker:
+    restart: always
+
+  scheduler:
+    restart: always
 
 volumes:
   storage:
