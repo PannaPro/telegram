@@ -37,6 +37,6 @@ services:
         tags:
             - { name: serializer.normalizer, priority: 20 }
 
-    App\Service\TelegramBotService:
+    App\Service\TelegramBotMessaging\TelegramBotService:
         arguments:
             $botToken: '%env(TELEGRAM_BOT_TOKEN)%'

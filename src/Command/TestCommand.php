@@ -35,8 +35,6 @@ class TestCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        dd($this->service->manage());
-
         return 0;
     }
 }
