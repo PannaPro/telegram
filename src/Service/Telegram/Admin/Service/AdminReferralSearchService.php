@@ -9,7 +9,7 @@ use App\Service\Telegram\Enum\TelegramParseMode;
 use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
 use App\Service\Telegram\Message\AdminReferralSearchMessage;
 use App\Service\Telegram\TelegramMessageCache;
-use App\Service\TelegramBotService;
+use App\Service\TelegramBotMessaging\BotMessengerInterface;
 use DateTime;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
@@ -19,7 +19,7 @@ readonly class AdminReferralSearchService
 
     public function __construct(
         private TelegramMessageCache $cache,
-        private TelegramBotService $bot,
+        private BotMessengerInterface $bot,
         private ContextStorage $contextStorage,
         private AdminMenuService $adminMenuService,
         private AdminReferralSearchMessage $referralSearchMessage,

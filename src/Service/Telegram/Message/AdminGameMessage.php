@@ -3,13 +3,13 @@
 namespace App\Service\Telegram\Message;
 
 use App\Service\Telegram\Enum\TelegramParseMode;
-use App\Service\TelegramBotService;
+use App\Service\TelegramBotMessaging\BotMessengerInterface;
 use TelegramBot\Api\Types\ReplyKeyboardMarkup;
 
 class AdminGameMessage
 {
     public function __construct(
-        private TelegramBotService $bot,
+        private BotMessengerInterface $bot,
     ) {
     }
 

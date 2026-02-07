@@ -3,8 +3,7 @@
 namespace App\Service\Telegram\Message;
 
 use App\Service\Telegram\Enum\TelegramParseMode;
-use App\Service\TelegramBotService;
-use TelegramBot\Api\Types\ReplyKeyboardMarkup;
+use App\Service\TelegramBotMessaging\TelegramBotService;
 
 class UnknownCommandMessage
 {

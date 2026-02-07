@@ -47,7 +47,7 @@ class SubscriptionService
     public function check(int $chatId): bool
     {
         $cached = $this->cache->get(TelegramCacheKey::SUBSCRIPTION, $chatId);
-        if ($cached == true) {
+        if ($cached) {
             return true;
         }
 

@@ -13,7 +13,7 @@ use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
 use App\Service\Telegram\Message\AdminGameMessage;
 use App\Service\Telegram\Message\CreateEventMessage;
 use App\Service\Telegram\TelegramMessageCache;
-use App\Service\TelegramBotService;
+use App\Service\TelegramBotMessaging\BotMessengerInterface;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -23,7 +23,7 @@ readonly class CreateEventService
 
     public function __construct(
         private TelegramMessageCache $cache,
-        private TelegramBotService $bot,
+        private BotMessengerInterface $bot,
         private ContextStorage $contextStorage,
         private AdminMenuService $adminMenuService,
         private CreateEventMessage $eventMessage,

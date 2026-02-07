@@ -4,14 +4,14 @@ namespace App\Service\Telegram\Common;
 
 use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
 use App\Service\Telegram\TelegramMessageCache;
-use App\Service\TelegramBotService;
+use App\Service\TelegramBotMessaging\BotMessengerInterface;
 
 readonly class CommonActionService
 {
     use AnswerCallbackQueryTrait;
 
     public function __construct(
-        private TelegramBotService $bot,
+        private BotMessengerInterface $bot,
         private TelegramMessageCache $cache,
     ) {
     }

@@ -5,7 +5,7 @@ namespace App\Service\Telegram\User\Service;
 use App\Repository\TelegramUserRepository;
 use App\Security\SecurityTelegramUserService;
 use App\Service\Telegram\Enum\TelegramDefaultValue;
-use App\Service\TelegramBotService;
+use App\Service\TelegramBotMessaging\BotMessengerInterface;
 
 class AvatarService
 {
@@ -14,7 +14,7 @@ class AvatarService
         private TelegramUserRepository $telegramUserRepository,
         private ParticipateService $participateService,
         private MenuService $menuService,
-        private TelegramBotService $bot,
+        private BotMessengerInterface $bot,
     ) {
     }
 

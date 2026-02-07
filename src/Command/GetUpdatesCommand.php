@@ -9,13 +9,12 @@ use App\Http\Dto\MyChatMemberPayload;
 use App\Http\Dto\NewChatTitleTelegramPayload;
 use App\Security\SecurityTelegramUserService;
 use App\Service\Telegram\Handler\PayloadHandler;
-use App\Service\TelegramBotService;
+use App\Service\TelegramBotMessaging\BotMessengerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 
 #[AsCommand(
     name: 'telegram:get-updates',
@@ -26,7 +25,7 @@ class GetUpdatesCommand extends Command
     private int $offset = 0;
 
     public function __construct(
-        private TelegramBotService $bot,
+        private BotMessengerInterface $bot,
         private PayloadHandler $payloadHandler,
         private SecurityTelegramUserService $security,
     )

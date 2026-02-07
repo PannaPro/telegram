@@ -10,7 +10,7 @@ use App\Service\Telegram\Admin\Service\ManageEventService;
 use App\Service\Telegram\Common\UnknownCommandService;
 use App\Service\Telegram\Context\Dto\ManageEventContext;
 use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
-use App\Service\TelegramBotService;
+use App\Service\TelegramBotMessaging\BotMessengerInterface;
 
 readonly class ManageEventCommandHandler
 {
@@ -19,7 +19,7 @@ readonly class ManageEventCommandHandler
     public function __construct(
         private ManageEventService $manageEventService,
         private AdminMenuService $adminMenuService,
-        private TelegramBotService $bot,
+        private BotMessengerInterface $bot,
         private UnknownCommandService $unknownCommandService,
     ) {
     }

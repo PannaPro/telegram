@@ -2,14 +2,14 @@
 
 namespace App\Service\Telegram;
 
-use App\Service\TelegramBotService;
+use App\Service\TelegramBotMessaging\BotMessengerInterface;
 use Redis;
 
 final class TelegramMessageCache
 {
     public function __construct(
         private Redis $redis,
-        private TelegramBotService $telegramBotService,
+        private BotMessengerInterface $bot,
     ) {
     }
 
@@ -60,7 +60,7 @@ final class TelegramMessageCache
         $messageId = $this->getMessage($type, $key);
 
         if ($messageId) {
-            $this->telegramBotService->deleteMessage($key, $messageId);
+            $this->bot->deleteMessage($key, $messageId);
             $this->redis->hDel($type, (string)$key);
         }
     }
@@ -74,7 +74,7 @@ final class TelegramMessageCache
     {
         $oldMessageId = $this->getMessage($type, $key);
         if ($oldMessageId) {
-            $this->telegramBotService->deleteMessage($key, $oldMessageId);
+            $this->bot->deleteMessage($key, $oldMessageId);
         }
 
         $this->setMessage($type, $key, $newMessageId);
@@ -82,6 +82,6 @@ final class TelegramMessageCache
 
     public function selfDestructMessage(int $chatId, int $messageId): void
     {
-        $this->telegramBotService->deleteMessage($chatId, $messageId);
+        $this->bot->deleteMessage($chatId, $messageId);
     }
 }

@@ -3,14 +3,14 @@
 namespace App\Service\Telegram\Message;
 
 use App\Service\Telegram\Enum\TelegramParseMode;
-use App\Service\TelegramBotService;
+use App\Service\TelegramBotMessaging\BotMessengerInterface;
 use CURLFile;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
 class ParticipateMessage
 {
     public function __construct(
-        private TelegramBotService $bot,
+        private BotMessengerInterface $bot,
     ) {
     }
 

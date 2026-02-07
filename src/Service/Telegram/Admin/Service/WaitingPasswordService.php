@@ -8,13 +8,12 @@ use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Message\IncorrectPasswordMessage;
 use App\Service\Telegram\Message\WaitingPasswordMessage;
 use App\Service\Telegram\TelegramMessageCache;
-use App\Service\Telegram\User\Service\StartService;
-use App\Service\TelegramBotService;
+use App\Service\TelegramBotMessaging\BotMessengerInterface;
 
 class WaitingPasswordService
 {
     public function __construct(
-        private TelegramBotService $bot,
+        private BotMessengerInterface $bot,
         private TelegramMessageCache $cache,
         private ContextStorage $contextStorage,
         private WaitingPasswordMessage $waitingPasswordMessage,

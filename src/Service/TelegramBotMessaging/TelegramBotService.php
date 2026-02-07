@@ -1,22 +1,23 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\TelegramBotMessaging;
 
 use App\Service\ExceptionHandler\TelegramApiException;
 use App\Service\ExceptionHandler\TelegramBotApiException;
 use CURLFile;
 use Exception;
-use TelegramBot\Api\Exception as TelegramBotException;
-use TelegramBot\Api\InvalidArgumentException as TelegramBotInvalidArgumentException;
 use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Telegram\Bot\Objects\Update;
 use TelegramBot\Api\BotApi;
+use TelegramBot\Api\Exception as TelegramBotException;
+use TelegramBot\Api\InvalidArgumentException as TelegramBotInvalidArgumentException;
+use TelegramBot\Api\Types\ChatMember;
 use TelegramBot\Api\Types\Message;
 use Throwable;
 
 #[WithMonologChannel('action')]
-class TelegramBotService
+class TelegramBotService implements BotMessengerInterface
 {
     private BotApi $telegram;
 
@@ -50,10 +51,11 @@ class TelegramBotService
         ?string $parseMode = null,
         bool $disablePreview = false,
         $replyMarkup = null,
-    ): void
+        ?string $inlineMessageId = null
+    ): Message|bool
     {
         try {
-            $this->telegram->editMessageText(
+            return $this->telegram->editMessageText(
                 $chatId,
                 $messageId,
                 $text,
@@ -65,6 +67,8 @@ class TelegramBotService
             if (!str_contains($e->getMessage(), 'message is not modified')) {
                 $this->logger->error($chatId, [$e->getMessage()]);
             }
+
+            return true;
         }
     }
 
@@ -152,7 +156,7 @@ class TelegramBotService
     public function isSubscribed(int $chatId, string $channel = "@PAKETAGAME"): bool
     {
         try {
-            $member = $this->telegram->getChatMember($channel, $chatId);
+            $member = $this->getChatMember($channel, $chatId);
 
             return in_array($member->getStatus(), [
                 'member',
@@ -166,10 +170,10 @@ class TelegramBotService
 
     /**
      * @param $chatId
-     * @param CURLFile $photo
+     * @param CURLFile|string $photo
      * @param string|null $caption
      * @param int|null $replyToMessageId
-     * @param $replyMarkup
+     * @param null $replyMarkup
      * @param bool $disableNotification
      * @param string|null $parseMode
      * @param int|null $messageThreadId
@@ -179,7 +183,7 @@ class TelegramBotService
      */
     public function sendPhoto(
         $chatId,
-        CURLFile $photo,
+        CURLFile|string $photo,
         ?string $caption = null,
         ?int $replyToMessageId = null,
         $replyMarkup = null,
@@ -243,63 +247,96 @@ class TelegramBotService
         }
     }
 
+    /**
+     * @param int $chatId
+     * @param CURLFile|string $document
+     * @param string|null $caption
+     * @param null $replyToMessageId
+     * @param null $replyMarkup
+     * @param bool $disableNotification
+     * @param string|null $parseMode
+     * @param int|null $messageThreadId
+     * @param bool|null $protectContent
+     * @param bool|null $allowSendingWithoutReply
+     * @param CURLFile|string|null $thumbnail
+     * @return Message
+     */
     public function sendDocument(
         int $chatId,
-        CURLFile $document,
+        CURLFile|string $document,
         string $caption = null,
         $replyToMessageId = null,
         $replyMarkup = null,
-        $disableNotification = false,
-        $parseMode = null,
+        bool $disableNotification = false,
+        ?string $parseMode = null,
+        ?int $messageThreadId = null,
+        ?bool $protectContent = null,
+        ?bool $allowSendingWithoutReply = null,
+        CURLFile|string|null $thumbnail = null
     ): Message
     {
-        return $this->telegram->sendDocument(
-            $chatId, $document, $caption, $replyToMessageId, $replyMarkup, $disableNotification, $parseMode
-        );
+        $attempt = 0;
+
+        $this->logger->info('Sending document to Telegram', [
+            'chatId' => $chatId,
+            'captionLength' => $caption ? strlen($caption) : 0,
+            'parseMode' => $parseMode,
+        ]);
+
+        while (true) {
+            try {
+                $attempt++;
+                $message = $this->telegram->sendDocument(
+                    $chatId,
+                    $document,
+                    $caption,
+                    $replyToMessageId,
+                    $replyMarkup,
+                    $disableNotification,
+                    $parseMode
+                );
+
+                $this->logger->info('Document sent successfully', [
+                    'chatId' => $chatId,
+                    'messageId' => $message->getMessageId(),
+                    'attempt' => $attempt,
+                ]);
+
+                return $message;
+            } catch (Throwable $e) {
+                $this->logger->error('Telegram sendDocument failed', [
+                    'chatId' => $chatId,
+                    'attempt' => $attempt,
+                    'error' => $e->getMessage(),
+                ]);
+
+                if ($attempt >= $this->maxRetries) {
+                    $this->logger->critical('Telegram sendPhoto final failure', [
+                        'chatId' => $chatId,
+                        'attempts' => $attempt,
+                    ]);
+                    throw TelegramApiException::sendMessageFailed();
+                }
+
+                $backoffMs = $this->baseBackoffMs * (2 ** ($attempt - 1));
+                $jitter = rand(0, (int)($backoffMs * 0.2));
+
+                usleep(($backoffMs + $jitter) * 1000);
+            }
+        }
     }
 
-    public function deleteMessage(int $chatId, int $messageId): void
+    public function deleteMessage(int $chatId, int $messageId): bool
     {
         if ($messageId === 0) {
-            return;
+            return true;
         }
 
         try {
-             $this->telegram->deleteMessage($chatId, $messageId);
+             return $this->telegram->deleteMessage($chatId, $messageId);
         } catch (TelegramBotException) {
             $this->logger->error("Не удалось удалить сообщение $messageId для чата $chatId, возможно оно уже было удалено.", );
-            return;
-        }
-    }
-
-    /**
-     * @return Update[]
-     * @throws TelegramBotException
-     * @throws TelegramBotInvalidArgumentException
-     */
-    public function getUpdate(int $offset = 0): array
-    {
-        return $this->telegram->getUpdates($offset);
-    }
-
-    public function answerCallbackQuery(
-        int $callbackId,
-        ?string $text = null,
-        bool $showAlert = false,
-        ?string $url = null,
-        int $cacheTime = 0
-    ): void
-    {
-        try {
-            $this->telegram->answerCallbackQuery(
-                $callbackId,
-                $text,
-                $showAlert,
-                $url,
-                $cacheTime
-            );
-        } catch (Exception) {
-
+            return false;
         }
     }
 
@@ -354,4 +391,25 @@ class TelegramBotService
         return $this->botToken;
     }
 
+    public function getChatMember(int|string $chatId, int $userId): ChatMember
+    {
+        return $this->telegram->getChatMember($chatId, $userId);
+    }
+
+    public function answerCallbackQuery(
+        int $callbackQueryId,
+        string $text = null,
+        bool $showAlert = false,
+        string $url = null,
+        int $cacheTime = 0
+    ): bool
+    {
+        return $this->telegram->answerCallbackQuery(
+            $callbackQueryId,
+            $text,
+            $showAlert,
+            $url,
+            $cacheTime
+        );
+    }
 }

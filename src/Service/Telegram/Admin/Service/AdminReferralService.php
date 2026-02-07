@@ -9,7 +9,7 @@ use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
 use App\Service\Telegram\Message\AdminReferralMessage;
 use App\Service\Telegram\TelegramMessageCache;
-use App\Service\TelegramBotService;
+use App\Service\TelegramBotMessaging\BotMessengerInterface;
 use CURLFile;
 
 readonly class AdminReferralService
@@ -20,7 +20,7 @@ readonly class AdminReferralService
         private TelegramMessageCache $cache,
         private AdminReferralMessage $referralMessage,
         private ReferralSearchRepository $referralSearchRepository,
-        private TelegramBotService $bot,
+        private BotMessengerInterface $bot,
     )
     {
     }

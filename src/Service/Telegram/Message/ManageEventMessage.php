@@ -4,13 +4,13 @@ namespace App\Service\Telegram\Message;
 
 use App\Entity\Event;
 use App\Service\Telegram\Enum\TelegramParseMode;
-use App\Service\TelegramBotService;
+use App\Service\TelegramBotMessaging\BotMessengerInterface;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
 class ManageEventMessage
 {
     public function __construct(
-        private TelegramBotService $bot,
+        private BotMessengerInterface $bot,
     )
     {
     }
