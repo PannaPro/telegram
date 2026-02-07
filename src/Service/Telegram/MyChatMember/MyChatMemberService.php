@@ -5,9 +5,9 @@ namespace App\Service\Telegram\MyChatMember;
 use App\Entity\TelegramUser;
 use App\Http\Dto\MyChatMemberPayload;
 use App\Repository\TelegramUserRepository;
+use App\Service\Telegram\Cache\TelegramMessageCache;
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Enum\TelegramDefaultValue;
-use App\Service\Telegram\TelegramMessageCache;
 
 class MyChatMemberService
 {

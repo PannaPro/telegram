@@ -2,8 +2,8 @@
 
 namespace App\RequestHandler;
 
+use App\Service\Telegram\Cache\TelegramMessageCache;
 use App\Service\Telegram\Enum\TelegramCacheKey;
-use App\Service\Telegram\TelegramMessageCache;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;

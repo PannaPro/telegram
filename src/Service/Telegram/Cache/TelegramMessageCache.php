@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Telegram;
+namespace App\Service\Telegram\Cache;
 
 use App\Service\Cache\CacheInterface;
 use App\Service\TelegramBotMessaging\BotMessengerInterface;

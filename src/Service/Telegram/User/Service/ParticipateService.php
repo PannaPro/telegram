@@ -4,19 +4,19 @@ namespace App\Service\Telegram\User\Service;
 
 use App\Repository\TelegramUserRepository;
 use App\Security\SecurityTelegramUserService;
+use App\Service\Telegram\Cache\TelegramMessageCache;
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Enum\TelegramDefaultValue;
 use App\Service\Telegram\Message\NeedUsernameMessage;
 use App\Service\Telegram\Message\ParticipateMessage;
 use App\Service\Telegram\Object\DeletableTelegramMessageInterface;
 use App\Service\Telegram\Object\NoTelegramMessage;
-use App\Service\Telegram\TelegramMessageCache;
+use CURLFile;
 use Imagine\Gd\Font;
 use Imagine\Gd\Imagine;
 use Imagine\Image\Box;
 use Imagine\Image\Palette\RGB;
 use Imagine\Image\Point;
-use CURLFile;
 
 class ParticipateService
 {

@@ -2,10 +2,10 @@
 
 namespace App\Service\Telegram\User\Service;
 
+use App\Service\Telegram\Cache\TelegramMessageCache;
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Message\SubscriptionMessage;
 use App\Service\Telegram\Object\NoTelegramMessage;
-use App\Service\Telegram\TelegramMessageCache;
 use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 

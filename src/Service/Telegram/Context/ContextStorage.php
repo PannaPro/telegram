@@ -2,8 +2,8 @@
 
 namespace App\Service\Telegram\Context;
 
+use App\Service\Telegram\Cache\TelegramMessageCache;
 use App\Service\Telegram\Enum\TelegramCacheKey;
-use App\Service\Telegram\TelegramMessageCache;
 
 class ContextStorage
 {

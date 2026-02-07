@@ -2,7 +2,7 @@
 
 namespace App\Service\Telegram\Object;
 
-use App\Service\Telegram\TelegramMessageCache;
+use App\Service\Telegram\Cache\TelegramMessageCache;
 
 final class NoTelegramMessage implements DeletableTelegramMessageInterface
 {

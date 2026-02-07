@@ -5,11 +5,11 @@ namespace App\Service\Telegram\User\Service;
 use App\Entity\TelegramUser;
 use App\Repository\TelegramUserRepository;
 use App\Security\SecurityTelegramUserService;
+use App\Service\Telegram\Cache\TelegramMessageCache;
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Enum\TelegramDefaultValue;
 use App\Service\Telegram\Message\ReferralMessage;
 use App\Service\Telegram\Object\DeletableTelegramMessageInterface;
-use App\Service\Telegram\TelegramMessageCache;
 
 readonly class ReferralService
 {

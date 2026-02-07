@@ -2,8 +2,8 @@
 
 namespace App\Service\Telegram\Common;
 
+use App\Service\Telegram\Cache\TelegramMessageCache;
 use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
-use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotMessaging\BotMessengerInterface;
 
 readonly class CommonActionService
