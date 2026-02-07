@@ -7,6 +7,7 @@ use App\Service\Telegram\Context\Dto\WaitingPasswordContext;
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Message\IncorrectPasswordMessage;
 use App\Service\Telegram\Message\WaitingPasswordMessage;
+use App\Service\Telegram\Object\DeletableTelegramMessageInterface;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotMessaging\BotMessengerInterface;
 
@@ -21,9 +22,9 @@ class WaitingPasswordService
     ) {
     }
 
-    public function waitingPassword(int $chatId, int $currentMessage): void
+    public function waitingPassword(int $chatId, DeletableTelegramMessageInterface $currentMessage): void
     {
-        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $currentMessage->delete($this->cache, $chatId);
         $messageId = $this->waitingPasswordMessage->sendMessage($chatId);
 
         $this->contextStorage->setContext($chatId, new WaitingPasswordContext($chatId, true), TelegramCacheKey::TTL_5_MINUTES);
@@ -31,11 +32,11 @@ class WaitingPasswordService
         $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 
-    public function incorrectPassword(int $chatId, int $currentMessage): void
+    public function incorrectPassword(int $chatId, DeletableTelegramMessageInterface $currentMessage): void
     {
         $messageId = $this->incorrectPasswordMessage->sendMessage($chatId);
 
-        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $currentMessage->delete($this->cache, $chatId);
         $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 

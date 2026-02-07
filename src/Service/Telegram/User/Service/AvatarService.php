@@ -5,6 +5,7 @@ namespace App\Service\Telegram\User\Service;
 use App\Repository\TelegramUserRepository;
 use App\Security\SecurityTelegramUserService;
 use App\Service\Telegram\Enum\TelegramDefaultValue;
+use App\Service\Telegram\Object\NoTelegramMessage;
 use App\Service\TelegramBotMessaging\BotMessengerInterface;
 
 class AvatarService
@@ -32,6 +33,6 @@ class AvatarService
         $user->setParticipant(true);
         $this->telegramUserRepository->save($user);
 
-        $this->menuService->sendStartMenu($chatId);
+        $this->menuService->sendStartMenu($chatId, new NoTelegramMessage());
     }
 }

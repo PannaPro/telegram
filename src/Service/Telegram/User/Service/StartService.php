@@ -3,6 +3,7 @@
 namespace App\Service\Telegram\User\Service;
 
 use App\Security\SecurityTelegramUserService;
+use App\Service\Telegram\Object\DeletableTelegramMessageInterface;
 
 class StartService
 {
@@ -12,13 +13,13 @@ class StartService
     ) {
     }
 
-    public function makeAction(int $messageId = 0): void
+    public function makeAction(DeletableTelegramMessageInterface $currentMessage): void
     {
         $user = $this->security->fetchCurrentUser();
         $chatId = $user->getChatId();
 
         if ($user->isParticipant()) {
-            $this->menuService->sendStartMenu($chatId, $messageId);
+            $this->menuService->sendStartMenu($chatId, $currentMessage);
 
             return;
         }

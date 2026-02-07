@@ -12,6 +12,7 @@ use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
 use App\Service\Telegram\Message\AdminGameMessage;
 use App\Service\Telegram\Message\CreateEventMessage;
+use App\Service\Telegram\Object\DeletableTelegramMessageInterface;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotMessaging\BotMessengerInterface;
 use DateTimeImmutable;
@@ -35,7 +36,7 @@ readonly class CreateEventService
     ) {
     }
 
-    public function sendMessage(int $chatId, int $currentMessage = 0): int
+    public function sendMessage(int $chatId, DeletableTelegramMessageInterface $currentMessage): int
     {
         // Check if there are available groups before starting event creation
         $availableGroups = $this->telegramEventGroupRepository->findAvailableGroups();
@@ -43,7 +44,7 @@ readonly class CreateEventService
             $errorMessage = "Для создания игры нет доступной группы. Добавьте бота в группу и сделайте его админом.";
             $errorId = $this->eventMessage->sendErrorMessage($chatId, $errorMessage);
 
-            $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+            $currentMessage->delete($this->cache, $chatId);
             $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $errorId);
 
             return 0;
@@ -59,7 +60,7 @@ readonly class CreateEventService
         $this->cache->replaceMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $messageId);
         $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
         $this->cache->deletePreviousMessage(TelegramCacheKey::START_MENU, $chatId);
-        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $currentMessage->delete($this->cache, $chatId);
 
         return $messageId;
     }

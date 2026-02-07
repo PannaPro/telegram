@@ -324,12 +324,13 @@ class TelegramBotService implements BotMessengerInterface
         }
     }
 
-    public function deleteMessage(int $chatId, int $messageId): bool
+    /**
+     * @param int|string $chatId
+     * @param int $messageId
+     * @return bool
+     */
+    public function deleteMessage(int|string $chatId, int $messageId): bool
     {
-        if ($messageId === 0) {
-            return true;
-        }
-
         try {
              return $this->telegram->deleteMessage($chatId, $messageId);
         } catch (TelegramBotException) {

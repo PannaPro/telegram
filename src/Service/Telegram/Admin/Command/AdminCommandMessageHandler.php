@@ -9,6 +9,7 @@ use App\Service\Telegram\Admin\Service\AdminMenuService;
 use App\Service\Telegram\Admin\Service\AdminParticipantService;
 use App\Service\Telegram\Admin\Service\AdminReferralService;
 use App\Service\Telegram\Common\UnknownCommandService;
+use App\Service\Telegram\Object\CurrentTelegramMessage;
 use App\Service\Telegram\User\Service\StartService;
 
 class AdminCommandMessageHandler
@@ -30,29 +31,31 @@ class AdminCommandMessageHandler
         $messageId = $payload->getMessageId();
         $chatId = $payload->getChatId();
 
+        $currentMessage = new CurrentTelegramMessage($messageId);
+
         switch ($text) {
             case '/start':
             case '⬅ Вернуться в меню':
-                $this->adminMenuService->handle($chatId, $messageId);
+                $this->adminMenuService->handle($chatId, $currentMessage);
                 break;
             case '👥 Рефералы':
-                $this->adminReferralService->makeAction($chatId, $messageId);
+                $this->adminReferralService->makeAction($chatId, $currentMessage);
                 break;
 //            case '1️⃣ Участники':
 //                $this->adminParticipantService->makeAction($chatId, $messageId);
 //                break;
             case '🎮 События':
-                $this->adminGameService->makeAction($chatId, $messageId);
+                $this->adminGameService->makeAction($chatId, $currentMessage);
                 break;
             case '🎮 Создать событие':
-                $this->adminGameService->createEvent($chatId, $messageId);
+                $this->adminGameService->createEvent($chatId, $currentMessage);
                 break;
             case '✏️ Управлять событием':
-                $this->adminGameService->manageEvent($chatId, $messageId);
+                $this->adminGameService->manageEvent($chatId, $currentMessage);
                 break;
             case 'Выйти из режима администратора':
                 $this->adminSession->deactivateAdminSession($chatId);
-                $this->startService->makeAction($messageId);
+                $this->startService->makeAction($currentMessage);
                 break;
             default:
                 $this->unknownCommandService->makeAction($payload);

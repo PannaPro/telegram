@@ -4,6 +4,7 @@ namespace App\Service\Telegram\User\Service;
 
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Message\UserMenuMessage;
+use App\Service\Telegram\Object\DeletableTelegramMessageInterface;
 use App\Service\Telegram\TelegramMessageCache;
 
 class MenuService
@@ -14,11 +15,11 @@ class MenuService
     ) {
     }
 
-    public function sendStartMenu(int $chatId, int $currentMessage = 0): void
+    public function sendStartMenu(int $chatId, DeletableTelegramMessageInterface $currentMessage): void
     {
         $messageId = $this->message->sendMenu($chatId);
 
-        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $currentMessage->delete($this->cache, $chatId);
         $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
         $this->cache->replaceMessage(TelegramCacheKey::START_MENU, $chatId, $messageId);
     }

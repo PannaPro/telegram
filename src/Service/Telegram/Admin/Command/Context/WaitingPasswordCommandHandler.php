@@ -8,6 +8,8 @@ use App\Http\Dto\MessageTelegramPayload;
 use App\Security\AdminSessionService;
 use App\Service\Telegram\Admin\Service\AdminMenuService;
 use App\Service\Telegram\Admin\Service\WaitingPasswordService;
+use App\Service\Telegram\Object\CurrentTelegramMessage;
+use App\Service\Telegram\Object\NoTelegramMessage;
 use App\Service\Telegram\User\Service\StartService;
 
 class WaitingPasswordCommandHandler
@@ -37,15 +39,16 @@ class WaitingPasswordCommandHandler
         $chatId = $payload->getChatId();
         $messageId = $payload->getMessageId();
         $text = $payload->getText();
+        $currentMessage = new CurrentTelegramMessage($messageId);
 
         if ($this->adminSession->checkPassword($chatId, $text)) {
             $this->adminSession->deactivateWaitingPassword($chatId);
             $this->adminSession->activateAdminSession($chatId);
-            $this->adminMenuService->handle($chatId, $messageId);
+            $this->adminMenuService->handle($chatId, $currentMessage);
             return;
         }
 
-        $this->waitingPasswordService->incorrectPassword($chatId, $messageId);
+        $this->waitingPasswordService->incorrectPassword($chatId, $currentMessage);
     }
 
     private function handleCallback(CallbackQueryTelegramPayload $payload): void
@@ -57,7 +60,7 @@ class WaitingPasswordCommandHandler
         if ($data === 'close_password_menu') {
             $this->adminSession->answerCallbackQuery($callbackId);
             $this->adminSession->deactivateWaitingPassword($chatId);
-            $this->startService->makeAction();
+            $this->startService->makeAction(new NoTelegramMessage());
         }
     }
 }

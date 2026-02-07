@@ -11,6 +11,6 @@ class CacheException extends DomainException
 
     public static function messageToClient(): self
     {
-        return new self('Не удалось получить данные. Пожалуйста, попробуйте еще раз.');
+        return new self('Не удалось обработать данные. Пожалуйста, попробуйте еще раз.');
     }
 }

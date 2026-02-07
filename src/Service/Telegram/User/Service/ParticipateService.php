@@ -8,6 +8,8 @@ use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Enum\TelegramDefaultValue;
 use App\Service\Telegram\Message\NeedUsernameMessage;
 use App\Service\Telegram\Message\ParticipateMessage;
+use App\Service\Telegram\Object\DeletableTelegramMessageInterface;
+use App\Service\Telegram\Object\NoTelegramMessage;
 use App\Service\Telegram\TelegramMessageCache;
 use Imagine\Gd\Font;
 use Imagine\Gd\Imagine;
@@ -41,11 +43,11 @@ class ParticipateService
         if ($username === TelegramDefaultValue::UNKNOWN) {
             $this->needUsernameMessage($chatId);
         } else {
-            $this->makeAction();
+            $this->makeAction(new NoTelegramMessage());
         }
     }
 
-    public function makeAction(int $currentMessage = 0): void
+    public function makeAction(DeletableTelegramMessageInterface $currentMessage): void
     {
         $user = $this->security->fetchCurrentUser();
         $chatId = $user->getChatId();
@@ -60,7 +62,7 @@ class ParticipateService
 
         $messageId = $this->participateMessage->sendMessage($chatId, $username, $photo);
 
-        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $currentMessage->delete($this->cache, $chatId);
         $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 

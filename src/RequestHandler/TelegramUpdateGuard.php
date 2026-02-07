@@ -5,12 +5,10 @@ namespace App\RequestHandler;
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\TelegramMessageCache;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Redis;
 
 class TelegramUpdateGuard implements EventSubscriberInterface
 {

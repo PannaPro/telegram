@@ -7,6 +7,7 @@ use App\Service\Telegram\Admin\Service\WaitingPasswordService;
 use App\Service\Telegram\Context\ContextStorage;
 use App\Service\Telegram\Context\Dto\WaitingPasswordContext;
 use App\Service\Telegram\Enum\TelegramCacheKey;
+use App\Service\Telegram\Object\DeletableTelegramMessageInterface;
 use App\Service\Telegram\TelegramMessageCache;
 
 class AdminSessionService
@@ -41,7 +42,7 @@ class AdminSessionService
         return $user->isAdmin();
     }
 
-    public function activateWaitingPassword(int $chatId, int $currentMessage): void
+    public function activateWaitingPassword(int $chatId, DeletableTelegramMessageInterface $currentMessage): void
     {
         $this->contextStorage->setContext($chatId, new WaitingPasswordContext($chatId, true), TelegramCacheKey::TTL_5_MINUTES);
 

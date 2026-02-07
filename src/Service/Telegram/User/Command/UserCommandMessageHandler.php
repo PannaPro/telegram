@@ -6,6 +6,7 @@ use App\Http\Dto\MessageTelegramPayload;
 use App\Security\AdminSessionService;
 use App\Service\Telegram\Common\UnknownCommandService;
 use App\Service\Telegram\Enum\TelegramDefaultValue;
+use App\Service\Telegram\Object\CurrentTelegramMessage;
 use App\Service\Telegram\User\Service\GameService;
 use App\Service\Telegram\User\Service\InfoService;
 use App\Service\Telegram\User\Service\ParticipateService;
@@ -32,6 +33,7 @@ readonly class UserCommandMessageHandler
         $text = $payload->getText();
         $messageId = $payload->getMessageId();
         $chatId = $payload->getChatId();
+        $currentMessage = new CurrentTelegramMessage($messageId);
 
         switch ($text) {
             case '/start':
@@ -41,23 +43,23 @@ readonly class UserCommandMessageHandler
                     return;
                 }
 
-                $this->startService->makeAction($messageId);
+                $this->startService->makeAction($currentMessage);
                 break;
             case '💡 Инфо':
-                $this->infoService->makeAction($chatId, $messageId);
+                $this->infoService->makeAction($chatId, $currentMessage);
                 break;
             case '🎲 Игры':
-                $this->gameService->makeAction($chatId, $messageId);
+                $this->gameService->makeAction($chatId, $currentMessage);
                 break;
             case '👕 Получить номер':
-                $this->participateService->makeAction($messageId);
+                $this->participateService->makeAction($currentMessage);
                 break;
             case '👥 Рефералы':
-                $this->referralService->makeAction($messageId);
+                $this->referralService->makeAction($currentMessage);
                 break;
             case '/tiptip':
                 if ($this->adminSession->isAdmin()) {
-                    $this->adminSession->activateWaitingPassword($chatId, $messageId);
+                    $this->adminSession->activateWaitingPassword($chatId, $currentMessage);
                     break;
                 }
 
@@ -70,7 +72,7 @@ readonly class UserCommandMessageHandler
                     break;
                 }
 
-                $this->startService->makeAction($messageId);
+                $this->startService->makeAction($currentMessage);
                 break;
             default:
                 $this->unknownCommandService->makeAction($payload);

@@ -5,6 +5,7 @@ namespace App\Service\Telegram\Admin\Service;
 use App\Repository\EventRepository;
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Message\AdminGameMessage;
+use App\Service\Telegram\Object\DeletableTelegramMessageInterface;
 use App\Service\Telegram\TelegramMessageCache;
 use DateTimeInterface;
 
@@ -19,13 +20,13 @@ class AdminGameService
     ) {
     }
 
-    public function makeAction(int $chatId, int $currentMessage): void
+    public function makeAction(int $chatId, DeletableTelegramMessageInterface $currentMessage): void
     {
         $events = $this->eventRepository->findCurrentAndNextEvents();
 
         $messageId = $this->gameMessage->sendMessage($chatId, $this->formatEvents($events));
 
-        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $currentMessage->delete($this->cache, $chatId);
         $this->cache->replaceMessage(TelegramCacheKey::START_MENU, $chatId, $messageId);
     }
 
@@ -53,12 +54,12 @@ class AdminGameService
         ];
     }
 
-    public function createEvent(int $chatId, int $currentMessage = 0): void
+    public function createEvent(int $chatId, DeletableTelegramMessageInterface $currentMessage): void
     {
         $this->createEventService->sendMessage($chatId, $currentMessage);
     }
 
-    public function manageEvent(int $chatId, int $currentMessage = 0): void
+    public function manageEvent(int $chatId, DeletableTelegramMessageInterface $currentMessage): void
     {
         $this->manageEventService->sendEventListMessage($chatId, $currentMessage);
     }

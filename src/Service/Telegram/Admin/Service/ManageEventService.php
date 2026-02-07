@@ -9,6 +9,7 @@ use App\Service\Telegram\Context\ContextStorage;
 use App\Service\Telegram\Context\Dto\ManageEventContext;
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Message\ManageEventMessage;
+use App\Service\Telegram\Object\DeletableTelegramMessageInterface;
 use App\Service\Telegram\TelegramMessageCache;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,14 +27,14 @@ class ManageEventService
     ) {
     }
 
-    public function sendEventListMessage(int $chatId, int $currentMessage = 0, int $page = 1): void
+    public function sendEventListMessage(int $chatId, DeletableTelegramMessageInterface $currentMessage, int $page = 1): void
     {
         $events = $this->eventRepository->findAll();
 
         if (empty($events)) {
             $errorMessage = "❌ Нет доступных событий для управления.";
             $errorId = $this->manageEventMessage->sendErrorMessage($chatId, $errorMessage);
-            $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+            $currentMessage->delete($this->cache, $chatId);
             $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $errorId);
             return;
         }
@@ -48,7 +49,7 @@ class ManageEventService
         $this->cache->replaceMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId, $messageId);
         $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
         $this->cache->deletePreviousMessage(TelegramCacheKey::START_MENU, $chatId);
-        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $currentMessage->delete($this->cache, $chatId);
     }
 
     public function eventPageAction(int $chatId, int $messageId, int $page): void

@@ -8,6 +8,7 @@ use App\Security\SecurityTelegramUserService;
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Enum\TelegramDefaultValue;
 use App\Service\Telegram\Message\ReferralMessage;
+use App\Service\Telegram\Object\DeletableTelegramMessageInterface;
 use App\Service\Telegram\TelegramMessageCache;
 
 readonly class ReferralService
@@ -20,7 +21,7 @@ readonly class ReferralService
     ) {
     }
 
-    public function makeAction(int $currentMessage): void
+    public function makeAction(DeletableTelegramMessageInterface $currentMessage): void
     {
         $user = $this->security->fetchCurrentUser();
         $chatId = $user->getChatId();
@@ -30,7 +31,7 @@ readonly class ReferralService
 
         $messageId = $this->referralMessage->sendMessage($chatId, $referralCode, $referralCount);
 
-        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $currentMessage->delete($this->cache, $chatId);
         $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 

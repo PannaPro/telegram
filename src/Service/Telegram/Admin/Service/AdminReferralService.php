@@ -8,6 +8,7 @@ use App\Service\Telegram\Context\Dto\ReferralSearchContext;
 use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
 use App\Service\Telegram\Message\AdminReferralMessage;
+use App\Service\Telegram\Object\DeletableTelegramMessageInterface;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotMessaging\BotMessengerInterface;
 use CURLFile;
@@ -25,12 +26,12 @@ readonly class AdminReferralService
     {
     }
 
-    public function makeAction(int $chatId, int $currentMessage = 0): void
+    public function makeAction(int $chatId, DeletableTelegramMessageInterface $currentMessage): void
     {
         $referrals = $this->telegramUserRepository->findReferralsStatistics();
         $messageId = $this->referralMessage->sendMessage($chatId, $referrals);
 
-        $this->cache->deleteCurrentMessage($chatId, $currentMessage);
+        $currentMessage->delete($this->cache, $chatId);
         $this->cache->replaceMessage(TelegramCacheKey::STEP, $chatId, $messageId);
     }
 

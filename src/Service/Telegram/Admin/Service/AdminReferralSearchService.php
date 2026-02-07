@@ -8,6 +8,7 @@ use App\Service\Telegram\Enum\TelegramCacheKey;
 use App\Service\Telegram\Enum\TelegramParseMode;
 use App\Service\Telegram\Handler\AnswerCallbackQueryTrait;
 use App\Service\Telegram\Message\AdminReferralSearchMessage;
+use App\Service\Telegram\Object\NoTelegramMessage;
 use App\Service\Telegram\TelegramMessageCache;
 use App\Service\TelegramBotMessaging\BotMessengerInterface;
 use DateTime;
@@ -69,8 +70,8 @@ readonly class AdminReferralSearchService
         $this->answerCallbackQuery($callbackId, 'контекст закрыт');
         $this->unsetContext($chatId);
 
-        $this->adminMenuService->handle($chatId);
-        $this->adminReferralService->makeAction($chatId);
+        $this->adminMenuService->handle($chatId, new NoTelegramMessage());
+        $this->adminReferralService->makeAction($chatId, new NoTelegramMessage());
 
         $this->cache->deletePreviousMessage(TelegramCacheKey::CONTEXT_MESSAGE, $chatId);
         $this->cache->deletePreviousMessage(TelegramCacheKey::STEP, $chatId);
